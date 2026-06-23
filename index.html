@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Swole Clicker — Idle Gym Game</title>
+<meta name="description" content="Swole Clicker is a free idle/clicker game: do reps, buy gym equipment, steroids and supplements, and grow your stick-figure lifter from noodle arms to absolute unit." />
+<meta name="theme-color" content="#10131a" />
+<link rel="canonical" href="https://calamborn-maker.github.io/swole-clicker/" />
+<!-- Open Graph / social preview -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://calamborn-maker.github.io/swole-clicker/" />
+<meta property="og:title" content="Swole Clicker — Idle Gym Game" />
+<meta property="og:description" content="Do reps, buy equipment & steroids, and get absolutely massive. A free idle clicker." />
+<meta property="og:image" content="https://calamborn-maker.github.io/swole-clicker/preview.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Swole Clicker — Idle Gym Game" />
+<meta name="twitter:description" content="Do reps, buy equipment & steroids, and get absolutely massive." />
+<meta name="twitter:image" content="https://calamborn-maker.github.io/swole-clicker/preview.png" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"VideoGame","name":"Swole Clicker","url":"https://calamborn-maker.github.io/swole-clicker/","image":"https://calamborn-maker.github.io/swole-clicker/preview.png","description":"A free idle/clicker game — do reps, buy gym equipment, steroids and supplements, and grow your stick-figure lifter from noodle arms to absolute unit.","genre":["Idle","Clicker","Simulation"],"applicationCategory":"Game","operatingSystem":"Any (web browser)","playMode":"SinglePlayer","author":{"@type":"Person","name":"Dumped"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%92%AA</text></svg>" />
+<style>
+  :root{
+    --bg:#10131a; --panel:#1a1f2b; --panel2:#222838; --ink:#eef2ff;
+    --muted:#8b95ab; --accent:#ffcc33; --accent2:#ff6b6b; --good:#5ee07a;
+    --line:#2c3346; --gold:#ffd24a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:radial-gradient(1200px 700px at 50% -10%, #1d2638, var(--bg));
+    color:var(--ink); font-family:"Trebuchet MS",Verdana,sans-serif;
+    min-height:100%; user-select:none; -webkit-user-select:none; overflow-x:hidden;
+  }
+  #game{display:flex; gap:16px; padding:18px; width:100%; max-width:1080px; margin:0 auto}
+  .col{display:flex; flex-direction:column; gap:12px}
+  #left{flex:1.05; min-width:0}
+  #right{flex:1; min-width:0; max-height:calc(100vh - 36px)}
+  @media(max-width:820px){ #game{flex-direction:column} #right{max-height:none} }
+
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px}
+
+  h1{font-size:28px; margin:0; letter-spacing:2px;
+     background:linear-gradient(180deg,#fff,#ffcc33); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .sub{color:var(--muted); font-size:12px; margin-top:2px}
+
+  #topstats{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; margin-top:8px}
+  #gains{font-size:34px; font-weight:bold; color:var(--accent)}
+  #gainslabel{color:var(--muted); font-size:13px}
+  #rate{color:var(--good); font-size:14px}
+  #badges{margin-left:auto; display:flex; gap:8px; font-size:13px}
+  .badge{background:#0c0f16; border:1px solid var(--line); border-radius:8px; padding:3px 8px}
+
+  #rank{font-size:17px; font-weight:bold}
+  #rankbar{height:9px; background:#0c0f16; border-radius:6px; overflow:hidden; margin-top:6px; border:1px solid var(--line)}
+  #rankfill{height:100%; width:0%; background:linear-gradient(90deg,var(--accent2),var(--accent)); transition:width .3s}
+
+  #stage{position:relative; background:linear-gradient(180deg,#243047,#1a2333);
+         border-radius:14px; overflow:hidden; border:1px solid var(--line)}
+  #stage.shake{animation:shake .4s}
+  @keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-5px,2px)}40%{transform:translate(5px,-2px)}60%{transform:translate(-3px,1px)}80%{transform:translate(3px,-1px)}}
+  canvas{display:block; width:100%; height:auto; cursor:pointer}
+  #floatwrap{position:absolute; inset:0; pointer-events:none; overflow:hidden}
+  .float{position:absolute; font-weight:bold; color:var(--accent); font-size:16px;
+         animation:floatup 1s ease-out forwards; text-shadow:0 1px 2px #000}
+  @keyframes floatup{from{opacity:1; transform:translateY(0)} to{opacity:0; transform:translateY(-46px)}}
+
+  #golden{position:fixed; width:62px; height:62px; font-size:46px; cursor:pointer; z-index:50;
+          display:none; filter:drop-shadow(0 0 12px var(--gold)); animation:goldpulse 1s infinite}
+  @keyframes goldpulse{0%,100%{transform:scale(1) rotate(-8deg)}50%{transform:scale(1.12) rotate(8deg)}}
+
+  #repbtn{width:100%; padding:15px; font-size:20px; font-weight:bold; letter-spacing:1px;
+          color:#1a1206; background:linear-gradient(180deg,#ffe08a,#ffb820);
+          border:none; border-radius:12px; cursor:pointer; box-shadow:0 5px 0 #b97e00;
+          transition:transform .04s, box-shadow .04s}
+  #repbtn:active{transform:translateY(4px); box-shadow:0 1px 0 #b97e00}
+  #repbtn.frenzy{background:linear-gradient(180deg,#ffd2d2,#ff5a5a); box-shadow:0 5px 0 #a11; color:#3a0000}
+  .perclick{color:var(--muted); font-size:12px; text-align:center; margin-top:6px}
+
+  /* tabs */
+  #tabs{display:flex; gap:6px}
+  .tab{flex:1; text-align:center; padding:8px 4px; background:var(--panel2); border:1px solid var(--line);
+       border-radius:9px; cursor:pointer; font-size:13px; font-weight:bold; color:var(--muted)}
+  .tab.active{color:var(--ink); border-color:var(--accent); background:#2a3147}
+  .panel{display:none; flex:1; min-height:0; overflow:auto; padding-right:4px; margin-top:10px}
+  .panel.active{display:block}
+
+  .toolbar{display:flex; gap:6px; align-items:center; margin-top:8px; flex-wrap:wrap}
+  .mini{background:var(--panel2); border:1px solid var(--line); color:var(--muted); font-size:11px;
+        padding:6px 9px; border-radius:8px; cursor:pointer}
+  .mini:hover{color:var(--ink); border-color:var(--accent)}
+  .mini.on{color:#1a1206; background:var(--accent); border-color:var(--accent); font-weight:bold}
+
+  .item{display:flex; align-items:center; gap:10px; background:var(--panel2);
+        border:1px solid var(--line); border-radius:10px; padding:9px 11px; cursor:pointer;
+        transition:transform .05s, border-color .1s; margin-bottom:8px}
+  .item:hover:not(.locked){border-color:var(--accent)}
+  .item:active:not(.locked){transform:scale(.99)}
+  .item.locked{opacity:.4; cursor:not-allowed}
+  .item.bought{opacity:.55; cursor:default; border-color:var(--good)}
+  .item .emoji{font-size:25px; width:32px; text-align:center; flex:none}
+  .item .body{flex:1; min-width:0}
+  .item .name{font-weight:bold; font-size:14px}
+  .item .desc{color:var(--muted); font-size:11.5px}
+  .item .tag{font-size:10px; color:var(--accent2)}
+  .item .right{text-align:right; white-space:nowrap}
+  .item .cost{font-weight:bold; color:var(--accent); font-size:14px}
+  .item.afford .cost{color:var(--good)}
+  .item .owned{color:var(--muted); font-size:11px}
+
+  .ach{display:flex; align-items:center; gap:10px; background:var(--panel2); border:1px solid var(--line);
+       border-radius:10px; padding:8px 10px; margin-bottom:7px; opacity:.45}
+  .ach.unlocked{opacity:1; border-color:var(--gold)}
+  .ach .emoji{font-size:22px; width:30px; text-align:center}
+  .ach .name{font-weight:bold; font-size:13px}
+  .ach .desc{color:var(--muted); font-size:11px}
+  .ach .bonus{margin-left:auto; color:var(--good); font-size:11px; white-space:nowrap}
+
+  .statrow{display:flex; justify-content:space-between; padding:6px 2px; border-bottom:1px solid var(--line); font-size:14px}
+  .statrow span:first-child{color:var(--muted)}
+  .bigbtn{width:100%; padding:13px; font-size:16px; font-weight:bold; border:none; border-radius:11px; cursor:pointer; margin-top:12px}
+  #prestigebtn{color:#fff; background:linear-gradient(180deg,#b06bff,#7a37d6); box-shadow:0 4px 0 #4f1f96}
+  #prestigebtn:active{transform:translateY(3px); box-shadow:0 1px 0 #4f1f96}
+  #prestigebtn:disabled{filter:grayscale(.7) brightness(.7); cursor:not-allowed; box-shadow:0 4px 0 #333}
+
+  /* toasts + modal */
+  #toasts{position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:100; display:flex; flex-direction:column; gap:8px; align-items:center}
+  .toast{background:#241c33; border:1px solid var(--gold); color:#fff; padding:10px 16px; border-radius:10px;
+         font-size:14px; box-shadow:0 6px 20px rgba(0,0,0,.5); animation:toastin .3s; max-width:90vw}
+  .toast b{color:var(--gold)}
+  @keyframes toastin{from{opacity:0; transform:translateY(-12px)} to{opacity:1}}
+  #modalwrap{position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:120; display:none; align-items:center; justify-content:center}
+  #modal{background:var(--panel); border:1px solid var(--accent); border-radius:14px; padding:22px; max-width:420px; width:90%}
+  #modal h2{margin:0 0 8px; color:var(--accent)}
+  #modal .row{display:flex; gap:10px; margin-top:16px}
+  #modal button{flex:1; padding:11px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size:14px}
+  .btnyes{background:var(--accent); color:#1a1206}
+  .btnno{background:var(--panel2); color:var(--ink); border:1px solid var(--line)!important}
+  textarea{width:100%; height:90px; background:#0c0f16; color:var(--ink); border:1px solid var(--line); border-radius:8px; font-size:11px; margin-top:8px}
+
+  /* mobile tap feel */
+  button{touch-action:manipulation}
+  /* rewarded-ad buttons under DO A REP */
+  #adrow{display:flex; gap:8px; margin-top:8px}
+  .adbtn{flex:1; min-height:38px; padding:8px 6px; font-size:12px; font-weight:bold; border:none; border-radius:9px;
+         cursor:pointer; color:#08222e; background:linear-gradient(180deg,#9fe6ff,#39b6e6)}
+  .adbtn:disabled{filter:grayscale(.6) brightness(.75); cursor:not-allowed}
+  /* daily quests */
+  .qcount{color:#fff; background:var(--accent2); border-radius:8px; padding:0 5px; font-size:10px}
+  .qrow{background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:10px 11px; margin-bottom:8px}
+  .qhead{display:flex; align-items:center; gap:8px}
+  .qhead .qi{font-size:20px}
+  .qhead .qname{font-weight:bold; font-size:14px; flex:1}
+  .qhead .qrew{font-size:12px; color:var(--accent); white-space:nowrap}
+  .qbar{height:8px; background:#0c0f16; border-radius:5px; overflow:hidden; margin:8px 0 6px; border:1px solid var(--line)}
+  .qbar i{display:block; height:100%; background:linear-gradient(90deg,var(--accent2),var(--accent)); transition:width .3s}
+  .qfoot{display:flex; align-items:center; justify-content:space-between}
+  .qbtns{display:flex; gap:6px}
+  .qbtns .adbtn{flex:none; padding:6px 12px; min-height:0}
+  /* dev-stub ad overlay */
+  #adov{position:fixed; inset:0; background:rgba(0,0,0,.8); z-index:200; display:none; align-items:center; justify-content:center}
+  .adovbox{background:#11151e; border:1px solid var(--line); border-radius:12px; padding:22px 28px; color:#fff; font-size:15px; text-align:center}
+  .adovbar{height:6px; width:180px; background:#0c0f16; border-radius:4px; margin-top:12px; overflow:hidden}
+  .adovbar i{display:block; height:100%; width:0; background:linear-gradient(90deg,#39b6e6,#9fe6ff)}
+  /* locker room */
+  .locksec{margin-bottom:14px}
+  .lockh{font-size:12px; letter-spacing:1px; color:var(--muted); margin-bottom:6px; text-transform:uppercase}
+  .swatches{display:flex; gap:8px; flex-wrap:wrap}
+  .swatch{width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid var(--line)}
+  .swatch.sel{border-color:var(--accent); box-shadow:0 0 0 2px var(--accent)}
+  .cosgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(94px,1fr)); gap:8px}
+  .coscard{background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:8px 6px; text-align:center; cursor:pointer; position:relative}
+  .coscard .ce{font-size:26px}
+  .coscard .cn{font-size:11px; margin-top:3px}
+  .coscard.on{border-color:var(--good); box-shadow:0 0 0 1px var(--good)}
+  .coscard.locked{opacity:.5; cursor:not-allowed}
+  .coscard .lk{font-size:10px; color:var(--accent2); margin-top:2px}
+  /* onboarding coach-mark */
+  #coach{position:fixed; z-index:130; max-width:240px; background:var(--accent); color:#1a1206; padding:11px 13px;
+         border-radius:11px; font-size:13px; font-weight:bold; box-shadow:0 8px 24px rgba(0,0,0,.5); display:none}
+  #coach .cx{float:right; margin-left:8px; cursor:pointer; opacity:.7}
+  #coach b{color:#6a1f00}
+  /* confetti burst */
+  .confetti{position:fixed; z-index:140; font-size:20px; pointer-events:none; animation:conf 1.1s ease-out forwards}
+  @keyframes conf{from{opacity:1; transform:translateY(0) rotate(0)} to{opacity:0; transform:translateY(-130px) rotate(220deg)}}
+  /* share */
+  #shareImg{width:100%; border-radius:10px; border:1px solid var(--line)}
+  .sharebtns{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+  .sharebtns button{flex:1; min-width:88px; padding:9px; border:none; border-radius:9px; cursor:pointer; font-weight:bold; font-size:13px; color:#fff}
+  /* responsive: comfy tap targets ~380px */
+  @media(max-width:480px){
+    #game{padding:12px; gap:12px}
+    h1{font-size:24px}
+    .tab{padding:10px 3px; font-size:11px}
+    .item{padding:11px}
+    .mini{padding:8px 10px; font-size:12px}
+    #repbtn{padding:18px; font-size:22px}
+  }
+</style>
+</head>
+<body>
+<div id="game">
+  <div class="col" id="left">
+    <div class="card">
+      <h1>💪 SWOLE CLICKER</h1>
+      <div class="sub">From noodle arms to absolute unit. Build the body you buy.</div>
+      <div id="topstats">
+        <span id="gains">0</span>
+        <span id="gainslabel">GAINS</span>
+        <span id="rate">+0/sec</span>
+        <span id="badges">
+          <span class="badge" id="trophyBadge">🏆 0</span>
+          <span class="badge" id="multBadge">×1.00</span>
+        </span>
+      </div>
+      <div style="margin-top:8px">
+        <span id="rank">Noodle Arms</span>
+        <div id="rankbar"><div id="rankfill"></div></div>
+      </div>
+    </div>
+
+    <div id="stage" class="card" style="padding:0">
+      <canvas id="c"></canvas>
+      <div id="floatwrap"></div>
+    </div>
+
+    <div class="card">
+      <button id="repbtn">DO A REP</button>
+      <div class="perclick">+<span id="perclick">1</span> gain per rep — click the dude, button, or hit Space</div>
+      <!-- rewarded-ad placements (b) frenzy + (c) windfall -->
+      <div id="adrow">
+        <button class="adbtn" id="adfrenzy">📺 7× Frenzy (2 min)</button>
+        <button class="adbtn" id="adwindfall">📺 Protein Windfall</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="col card" id="right" style="display:flex">
+    <div id="tabs">
+      <div class="tab active" data-tab="shop">🏋️ Shop</div>
+      <div class="tab" data-tab="upgrades">⭐ Upgrades</div>
+      <div class="tab" data-tab="ach">🏅 Awards</div>
+      <div class="tab" data-tab="quests">🎯 Quests</div>
+      <div class="tab" data-tab="locker">🪞 Locker</div>
+      <div class="tab" data-tab="stats">📊 Stats</div>
+    </div>
+
+    <div class="panel active" id="panel-shop">
+      <div class="toolbar">
+        <span class="sub">Buy amount:</span>
+        <button class="mini on" id="buy1">×1</button>
+        <button class="mini" id="buy10">×10</button>
+        <span class="sub">(shift-click = ×10)</span>
+      </div>
+      <div id="shop" style="margin-top:8px"></div>
+    </div>
+
+    <div class="panel" id="panel-upgrades">
+      <div class="sub" style="margin-bottom:8px">One-time boosts. Each doubles a muscle group's gains &amp; size, or supercharges your whole physique.</div>
+      <div id="upgrades"></div>
+    </div>
+
+    <div class="panel" id="panel-ach">
+      <div class="sub" id="achcount" style="margin-bottom:8px">0 / 0 unlocked</div>
+      <div id="ach"></div>
+    </div>
+
+    <div class="panel" id="panel-quests">
+      <div class="sub" style="margin-bottom:10px">🎯 Daily Quests — refresh every day. Tap Claim when done, or watch an ad to double it.</div>
+      <div id="quests"></div>
+    </div>
+
+    <div class="panel" id="panel-locker">
+      <div class="sub" style="margin-bottom:10px">🪞 Locker Room — make your lifter your own. Changes apply live.</div>
+      <div id="locker"></div>
+    </div>
+
+    <div class="panel" id="panel-stats">
+      <div id="stats"></div>
+      <button class="bigbtn" id="prestigebtn">🏆 Hit the Stage</button>
+      <div class="toolbar" style="margin-top:14px">
+        <button class="mini" id="soundbtn">🔇 Sound: Off</button>
+        <button class="mini" id="sharebtn">📣 Share</button>
+        <button class="mini" id="savebtn">💾 Save</button>
+        <button class="mini" id="exportbtn">⤴ Export</button>
+        <button class="mini" id="importbtn">⤵ Import</button>
+        <button class="mini" id="resetbtn">♻ Reset</button>
+      </div>
+      <div class="sub" style="margin-top:12px">Your progress is saved automatically. <a href="privacy-policy.html" target="_blank" rel="noopener" style="color:var(--accent)">Privacy Policy</a></div>
+    </div>
+  </div>
+</div>
+
+<div id="golden">🥤</div>
+<div id="toasts"></div>
+<div id="coach"></div>
+<div id="modalwrap"><div id="modal">
+  <h2 id="modalTitle"></h2>
+  <div id="modalBody"></div>
+  <div class="row" id="modalRow"></div>
+</div></div>
+
+<script>
+"use strict";
+//////////////////// DATA ////////////////////
+// part keys: arms pecs back delts abs legs mass roids
+const ITEMS = [
+  // --- per-rep (click) ---
+  {id:'pushup', emoji:'🤸', name:'Push-Up Form',      base:10,    type:'click', power:1,    part:'pecs',  amt:0.45},
+  {id:'curls',  emoji:'🏋️', name:'Barbell Curls',     base:55,    type:'click', power:2,    part:'arms',  amt:0.55},
+  {id:'squats', emoji:'🦵', name:'Bodyweight Squats',  base:130,   type:'click', power:3,    part:'legs',  amt:0.55},
+  {id:'pullup', emoji:'🧗', name:'Pull-Up Bar',        base:420,   type:'click', power:6,    part:'back',  amt:0.55},
+  {id:'press',  emoji:'🤾', name:'Shoulder Press',     base:950,   type:'click', power:10,   part:'delts', amt:0.55},
+  {id:'abroll', emoji:'🛞', name:'Ab Roller',          base:1600,  type:'click', power:14,   part:'abs',   amt:0.6},
+  {id:'eggs',   emoji:'🥚', name:'Dozen Raw Eggs',     base:6500,  type:'click', power:42,   part:'mass',  amt:0.45},
+  {id:'clap',   emoji:'👏', name:'Clap Push-Ups',      base:40000, type:'click', power:240,  part:'pecs',  amt:0.5},
+  // --- per-sec (auto) ---
+  {id:'bands',  emoji:'🎗️', name:'Resistance Bands',   base:35,    type:'auto', power:0.3,   part:'arms',  amt:0.3},
+  {id:'shake',  emoji:'🥤', name:'Protein Shake',      base:90,    type:'auto', power:0.7,   part:'mass',  amt:0.3},
+  {id:'dumbbell',emoji:'🏋️',name:'Dumbbells',          base:260,   type:'auto', power:1.6,   part:'arms',  amt:0.5},
+  {id:'bench',  emoji:'🛋️', name:'Bench Press',        base:720,   type:'auto', power:4,     part:'pecs',  amt:0.5},
+  {id:'latpull',emoji:'🪝', name:'Lat Pulldown',       base:1900,  type:'auto', power:9,     part:'back',  amt:0.5},
+  {id:'legpress',emoji:'🦿',name:'Leg Press',          base:4200,  type:'auto', power:19,    part:'legs',  amt:0.6},
+  {id:'lateral',emoji:'🏐', name:'Lateral Raises',     base:8500,  type:'auto', power:34,    part:'delts', amt:0.5},
+  {id:'crunch', emoji:'🔄', name:'Crunch Machine',     base:17000, type:'auto', power:62,    part:'abs',   amt:0.5},
+  {id:'calf',   emoji:'🦶', name:'Calf Raises',        base:33000, type:'auto', power:105,   part:'legs',  amt:0.4},
+  {id:'rowing', emoji:'🚣', name:'Rowing Machine',     base:65000, type:'auto', power:190,   part:'back',  amt:0.5},
+  {id:'flyes',  emoji:'✈️', name:'Cable Flyes',        base:130000,type:'auto', power:360,   part:'pecs',  amt:0.5},
+  {id:'gainer', emoji:'🍶', name:'Mass Gainer',        base:260000,type:'auto', power:680,   part:'mass',  amt:0.5},
+  {id:'trainer',emoji:'🧑‍🏫',name:'Personal Trainer',   base:520000,type:'auto', power:1350,  part:'mass',  amt:0.3},
+  {id:'squatrack',emoji:'🏗️',name:'Squat Rack',        base:1.1e6, type:'auto', power:2700,  part:'legs',  amt:0.6},
+  {id:'steroids',emoji:'💉',name:'Steroids',           base:2.6e6, type:'auto', power:6800,  part:'roids', amt:1.0},
+  {id:'chef',   emoji:'👨‍🍳',name:'Personal Chef',      base:6.2e6, type:'auto', power:15500, part:'mass',  amt:0.4},
+  {id:'gym',    emoji:'🏢', name:'Own a Gym',          base:1.6e7, type:'auto', power:39000, part:'mass',  amt:0.25},
+  {id:'lab',    emoji:'⚗️', name:'Supplement Lab',     base:5.2e7, type:'auto', power:105000, part:'roids', amt:0.5},
+  {id:'clinic', emoji:'🧬', name:'Genetics Clinic',    base:2.1e8, type:'auto', power:320000, part:'roids', amt:0.6},
+  {id:'sponsor',emoji:'📣', name:'Sponsorship Deal',   base:1.05e9,type:'auto', power:1.1e6,  part:'mass',  amt:0.2},
+  {id:'olympia',emoji:'🏆', name:'Mr. Olympia Title',  base:5.5e9, type:'auto', power:4.2e6,  part:'roids', amt:0.5},
+];
+
+// one-time upgrades. cat 'm_<part>' doubles that group; specials affect global.
+const UPGRADES = [
+  {id:'m_arms',  emoji:'💪', name:'Mass-Building Arms',     cost:1.0e4, desc:'×2 all arm gains & arm size',      req:s=>catOwned('arms')>=15,  reqtxt:'Own 15 arm items'},
+  {id:'m_pecs',  emoji:'🦾', name:'Chest Day Devotion',     cost:2.0e4, desc:'×2 all chest gains & pec size',     req:s=>catOwned('pecs')>=15,  reqtxt:'Own 15 chest items'},
+  {id:'m_legs',  emoji:'🦵', name:'Never Skip Leg Day',     cost:2.2e4, desc:'×2 all leg gains & leg size',       req:s=>catOwned('legs')>=15,  reqtxt:'Own 15 leg items'},
+  {id:'m_back',  emoji:'🦅', name:'Wings of Steel',         cost:3.2e4, desc:'×2 all back gains & V-taper',       req:s=>catOwned('back')>=15,  reqtxt:'Own 15 back items'},
+  {id:'m_delts', emoji:'🪨', name:'Boulder Shoulders',      cost:4.4e4, desc:'×2 all shoulder gains & delts',     req:s=>catOwned('delts')>=15, reqtxt:'Own 15 shoulder items'},
+  {id:'m_abs',   emoji:'🔪', name:'Shredded Core',          cost:5.5e4, desc:'×2 all ab gains & six-pack def.',   req:s=>catOwned('abs')>=15,   reqtxt:'Own 15 ab items'},
+  {id:'m_mass',  emoji:'🍔', name:'Bulk Season',            cost:7.0e4, desc:'×2 all food gains & overall mass',  req:s=>catOwned('mass')>=15,  reqtxt:'Own 15 food items'},
+  {id:'clickPower',emoji:'🧠',name:'Mind-Muscle Connection',cost:2.5e5, desc:'×2 gains per rep',                  req:s=>s.clicks>=500,         reqtxt:'Do 500 reps'},
+  {id:'autoPower',emoji:'🔥', name:'Beast Mode',             cost:6.0e5, desc:'×2 all idle income',               req:s=>perSecRaw()>=1000,     reqtxt:'Reach 1K gains/sec'},
+  {id:'roids',   emoji:'💊', name:'Pharmacist Friend',      cost:1.2e7, desc:'×3 steroid items & roid bulk',      req:s=>s.owned.steroids>=1,   reqtxt:'Buy Steroids'},
+  {id:'global',  emoji:'🧬', name:'Elite Genetics',         cost:6.0e7, desc:'×1.5 to EVERYTHING',               req:s=>s.lifetime>=1e8,       reqtxt:'Earn 100M lifetime'},
+  {id:'golden',  emoji:'🧲', name:'Protein Magnet',         cost:1.5e8, desc:'Golden shakes 2× more often & bigger',req:s=>s.goldenClicked>=1,  reqtxt:'Click a golden shake'},
+];
+
+const RANKS = ['Noodle Arms','Newbie','Gym Curious','Regular','Gym Rat','Getting Swole','Jacked','Absolute Unit','Mass Monster','Greek God'];
+
+const ACHS = [
+  {id:'g1',  emoji:'🌱', name:'First Gains',      desc:'Earn 1,000 lifetime gains',   bonus:.01, check:s=>s.lifetime>=1e3},
+  {id:'g2',  emoji:'📈', name:'Getting Serious',  desc:'Earn 10K lifetime gains',     bonus:.01, check:s=>s.lifetime>=1e4},
+  {id:'g3',  emoji:'💰', name:'Six Figures',      desc:'Earn 100K lifetime gains',    bonus:.02, check:s=>s.lifetime>=1e5},
+  {id:'g4',  emoji:'🤑', name:'Millionaire Muscle',desc:'Earn 1M lifetime gains',     bonus:.02, check:s=>s.lifetime>=1e6},
+  {id:'g5',  emoji:'💎', name:'Ten Million Strong',desc:'Earn 10M lifetime gains',    bonus:.03, check:s=>s.lifetime>=1e7},
+  {id:'g6',  emoji:'🏦', name:'Hundred Mil',      desc:'Earn 100M lifetime gains',    bonus:.03, check:s=>s.lifetime>=1e8},
+  {id:'g7',  emoji:'🚀', name:'Billionaire Beef', desc:'Earn 1B lifetime gains',      bonus:.05, check:s=>s.lifetime>=1e9},
+  {id:'g8',  emoji:'🌌', name:'Trillion Club',    desc:'Earn 1T lifetime gains',      bonus:.05, check:s=>s.lifetime>=1e12},
+  {id:'c1',  emoji:'👆', name:'Warming Up',       desc:'Do 100 reps',                 bonus:.01, check:s=>s.clicks>=100},
+  {id:'c2',  emoji:'💢', name:'Feel the Burn',    desc:'Do 1,000 reps',               bonus:.02, check:s=>s.clicks>=1000},
+  {id:'c3',  emoji:'🔂', name:'Rep Machine',      desc:'Do 10,000 reps',              bonus:.03, check:s=>s.clicks>=10000},
+  {id:'b1',  emoji:'🛒', name:'First Purchase',   desc:'Buy any item',                bonus:.01, check:s=>totalOwned()>=1},
+  {id:'b2',  emoji:'📦', name:'Stocked Up',       desc:'Own 25 items total',          bonus:.02, check:s=>totalOwned()>=25},
+  {id:'b3',  emoji:'🏬', name:'Gym Hoarder',      desc:'Own 100 items total',         bonus:.03, check:s=>totalOwned()>=100},
+  {id:'b4',  emoji:'🔟', name:'Collector',        desc:'Own 10 of one item',          bonus:.02, check:s=>maxOwned()>=10},
+  {id:'b5',  emoji:'5️⃣0️⃣',name:'Obsessed',        desc:'Own 50 of one item',          bonus:.03, check:s=>maxOwned()>=50},
+  {id:'roid',emoji:'💉', name:'Better Living...',  desc:'Buy your first Steroids',     bonus:.03, check:s=>s.owned.steroids>=1},
+  {id:'lop1',emoji:'🐔', name:'Chicken Legs',     desc:'Big arms, tiny legs',         bonus:.02, check:s=>{const r=partRaw();return r.arms>=12 && r.legs<=r.arms*0.2;}},
+  {id:'lop2',emoji:'🦏', name:'Leg Day Only',     desc:'Tree-trunk legs, twig arms',  bonus:.02, check:s=>{const r=partRaw();return r.legs>=12 && r.arms<=r.legs*0.2;}},
+  {id:'lop3',emoji:'🪞', name:'All Show No Go',    desc:'Huge upper body, skipped legs',bonus:.02,check:s=>{const r=partRaw();return (r.arms+r.pecs)>=20 && r.legs<=(r.arms+r.pecs)*0.15;}},
+  {id:'r1',  emoji:'🐀', name:'Gym Rat',          desc:'Reach the Gym Rat rank',      bonus:.02, check:s=>rankIndex()>=4},
+  {id:'r2',  emoji:'😤', name:'Jacked',           desc:'Reach the Jacked rank',       bonus:.03, check:s=>rankIndex()>=6},
+  {id:'r3',  emoji:'🗿', name:'Greek God',        desc:'Reach the Greek God rank',    bonus:.05, check:s=>rankIndex()>=9},
+  {id:'i1',  emoji:'⏳', name:'Passive Pump',     desc:'Reach 1K gains/sec',          bonus:.02, check:s=>perSecRaw()>=1000},
+  {id:'i2',  emoji:'🌊', name:'Gains Tsunami',    desc:'Reach 1M gains/sec',          bonus:.03, check:s=>perSecRaw()>=1e6},
+  {id:'p1',  emoji:'🎤', name:'Hit the Stage',    desc:'Prestige for the first time', bonus:.05, check:s=>s.prestiges>=1},
+  {id:'p2',  emoji:'👑', name:'Seasoned Competitor',desc:'Prestige 5 times',          bonus:.05, check:s=>s.prestiges>=5},
+  {id:'p3',  emoji:'🏆', name:'Trophy Shelf',     desc:'Hold 10 trophies',            bonus:.05, check:s=>s.trophies>=10},
+  {id:'gold',emoji:'✨', name:'Golden Gulp',      desc:'Click a golden shake',        bonus:.03, check:s=>s.goldenClicked>=1},
+  {id:'up1', emoji:'⭐', name:'Tier Climber',     desc:'Buy an upgrade',              bonus:.02, check:s=>Object.keys(s.upgrades).length>=1},
+  {id:'up2', emoji:'🌟', name:'Fully Equipped',   desc:'Own every upgrade',           bonus:.10, check:s=>Object.keys(s.upgrades).length>=UPGRADES.length},
+];
+
+//////////////////// STATE ////////////////////
+const SAVE_KEY='swoleclicker';
+const SAVE_VER=4; // v4: daily quests (v3: cosmetics, daily login, ad cooldowns, onboarding flag)
+function freshRun(s){ s.gains=0; s.total=0; ITEMS.forEach(i=>s.owned[i.id]=0); s.upgrades={}; } // cosmetics/daily/trophies persist through prestige
+function defaultCos(){ return { body:'male', skin:0, hair:'short', hairColor:0, eq:{} }; } // eq: equipped accessory ids
+function defaultState(){
+  const s={ v:SAVE_VER, gains:0, total:0, lifetime:0, clicks:0, owned:{}, upgrades:{},
+    achievements:{}, trophies:0, prestiges:0, goldenClicked:0, playtime:0,
+    lastSeen:Date.now(), sound:false,
+    // --- v3 additions ---
+    cos:defaultCos(),       // chosen body/skin/hair + equipped accessories
+    cosBought:{},           // accessory ids bought with gains
+    daily:{ last:'', streak:0 }, // daily-login: last claim calendar date + consecutive streak
+    adFrenzyAt:0,           // ms timestamp of last rewarded-frenzy (5-min cooldown)
+    adWindfallAt:0,         // ms timestamp of last rewarded-windfall (2-min cooldown)
+    seenIntro:false,        // first-60s onboarding shown
+    quests:null };          // daily quests: {date, startLifetime, list:[{id,kind,icon,label,target,reward,progress,claimed}]}
+  ITEMS.forEach(i=>s.owned[i.id]=0);
+  return s;
+}
+let state=defaultState();
+
+function migrate(raw){
+  if(!raw) return null;
+  if(!raw.v || raw.v<2){ // v1 -> v2 (then falls through defaults for v3 fields)
+    const s=defaultState();
+    s.gains=raw.gains||0; s.total=raw.total||0; s.lifetime=raw.total||0;
+    if(raw.owned) ITEMS.forEach(i=>{ if(raw.owned[i.id]!=null) s.owned[i.id]=raw.owned[i.id]; });
+    return s;
+  }
+  // v2/v3 -> current: keep everything, default any missing (incl. all new v3 fields)
+  const s=defaultState();
+  Object.assign(s, raw);
+  s.owned=Object.assign({}, defaultState().owned, raw.owned||{});
+  s.upgrades=raw.upgrades||{}; s.achievements=raw.achievements||{};
+  // deep-default nested v3 objects so older saves never crash or lose progress
+  s.cos=Object.assign(defaultCos(), raw.cos||{});
+  s.cos.eq=Object.assign({}, (raw.cos&&raw.cos.eq)||{});
+  s.cosBought=raw.cosBought||{};
+  s.daily=Object.assign({last:'',streak:0}, raw.daily||{});
+  s.quests=raw.quests||null; // re-seeded for the current day by ensureQuests()
+  s.v=SAVE_VER;
+  return s;
+}
+// --- storage backend ---------------------------------------------------------
+// CrazyGames runs games in an iframe where localStorage is NOT persisted, so on the
+// portal we save via the CrazyGames Data Module (cloud save). Everywhere else we use
+// localStorage. cgDataReady flips true once SDK.init() resolves (see the ads cg adapter).
+let cgDataReady=false, cgReadyFired=false, cgReadyCbs=[];
+function fireCgReady(){ cgReadyFired=true; const cbs=cgReadyCbs; cgReadyCbs=[]; cbs.forEach(cb=>{ try{cb();}catch(e){} }); }
+function onCgReady(cb){ if(PLATFORM!=='crazygames'||cgReadyFired) cb(); else cgReadyCbs.push(cb); }
+const storage={
+  cg(){ return PLATFORM==='crazygames' && cgDataReady && window.CrazyGames && window.CrazyGames.SDK && window.CrazyGames.SDK.data; },
+  get(k){ try{ if(this.cg()) return window.CrazyGames.SDK.data.getItem(k); }catch(e){} try{ return localStorage.getItem(k); }catch(e){ return null; } },
+  set(k,v){ try{ if(this.cg()){ window.CrazyGames.SDK.data.setItem(k,v); return; } }catch(e){} try{ localStorage.setItem(k,v); }catch(e){} },
+  remove(k){ try{ if(this.cg()){ window.CrazyGames.SDK.data.removeItem(k); return; } }catch(e){} try{ localStorage.removeItem(k); }catch(e){} },
+};
+function load(){
+  try{ const r=JSON.parse(storage.get(SAVE_KEY)); const m=migrate(r); if(m) state=m; }catch(e){}
+}
+function save(){ state.lastSeen=Date.now(); storage.set(SAVE_KEY, JSON.stringify(state)); }
+
+//////////////////// ECONOMY ////////////////////
+const catMap={}; ITEMS.forEach(i=>{ (catMap[i.part]=catMap[i.part]||[]).push(i); });
+function catOwned(part){ return (catMap[part]||[]).reduce((s,i)=>s+state.owned[i.id],0); }
+function totalOwned(){ return ITEMS.reduce((s,i)=>s+state.owned[i.id],0); }
+function maxOwned(){ let m=0; ITEMS.forEach(i=>{ if(state.owned[i.id]>m) m=state.owned[i.id]; }); return m; }
+
+function catMult(part){ return state.upgrades['m_'+part]?2:1; }
+function roidMult(){ return state.upgrades.roids?3:1; }
+function clickMult(){ return (state.upgrades.clickPower?2:1)*(state.upgrades.global?1.5:1); }
+function autoMult(){ return (state.upgrades.autoPower?2:1)*(state.upgrades.global?1.5:1); }
+function prestigeMult(){ return 1 + state.trophies*0.03; }
+let achBonus=0;
+function recomputeAchBonus(){ achBonus=0; ACHS.forEach(a=>{ if(state.achievements[a.id]) achBonus+=a.bonus; }); }
+function achMult(){ return 1+achBonus; }
+let frenzy=0; // seconds remaining
+function frenzyMult(){ return frenzy>0?7:1; }
+function globalMult(){ return prestigeMult()*achMult()*frenzyMult(); }
+
+function perClick(){
+  let b=1;
+  ITEMS.forEach(i=>{ if(i.type==='click') b+=i.power*state.owned[i.id]*catMult(i.part); });
+  return b*clickMult()*globalMult();
+}
+function perSecRaw(){ // without frenzy, for thresholds/achievements
+  let s=0;
+  ITEMS.forEach(i=>{ if(i.type==='auto'){ let m=catMult(i.part); if(i.part==='roids') m*=roidMult(); s+=i.power*state.owned[i.id]*m; }});
+  return s*autoMult()*prestigeMult()*achMult();
+}
+function perSec(){ return perSecRaw()*frenzyMult(); }
+
+function partRaw(){
+  const r={arms:0,pecs:0,back:0,delts:0,abs:0,legs:0,mass:0,roids:0};
+  ITEMS.forEach(i=>{ let m=catMult(i.part); if(i.part==='roids') m*=roidMult(); r[i.part]+=state.owned[i.id]*i.amt*m; });
+  return r;
+}
+function rankIndex(){ const t=Math.min(0.999, Math.min(1.6,Math.log10(state.total+1)/4.2)/1.6); return Math.min(RANKS.length-1, Math.floor(t*RANKS.length)); }
+function rankInfo(){ const t=Math.min(0.999, Math.min(1.6,Math.log10(state.total+1)/4.2)/1.6); const idx=Math.min(RANKS.length-1,Math.floor(t*RANKS.length)); return {name:RANKS[idx], frac:(t*RANKS.length)%1}; }
+
+function costOf(item){ return Math.ceil(item.base*Math.pow(1.15,state.owned[item.id])); }
+function costForN(item,n){ let c=0,o=state.owned[item.id]; for(let k=0;k<n;k++) c+=Math.ceil(item.base*Math.pow(1.15,o+k)); return c; }
+
+const UNITS=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc'];
+function fmt(n){
+  if(!isFinite(n)) return n>0?'∞':'0';
+  if(n<0) return '0';
+  if(n<1000) return (Math.floor(n*10)/10).toString().replace(/\.0$/,'');
+  let i=0, x=n; while(x>=1000 && i<UNITS.length-1){ x/=1000; i++; }
+  if(x>=1000) return n.toExponential(2).replace('e+','e'); // beyond the UNITS array → scientific notation
+  return (Math.floor(x*100)/100)+UNITS[i];
+}
+function fmtTime(sec){ sec=Math.floor(sec); const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60; return (h?h+'h ':'')+(m||h?m+'m ':'')+s+'s'; }
+
+//////////////////// ACTIONS ////////////////////
+function doRep(clientX, clientY){
+  const p=perClick();
+  state.gains+=p; state.total+=p; state.lifetime+=p; state.clicks++;
+  questProgress('reps',1);
+  pump=1; beep(420,0.05);
+  // do the exercise for whatever body part was clicked
+  if(clientX!=null){
+    const rect=cv.getBoundingClientRect();
+    const lx=(clientX-rect.left)*(CW/rect.width), ly=(clientY-rect.top)*(CH/rect.height);
+    setExercise(exForPart(partAtPoint(lx,ly)), 1.6);
+  } else { setExercise(lastEx, 1.6); }
+  spawnFloat('+'+fmt(p), clientX, clientY);
+  spawnParticles();
+  if(p>1e6 || frenzy>0) shakeStage();
+  if(coachStep===0){ advanceCoach(1); const st=document.querySelector('.tab[data-tab=shop]'); if(st) st.click(); } // onboarding: rep done → point to shop
+  afterChange(false);
+}
+function buy(item, want, ev){
+  const n = (ev&&ev.shiftKey)?10:want;
+  const firstBuy = state.owned[item.id]===0;
+  const firstEver = totalOwned()===0;
+  let bought=0;
+  while(bought<n){ const c=costOf(item); if(state.gains<c) break; state.gains-=c; state.owned[item.id]++; bought++; }
+  if(bought>0){ pump=0.6; beep(300,0.06); questProgress('buyitems',bought);
+    if(firstBuy){ setExercise(exForPart(item.part),2.8); toast(`🆕 New move unlocked: <b>${item.name}</b>!`); }
+    if(firstEver){ const r=$('stage').getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2); if(coachStep===1) advanceCoach(2); } // celebrate first-ever purchase
+    afterChange(true);
+  }
+}
+function buyUpgrade(u){
+  if(state.upgrades[u.id] || !u.req(state) || state.gains<u.cost) return;
+  state.gains-=u.cost; state.upgrades[u.id]=true; beep(560,0.12); questProgress('upgrade',1);
+  toast(`⭐ <b>${u.name}</b> unlocked!`);
+  afterChange(true);
+}
+
+function projectedTrophies(){ return Math.floor(Math.pow(state.lifetime/1e6,0.5)); }
+function doPrestige(){
+  const gain=projectedTrophies()-state.trophies;
+  if(gain<=0) return;
+  state.trophies+=gain; state.prestiges++;
+  freshRun(state);
+  beep(700,0.25);
+  toast(`🏆 You hit the stage! <b>+${gain}</b> trophies (×${prestigeMult().toFixed(2)} forever)`);
+  afterChange(true); renderAll();
+  ads.showInterstitial(); // natural break — guarded to max 1 / 3 min
+}
+
+function afterChange(doSave){
+  checkAchievements();
+  if(activeTab==='shop') renderShop();
+  if(activeTab==='upgrades') renderUpgrades();
+  updateUI();
+  if(doSave) save();
+}
+
+function checkAchievements(){
+  let changed=false;
+  ACHS.forEach(a=>{
+    if(!state.achievements[a.id] && a.check(state)){
+      state.achievements[a.id]=true; changed=true;
+      toast(`🏅 <b>${a.name}</b> — ${a.desc} (+${(a.bonus*100)|0}% gains)`);
+      beep(640,0.1);
+    }
+  });
+  if(changed){ recomputeAchBonus(); if(activeTab==='ach') renderAch(); }
+}
+
+//////////////////// UI ////////////////////
+const $=id=>document.getElementById(id);
+let buyAmt=1, activeTab='shop';
+
+function renderShop(){
+  const el=$('shop'); el.innerHTML='';
+  ITEMS.forEach(item=>{
+    const n=buyAmt, cost=costForN(item,n), owned=state.owned[item.id], afford=state.gains>=cost;
+    const eff = item.type==='click' ? `+${fmt(item.power*catMult(item.part))}/rep` : `+${fmt(item.power*catMult(item.part)*(item.part==='roids'?roidMult():1))}/sec`;
+    const row=document.createElement('div');
+    row.className='item'+(afford?' afford':' locked');
+    row.innerHTML=`<div class="emoji">${item.emoji}</div>
+      <div class="body"><div class="name">${item.name}</div>
+      <div class="desc">${eff} · <span style="color:#6b7a99">${item.part}</span></div></div>
+      <div class="right"><div class="cost">💪 ${fmt(cost)}${n>1?' ×'+n:''}</div><div class="owned">owned ${owned}</div></div>`;
+    row.addEventListener('click',ev=>buy(item,n,ev));
+    el.appendChild(row);
+  });
+}
+
+function renderUpgrades(){
+  const el=$('upgrades'); el.innerHTML='';
+  UPGRADES.forEach(u=>{
+    const bought=!!state.upgrades[u.id], unlocked=u.req(state), afford=state.gains>=u.cost;
+    const row=document.createElement('div');
+    row.className='item'+(bought?' bought':(unlocked&&afford?' afford':' locked'));
+    row.innerHTML=`<div class="emoji">${u.emoji}</div>
+      <div class="body"><div class="name">${u.name}${bought?' ✓':''}</div>
+      <div class="desc">${u.desc}</div>${!unlocked?`<div class="tag">🔒 ${u.reqtxt}</div>`:''}</div>
+      <div class="right">${bought?'<div class="owned">owned</div>':`<div class="cost">💪 ${fmt(u.cost)}</div>`}</div>`;
+    if(!bought) row.addEventListener('click',()=>buyUpgrade(u));
+    el.appendChild(row);
+  });
+}
+
+function renderAch(){
+  const el=$('ach'); el.innerHTML='';
+  let got=0;
+  ACHS.forEach(a=>{
+    const u=!!state.achievements[a.id]; if(u)got++;
+    const row=document.createElement('div');
+    row.className='ach'+(u?' unlocked':'');
+    row.innerHTML=`<div class="emoji">${u?a.emoji:'❓'}</div>
+      <div><div class="name">${u?a.name:'???'}</div><div class="desc">${a.desc}</div></div>
+      <div class="bonus">+${(a.bonus*100)|0}%</div>`;
+    el.appendChild(row);
+  });
+  $('achcount').textContent=`${got} / ${ACHS.length} unlocked · +${Math.round(achBonus*100)}% total gains`;
+}
+
+function renderStats(){
+  const el=$('stats');
+  const rows=[
+    ['Current gains', fmt(state.gains)],
+    ['This run earned', fmt(state.total)],
+    ['Lifetime earned', fmt(state.lifetime)],
+    ['Gains / sec', fmt(perSec())],
+    ['Gains / rep', fmt(perClick())],
+    ['Total reps', fmt(state.clicks)],
+    ['Items owned', fmt(totalOwned())],
+    ['Upgrades owned', Object.keys(state.upgrades).length+' / '+UPGRADES.length],
+    ['Awards', Object.keys(state.achievements).length+' / '+ACHS.length],
+    ['Trophies 🏆', state.trophies+' (×'+prestigeMult().toFixed(2)+')'],
+    ['Prestiges', state.prestiges],
+    ['Daily streak 🔥', state.daily.streak+' day'+(state.daily.streak===1?'':'s')],
+    ['Playtime', fmtTime(state.playtime)],
+  ];
+  el.innerHTML=rows.map(r=>`<div class="statrow"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
+  const proj=projectedTrophies()-state.trophies;
+  const btn=$('prestigebtn');
+  btn.disabled=proj<=0;
+  btn.textContent = proj>0 ? `🏆 Hit the Stage — +${proj} 🏆` : `🏆 Need ${fmt(Math.pow(state.trophies+1,2)*1e6)} lifetime for next 🏆`;
+}
+
+function renderAll(){ renderShop(); renderUpgrades(); renderAch(); renderQuests(); renderLocker(); renderStats(); updateUI(); updateQuestBadge(); }
+
+function updateUI(){
+  $('gains').textContent=fmt(state.gains);
+  $('rate').textContent='+'+fmt(perSec())+'/sec';
+  $('perclick').textContent=fmt(perClick());
+  const r=rankInfo();
+  $('rank').textContent=r.name;
+  $('rankfill').style.width=(r.frac*100).toFixed(0)+'%';
+  $('trophyBadge').textContent='🏆 '+state.trophies;
+  $('multBadge').textContent='×'+(prestigeMult()*achMult()).toFixed(2)+(frenzy>0?' 🔥7×':'');
+  $('repbtn').classList.toggle('frenzy', frenzy>0);
+}
+
+function spawnFloat(txt,x,y){
+  const wrap=$('floatwrap'), rect=wrap.getBoundingClientRect();
+  const el=document.createElement('div'); el.className='float'; el.textContent=txt;
+  let px,py;
+  if(x==null){ px=rect.width*(0.35+Math.random()*0.3); py=rect.height*0.42; }
+  else { px=x-rect.left; py=y-rect.top; }
+  el.style.left=px+'px'; el.style.top=py+'px';
+  wrap.appendChild(el); setTimeout(()=>el.remove(),1000);
+}
+function shakeStage(){ const s=$('stage'); s.classList.remove('shake'); void s.offsetWidth; s.classList.add('shake'); }
+
+//////////////////// PARTICLES (sweat) ////////////////////
+let particles=[];
+function spawnParticles(){
+  const n=4+Math.floor(Math.random()*3);
+  for(let i=0;i<n;i++) particles.push({x:240+(Math.random()*120-60), y:200+(Math.random()*60-30),
+    vx:(Math.random()*2-1)*70, vy:-50-Math.random()*60, life:0.6+Math.random()*0.3, t:0});
+}
+
+//////////////////// TOAST + MODAL ////////////////////
+function toast(html){
+  const box=$('toasts');
+  const t=document.createElement('div'); t.className='toast'; t.innerHTML=html;
+  box.appendChild(t);
+  while(box.children.length>6) box.removeChild(box.firstChild);
+  setTimeout(()=>{ t.style.transition='opacity .4s'; t.style.opacity='0'; setTimeout(()=>t.remove(),400); }, 3600);
+}
+let modalOpen=false, modalQ=[];
+function modal(title, bodyHtml, buttons){
+  if(modalOpen){ modalQ.push([title,bodyHtml,buttons]); return; } // queue so modals don't clobber each other
+  modalOpen=true; gameplay(false); // a modal is a menu → gameplay stops (CrazyGames QA)
+  $('modalTitle').innerHTML=title; $('modalBody').innerHTML=bodyHtml;
+  const row=$('modalRow'); row.innerHTML='';
+  buttons.forEach(b=>{ const el=document.createElement('button'); el.className=b.cls; el.innerHTML=b.label;
+    el.onclick=()=>{ closeModal(); b.fn&&b.fn(); }; row.appendChild(el); });
+  $('modalwrap').style.display='flex';
+}
+function closeModal(){
+  $('modalwrap').style.display='none'; modalOpen=false;
+  if(modalQ.length){ const m=modalQ.shift(); modal(m[0],m[1],m[2]); }
+  else if(!adActive) gameplay(true); // back to active play (unless an ad is mid-flight)
+}
+
+//////////////////// SOUND ////////////////////
+let actx=null;
+function beep(freq,dur){
+  if(!state.sound || muted) return; // muted during ads (portal requirement)
+  try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.frequency.value=freq; o.type='triangle'; g.gain.value=0.06;
+    o.connect(g); g.connect(actx.destination); o.start();
+    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime+dur); o.stop(actx.currentTime+dur);
+  }catch(e){}
+}
+
+//////////////////// GOLDEN SHAKE ////////////////////
+let goldTimer=45, goldEl=$('golden'), goldActive=false, goldAnim=null;
+function scheduleGold(){ const f=state.upgrades.golden?0.5:1; goldTimer=(60+Math.random()*70)*f; }
+function spawnGold(){
+  if(goldActive) return; goldActive=true;
+  const startTop=80+Math.random()*(window.innerHeight-260);
+  goldEl.style.display='block'; goldEl.style.top=startTop+'px';
+  let x=-70, dir=1; if(Math.random()<0.5){ x=window.innerWidth+10; dir=-1; }
+  const speed=(140+Math.random()*60)*dir; let last=performance.now();
+  function step(now){ const dt=(now-last)/1000; last=now; x+=speed*dt; goldEl.style.left=x+'px';
+    if(x< -90 || x>window.innerWidth+90){ goldEl.style.display='none'; goldActive=false; return; }
+    goldAnim=requestAnimationFrame(step);
+  }
+  goldAnim=requestAnimationFrame(step);
+}
+goldEl.addEventListener('click',()=>{
+  if(!goldActive) return;
+  cancelAnimationFrame(goldAnim); goldEl.style.display='none'; goldActive=false;
+  state.goldenClicked++; questProgress('golden',1);
+  const big=state.upgrades.golden;
+  if(Math.random()<0.6){ frenzy=big?22:15; toast(`✨ <b>FRENZY!</b> 7× gains for ${frenzy|0}s!`); }
+  else { const lump=Math.max(perClick()*200, perSecRaw()*(big?1200:600)); state.gains+=lump; state.total+=lump; state.lifetime+=lump;
+    toast(`✨ <b>+${fmt(lump)}</b> protein windfall!`); spawnFloat('+'+fmt(lump)); }
+  beep(880,0.15); shakeStage(); afterChange(true);
+});
+
+//////////////////// COLOR UTILS ////////////////////
+function hexToRgb(h){ h=(h||'#000').replace('#',''); if(h.length===3) h=h.split('').map(c=>c+c).join(''); const n=parseInt(h,16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}; }
+function rgbStr(r,g,b){ return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')'; }
+
+//////////////////// COSMETICS (body / skin / hair / accessories) ////////////////////
+// Base skin palette — player picks one; roid tint still applies on top (see metrics()).
+const SKINS=['#f2c9a0','#e8b489','#d99a6c','#b97f50','#8a5a36','#5e3b22','#f6d9b8','#9ad17e'];
+const HAIRCOL=['#2a2118','#5b3b1e','#caa14a','#d94f2a','#dcdcdc','#7a4fe0','#39d0c8'];
+// hair styles: draw(J,m,color) — drawn on the scalp after the head
+const HAIR=[
+  {id:'bald',name:'Bald',draw:null},
+  {id:'short',name:'Short',draw:(J,m,c)=>{ const hx=J.head.x,hy=J.head.y,r=m.headR; ctx.fillStyle=c; ctx.beginPath(); ctx.arc(hx,hy-2,r,Math.PI*1.04,Math.PI*1.96); ctx.fill(); ctx.fillRect(hx-r,hy-5,2*r,3); }},
+  {id:'mohawk',name:'Mohawk',draw:(J,m,c)=>{ const hx=J.head.x,hy=J.head.y,r=m.headR; ctx.fillStyle=c; ctx.beginPath(); ctx.moveTo(hx-4,hy-r+2); ctx.lineTo(hx+4,hy-r+2); ctx.lineTo(hx+3,hy-r-16); ctx.lineTo(hx,hy-r-22); ctx.lineTo(hx-3,hy-r-16); ctx.closePath(); ctx.fill(); }},
+  {id:'long',name:'Long',draw:(J,m,c)=>{ const hx=J.head.x,hy=J.head.y,r=m.headR; ctx.fillStyle=c; ctx.beginPath(); ctx.arc(hx,hy-2,r+2,Math.PI,2*Math.PI); ctx.fill();
+     ctx.beginPath(); ctx.moveTo(hx-r,hy-2); ctx.quadraticCurveTo(hx-r-6,hy+r+10,hx-r+3,hy+r+12); ctx.lineTo(hx-r+7,hy); ctx.fill();
+     ctx.beginPath(); ctx.moveTo(hx+r,hy-2); ctx.quadraticCurveTo(hx+r+6,hy+r+10,hx+r-3,hy+r+12); ctx.lineTo(hx+r-7,hy); ctx.fill(); }},
+  {id:'afro',name:'Afro',draw:(J,m,c)=>{ const hx=J.head.x,hy=J.head.y,r=m.headR; ctx.fillStyle=c; ctx.beginPath(); ctx.arc(hx,hy-r+2,r*0.95,0,7); ctx.arc(hx-r*0.7,hy-r*0.5,r*0.7,0,7); ctx.arc(hx+r*0.7,hy-r*0.5,r*0.7,0,7); ctx.fill(); }},
+  {id:'manbun',name:'Man Bun',draw:(J,m,c)=>{ const hx=J.head.x,hy=J.head.y,r=m.headR; ctx.fillStyle=c; ctx.beginPath(); ctx.arc(hx,hy-2,r,Math.PI*1.1,Math.PI*1.9); ctx.fill(); ctx.fillRect(hx-r,hy-5,2*r,3); ctx.beginPath(); ctx.arc(hx,hy-r-3,6,0,7); ctx.fill(); }},
+];
+const HAIR_BY_ID={}; HAIR.forEach(h=>HAIR_BY_ID[h.id]=h);
+
+// silly accessories: draw(J,m). faketan has no draw (it tints skin in metrics()).
+function ax_sunglasses(J,m){ const hx=J.head.x,hy=J.head.y-1,r=m.headR; ctx.fillStyle='#15171c'; ctx.fillRect(hx-12,hy-3,9,7); ctx.fillRect(hx+3,hy-3,9,7); ctx.fillRect(hx-3,hy-1,6,2); ctx.strokeStyle='#15171c'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(hx-12,hy-2); ctx.lineTo(hx-r,hy-4); ctx.moveTo(hx+12,hy-2); ctx.lineTo(hx+r,hy-4); ctx.stroke(); }
+function ax_mustache(J,m){ const hx=J.head.x,hy=J.head.y+5; ctx.fillStyle='#2a1d12'; ctx.beginPath(); ctx.moveTo(hx,hy); ctx.quadraticCurveTo(hx-6,hy-3,hx-12,hy+1); ctx.quadraticCurveTo(hx-7,hy+4,hx,hy+2); ctx.quadraticCurveTo(hx+7,hy+4,hx+12,hy+1); ctx.quadraticCurveTo(hx+6,hy-3,hx,hy); ctx.fill(); }
+function ax_unibrow(J,m){ const hx=J.head.x,hy=J.head.y-7; ctx.strokeStyle='#2a1d12'; ctx.lineWidth=4; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(hx-9,hy); ctx.quadraticCurveTo(hx,hy-3,hx+9,hy); ctx.stroke(); }
+function ax_cigar(J,m){ const hx=J.head.x+5,hy=J.head.y+8; ctx.strokeStyle='#6b4a2a'; ctx.lineWidth=4; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(hx+16,hy+3); ctx.stroke(); ctx.fillStyle='#ff6a2a'; ctx.beginPath(); ctx.arc(hx+17,hy+3,2.5,0,7); ctx.fill(); }
+function ax_goldchain(J,m){ const scx=(J.sL.x+J.sR.x)/2,scy=(J.sL.y+J.sR.y)/2; ctx.strokeStyle='#ffd24a'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(scx,scy+10,12+m.pecs*4,0.15*Math.PI,0.85*Math.PI); ctx.stroke(); ctx.fillStyle='#ffd24a'; ctx.beginPath(); ctx.arc(scx,scy+10+12+m.pecs*4,3,0,7); ctx.fill(); }
+function ax_backcap(J,m){ const hx=J.head.x,hy=J.head.y,r=m.headR; ctx.fillStyle='#3a64d8'; ctx.beginPath(); ctx.arc(hx,hy-2,r,Math.PI,2*Math.PI); ctx.fill(); ctx.fillRect(hx-r,hy-4,2*r,4); ctx.beginPath(); ctx.ellipse(hx-r-4,hy-2,8,4,0,0,7); ctx.fill(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(hx,hy-r+4,2.5,0,7); ctx.fill(); }
+function ax_partyhat(J,m){ const hx=J.head.x,hy=J.head.y-m.headR; ctx.fillStyle='#ff5ea8'; ctx.beginPath(); ctx.moveTo(hx-12,hy+2); ctx.lineTo(hx+12,hy+2); ctx.lineTo(hx,hy-30); ctx.closePath(); ctx.fill(); ctx.fillStyle='#ffd24a'; ctx.beginPath(); ctx.arc(hx,hy-30,3,0,7); ctx.fill(); ctx.fillStyle='#fff'; for(let i=0;i<3;i++){ ctx.beginPath(); ctx.arc(hx-6+i*6,hy-6-i*7,2,0,7); ctx.fill(); } }
+function ax_mulletwig(J,m){ const hx=J.head.x,hy=J.head.y,r=m.headR; ctx.fillStyle='#3b2a16'; ctx.beginPath(); ctx.arc(hx,hy-3,r+2,Math.PI,2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.moveTo(hx-r,hy-4); ctx.quadraticCurveTo(hx-r-8,hy+r+16,hx-r+4,hy+r+18); ctx.quadraticCurveTo(hx-4,hy+4,hx-r,hy-4); ctx.fill(); ctx.beginPath(); ctx.moveTo(hx+r,hy-4); ctx.quadraticCurveTo(hx+r+8,hy+r+16,hx+r-4,hy+r+18); ctx.quadraticCurveTo(hx+4,hy+4,hx+r,hy-4); ctx.fill(); }
+function ax_monocle(J,m){ const hx=J.head.x+7,hy=J.head.y-2; ctx.strokeStyle='#ffd24a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(hx,hy,5,0,7); ctx.stroke(); ctx.beginPath(); ctx.moveTo(hx+2,hy+5); ctx.lineTo(hx+4,hy+16); ctx.stroke(); }
+function ax_crown(J,m){ const hx=J.head.x,hy=J.head.y-m.headR+2; ctx.fillStyle='#ffd24a'; ctx.beginPath(); ctx.moveTo(hx-13,hy+4); ctx.lineTo(hx-13,hy-6); ctx.lineTo(hx-6,hy); ctx.lineTo(hx,hy-9); ctx.lineTo(hx+6,hy); ctx.lineTo(hx+13,hy-6); ctx.lineTo(hx+13,hy+4); ctx.closePath(); ctx.fill(); ctx.fillStyle='#ff5ea8'; ctx.beginPath(); ctx.arc(hx,hy-2,2,0,7); ctx.fill(); }
+const ACCESSORIES=[
+  {id:'sunglasses',name:'Sunglasses',emoji:'🕶️',free:true,draw:ax_sunglasses},
+  {id:'mustache', name:'Mustache', emoji:'👨', free:true,draw:ax_mustache},
+  {id:'unibrow',  name:'Unibrow',  emoji:'🤨', buy:5e3,  draw:ax_unibrow},
+  {id:'cigar',    name:'Cigar',    emoji:'🚬', buy:2.5e4,draw:ax_cigar},
+  {id:'goldchain',name:'Gold Chain',emoji:'📿',trophies:1,draw:ax_goldchain},
+  {id:'backcap',  name:'Backwards Cap',emoji:'🧢',ach:'r1',draw:ax_backcap},
+  {id:'mulletwig',name:'Mullet Wig',emoji:'💇', buy:1e5,  draw:ax_mulletwig},
+  {id:'monocle',  name:'Monocle',  emoji:'🧐', buy:5e5,  draw:ax_monocle},
+  {id:'partyhat', name:'Party Hat',emoji:'🎉', ach:'p1', draw:ax_partyhat},
+  {id:'faketan',  name:'Fake Tan', emoji:'✨', ach:'roid',tan:true,draw:null},
+  {id:'crown',    name:'Crown',    emoji:'👑', ach:'r3', draw:ax_crown},
+];
+const ACC_BY_ID={}; ACCESSORIES.forEach(a=>ACC_BY_ID[a.id]=a);
+function cosUnlocked(a){ if(!a) return false; if(a.free) return true; if(a.ach) return !!state.achievements[a.ach]; if(a.trophies) return state.trophies>=a.trophies; if(a.buy) return !!state.cosBought[a.id]; return true; }
+function cosLockText(a){ if(a.ach){ const ac=ACHS.find(x=>x.id===a.ach); return '🔒 '+(ac?ac.name:a.ach); } if(a.trophies) return '🔒 '+a.trophies+' 🏆'; if(a.buy) return '💪 '+fmt(a.buy); return ''; }
+function drawHair(J,m){ const h=HAIR_BY_ID[(state.cos&&state.cos.hair)||'short']; if(!h||!h.draw) return; const c=HAIRCOL[(state.cos&&state.cos.hairColor)||0]||HAIRCOL[0]; ctx.save(); h.draw(J,m,c); ctx.restore(); }
+function drawAccessories(J,m){ const eq=(state.cos&&state.cos.eq)||{}; ACCESSORIES.forEach(a=>{ if(eq[a.id]&&a.draw&&cosUnlocked(a)){ ctx.save(); a.draw(J,m); ctx.restore(); } }); }
+
+//////////////////// ADS — platform-aware (CrazyGames / GameDistribution / dev) ////////////////////
+/*
+  Public API:  ads.showRewarded(placement, onReward, onFail)   and   ads.showInterstitial()
+  PLATFORM selects the implementation. Rewarded ads are ALWAYS user-initiated.
+  On EVERY ad the game loop is paused and ALL audio muted (portal requirement); it resumes on
+  adFinished AND adError. An ad can NEVER block gameplay — on failure onFail() runs and play continues.
+
+  >>> SELF-HOST BUILDS ONLY — NOT for CrazyGames / GameDistribution (both forbid 3rd-party ads): <<<
+      To use Google H5 Games Ads (AdSense for Games) on your OWN domain, add the adsbygoogle.js tag and a
+      googleAdapter implementing showRewarded via adBreak({type:'reward',…}) and showInterstitial via
+      adBreak({type:'next'}); then set PLATFORM to a 'selfhost' branch. Do NOT ship this on the portals.
+*/
+// One file, auto-targets its environment:
+//  'dev' (localhost/file)  |  'selfhost' (your own website: github.io/netlify/pages/itch — localStorage save, no portal SDK/ads)
+//  'gamedistribution'      |  'crazygames' (default: the CrazyGames portal & QA domains)
+let PLATFORM='crazygames';
+const __host=location.hostname;
+if(location.protocol==='file:' || __host==='' || /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(__host)) PLATFORM='dev';
+else if(/(^|\.)github\.io$|\.netlify\.app$|\.pages\.dev$|(^|\.)itch\.io$|\.itch\.zone$/.test(__host)) PLATFORM='selfhost';
+else if(/gamedistribution/.test(__host)) PLATFORM='gamedistribution';
+const GD_GAME_ID='YOUR-GAMEDISTRIBUTION-GAME-ID'; // <-- GameDistribution builds: paste your game id
+
+function loadScript(src,onload,onerror){ const s=document.createElement('script'); s.async=true; s.src=src; s.onload=onload||null; s.onerror=onerror||null; document.head.appendChild(s); }
+// CrazyGames game-state hooks (no-op on other platforms / before the SDK loads)
+function cgGame(method){ if(PLATFORM!=='crazygames') return; try{ window.CrazyGames.SDK.game[method](); }catch(e){} }
+function gameplay(active){ cgGame(active?'gameplayStart':'gameplayStop'); }
+
+let muted=false;
+function muteAll(on){ muted=on; try{ if(actx){ on?actx.suspend():actx.resume(); } }catch(e){} }
+
+let adActive=false, lastAdAt=0;
+// pause loop + mute audio + tell the portal gameplay stopped, BEFORE any ad
+function beginAd(){ if(adActive) return; adActive=true; lastAdAt=Date.now(); muteAll(true); gameplay(false); stopLoop(); }
+// resume after the ad — called on BOTH finish and error so we never get stuck paused
+function endAd(){ if(!adActive) return; adActive=false; muteAll(false); last=performance.now(); startLoop(); gameplay(true); }
+
+function adOverlay(text,ms,cb){
+  let el=document.getElementById('adov');
+  if(!el){ el=document.createElement('div'); el.id='adov'; document.body.appendChild(el); }
+  el.innerHTML='<div class="adovbox">'+text+'<div class="adovbar"><i></i></div></div>';
+  el.style.display='flex';
+  const bar=el.querySelector('.adovbar i'); bar.style.transition='width '+ms+'ms linear'; requestAnimationFrame(()=>{ bar.style.width='100%'; });
+  setTimeout(()=>{ el.style.display='none'; cb&&cb(); }, ms);
+}
+
+const ads=(()=>{
+  let gdReady=false, gdRes=null, cgReady=false;
+
+  // (dev) STUB — simulated ad, no network
+  const stub={ available:()=>true,
+    showRewarded(p,onReward,onFail){ adOverlay('📺 (dev) rewarded ad…',1000,()=>onReward&&onReward()); },
+    showInterstitial(onDone){ adOverlay('📺 (dev) ad break…',800,()=>onDone&&onDone()); } };
+
+  // CrazyGames HTML5 SDK v2 — https://docs.crazygames.com/sdk/video-ads/ (no manual init needed in v2)
+  const cg={ available:()=>cgReady,
+    init(){ loadScript('https://sdk.crazygames.com/crazygames-sdk-v2.js',
+      ()=>{ const SDK=window.CrazyGames&&window.CrazyGames.SDK; if(!SDK){ cgReady=false; fireCgReady(); return; }
+        // QA lifecycle hooks — fire IMMEDIATELY on SDK load, each guarded separately and NOT gated
+        // behind init() (loadingStart must precede init so download size can be measured; if these
+        // were behind init().then and init was pending, "first gameplay start" would never register).
+        try{ SDK.game.loadingStart(); }catch(e){}
+        try{ SDK.game.loadingStop(); }catch(e){}
+        try{ SDK.game.gameplayStart(); }catch(e){}
+        // init() preloads the player's cloud-save data; the Data Module is only valid afterwards.
+        const done=(ok)=>{ cgReady=ok; cgDataReady = ok && !!SDK.data; fireCgReady(); };
+        let p=null; try{ p=SDK.init(); }catch(e){}
+        if(p&&p.then) p.then(()=>done(true)).catch(()=>done(false)); else done(!!SDK); },
+      ()=>{ cgReady=false; fireCgReady(); }); },
+    showRewarded(p,onReward,onFail){ try{ window.CrazyGames.SDK.ad.requestAd('rewarded',
+        { adStarted:()=>{}, adFinished:()=>onReward&&onReward(), adError:()=>onFail&&onFail() }); }catch(e){ onFail&&onFail(); } },
+    showInterstitial(onDone,onErr){ try{ window.CrazyGames.SDK.ad.requestAd('midgame',
+        { adStarted:()=>{}, adFinished:()=>onDone&&onDone(), adError:()=>onErr&&onErr() }); }catch(e){ onErr&&onErr(); } } };
+
+  // GameDistribution SDK (secondary). Requires the "Rewarded Ads" flag enabled on the GD portal.
+  const gd={ available:()=>gdReady,
+    init(){ window.GD_OPTIONS={ gameId:GD_GAME_ID, debug:false, onEvent(e){
+          if(e.name==='SDK_READY') gdReady=true;
+          else if(e.name==='SDK_REWARDED_WATCH_COMPLETE'){ if(gdRes){ gdRes.ok&&gdRes.ok(); gdRes=null; } } } };
+        loadScript('https://html5.api.gamedistribution.com/main.min.js', null, ()=>{ gdReady=false; }); },
+    showRewarded(p,onReward,onFail){ try{ if(!window.gdsdk||!gdReady){ onFail&&onFail(); return; }
+        gdRes={ok:onReward,fail:onFail};
+        window.gdsdk.showAd('rewarded').catch(()=>{ if(gdRes){ gdRes.fail&&gdRes.fail(); gdRes=null; } }); }catch(e){ onFail&&onFail(); } },
+    showInterstitial(onDone,onErr){ try{ if(!window.gdsdk){ onDone&&onDone(); return; }
+        window.gdsdk.showAd('interstitial').then(()=>onDone&&onDone()).catch(()=>onErr&&onErr()); }catch(e){ onErr&&onErr(); } } };
+
+  // selfhost has no ad network wired (held off) → ads simply unavailable; dev uses the stub for testing
+  const noop={ available:()=>false, showRewarded(p,onReward,onFail){ onFail&&onFail(); }, showInterstitial(){} };
+  const adapter = PLATFORM==='crazygames'?cg : PLATFORM==='gamedistribution'?gd : PLATFORM==='dev'?stub : noop;
+  if(adapter.init) adapter.init();
+
+  return {
+    available:()=>!!(adapter.available&&adapter.available()),
+    // user-initiated rewarded ad; pauses+mutes around it; reward only fires on real completion
+    showRewarded(placement,onReward,onFail){
+      if(!(adapter.available&&adapter.available())){ onFail&&onFail(); return; }
+      beginAd();
+      let done=false; const finish=(ok)=>{ if(done) return; done=true; endAd(); ok? (onReward&&onReward()) : (onFail&&onFail()); };
+      try{ adapter.showRewarded(placement, ()=>finish(true), ()=>finish(false)); }catch(e){ finish(false); }
+    },
+    // interstitial at natural breaks only; client guard: max 1 per 3 min (counts rewarded/preroll too)
+    showInterstitial(){
+      if(!(adapter.available&&adapter.available())) return;
+      if(Date.now()-lastAdAt < 180000) return; // 3-minute cooldown
+      beginAd();
+      let done=false; const finish=()=>{ if(done) return; done=true; endAd(); };
+      try{ adapter.showInterstitial(finish, finish); }catch(e){ finish(); }
+    }
+  };
+})();
+function setAdBtn(btn,avail,lastAt,cdSec,label){ if(!btn) return;
+  if(!avail){ btn.disabled=true; btn.textContent='📺 Ads unavailable'; return; }
+  const left=lastAt? Math.ceil((lastAt+cdSec*1000-Date.now())/1000):0;
+  if(left>0){ btn.disabled=true; btn.textContent='⏳ '+fmtTime(left); } else { btn.disabled=false; btn.textContent=label; }
+}
+function updateAdButtons(){ const a=ads.available(); setAdBtn($('adfrenzy'),a,state.adFrenzyAt,300,'📺 7× Frenzy (2 min)'); setAdBtn($('adwindfall'),a,state.adWindfallAt,120,'📺 Protein Windfall'); }
+
+//////////////////// DAILY LOGIN REWARD ////////////////////
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+function dayDiff(a,b){ const pa=a.split('-').map(Number),pb=b.split('-').map(Number); return Math.round((new Date(pb[0],pb[1]-1,pb[2])-new Date(pa[0],pa[1]-1,pa[2]))/86400000); }
+function checkDaily(){
+  const today=todayStr();
+  if(state.daily.last===today) return;                                   // already claimed today
+  if(state.daily.last && dayDiff(state.daily.last,today)===1) state.daily.streak++; else state.daily.streak=1; // missing a day resets
+  state.daily.last=today; save();
+  const k=state.daily.streak;
+  const minutes = k>=7 ? 300 : [0,30,45,60,90,120,150][Math.min(k,6)];    // escalating, day-7 milestone
+  const earned=Math.max(perSecRaw()*minutes*60, 25*minutes);             // idle-income value, floored for new players
+  state.gains+=earned; state.total+=earned; state.lifetime+=earned;
+  modal('🎁 Daily Bonus — Day '+k+(k>=7?' 🔥':''),
+    `<div class="sub">${k>1?'Login streak: <b style="color:#fff">'+k+' days</b> — keep it going!':'Welcome! Come back daily for bigger rewards.'}</div>
+     <div style="font-size:26px;margin-top:10px;color:var(--accent)">+${fmt(earned)} gains</div>
+     <div class="sub" style="margin-top:6px">≈ ${minutes} min of idle income${k>=7?' · Day-7 mega bonus!':''}.</div>`,
+    [{label:'Claim 💪', cls:'btnyes'}]);
+}
+
+//////////////////// DAILY QUESTS ////////////////////
+// 3 quests refresh each calendar day, seeded by the date so the picks are stable within a day.
+// Targets scale to the player's current progress; progress persists in state.quests.
+const QUEST_DEFS=[
+  {id:'reps',     kind:'reps',     icon:'👆', make:()=>{ const t=50+(rankIndex()+1)*40; return {target:t, label:'Do '+t+' reps', reward:Math.max(500, perSecRaw()*300)}; }},
+  {id:'buyitems', kind:'buyitems', icon:'🛒', make:()=>{ const t=5+rankIndex()*2;     return {target:t, label:'Buy '+t+' items', reward:Math.max(800, perSecRaw()*420)}; }},
+  {id:'earn',     kind:'earn',     icon:'💰', make:()=>{ const t=Math.max(2000, Math.ceil(perSecRaw()*600+perClick()*120)); return {target:t, label:'Earn '+fmt(t)+' gains', reward:Math.max(1000, perSecRaw()*480)}; }},
+  {id:'golden',   kind:'golden',   icon:'🥤', make:()=>({target:1, label:'Catch a golden shake', reward:Math.max(1500, perSecRaw()*600)})},
+  {id:'upgrade',  kind:'upgrade',  icon:'⭐', make:()=>({target:1, label:'Buy an upgrade', reward:Math.max(1200, perSecRaw()*540)})},
+];
+function questSeed(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+function questPick(seed){ const a=QUEST_DEFS.slice(); let x=seed||1; const rnd=()=>{ x=(x*1103515245+12345)&0x7fffffff; return x/0x7fffffff; };
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t; } return a.slice(0,3); }
+function ensureQuests(){
+  const today=todayStr();
+  if(state.quests && state.quests.date===today) return;
+  const picks=questPick(questSeed(today));
+  state.quests={ date:today, startLifetime:state.lifetime, list:picks.map(d=>{ const m=d.make(); return {id:d.id, kind:d.kind, icon:d.icon, label:m.label, target:m.target, reward:Math.ceil(m.reward), progress:0, claimed:false}; }) };
+  save();
+}
+function questCurrent(q){ if(q.kind==='earn') return Math.min(q.target, Math.max(0, state.lifetime-(state.quests.startLifetime||0))); return Math.min(q.target, q.progress); }
+function questDone(q){ return questCurrent(q)>=q.target; }
+// increment discrete-event quests (the 'earn' quest is computed live from lifetime)
+function questProgress(kind, amt){
+  if(!state.quests) return; let changed=false;
+  state.quests.list.forEach(q=>{ if(q.kind===kind && !q.claimed && q.progress<q.target){ q.progress=Math.min(q.target,q.progress+amt); changed=true; } });
+  if(changed){ if(activeTab==='quests') renderQuests(); updateQuestBadge(); }
+}
+function claimQuest(i, doubled){
+  const q=state.quests&&state.quests.list[i]; if(!q||q.claimed||!questDone(q)) return;
+  const reward=Math.ceil(q.reward*(doubled?2:1));
+  q.claimed=true; state.gains+=reward; state.total+=reward; state.lifetime+=reward;
+  toast('🎯 Quest complete — <b>+'+fmt(reward)+'</b>'+(doubled?' (2×!)':''));
+  beep(680,0.12); afterChange(true); renderQuests(); updateQuestBadge();
+}
+function updateQuestBadge(){ const tab=document.querySelector('.tab[data-tab=quests]'); if(!tab) return;
+  const n=state.quests? state.quests.list.filter(q=>!q.claimed&&questDone(q)).length:0;
+  tab.innerHTML='🎯 Quests'+(n?' <span class="qcount">'+n+'</span>':'');
+}
+function renderQuests(){
+  const el=$('quests'); if(!el) return; ensureQuests(); el.innerHTML='';
+  state.quests.list.forEach((q,i)=>{
+    const cur=questCurrent(q), done=cur>=q.target, pct=Math.min(100,cur/q.target*100);
+    const row=document.createElement('div'); row.className='qrow';
+    row.innerHTML=`<div class="qhead"><span class="qi">${q.icon}</span><span class="qname">${q.label}</span>
+      <span class="qrew">${q.claimed?'✓ claimed':'🎁 '+fmt(q.reward)}</span></div>
+      <div class="qbar"><i style="width:${pct}%"></i></div>
+      <div class="qfoot"><span class="sub">${fmt(cur)} / ${fmt(q.target)}</span><span class="qbtns"></span></div>`;
+    const btns=row.querySelector('.qbtns');
+    if(!q.claimed && done){
+      const c=document.createElement('button'); c.className='adbtn'; c.style.background='var(--good)'; c.style.color='#08220f'; c.textContent='Claim';
+      c.onclick=()=>claimQuest(i,false); btns.appendChild(c);
+      if(ads.available()){ const d=document.createElement('button'); d.className='adbtn'; d.textContent='📺 2×';
+        d.onclick=()=>{ if(q.claimed) return; ads.showRewarded('quest2x', ()=>claimQuest(i,true), ()=>toast('📺 Ad unavailable — try later')); }; btns.appendChild(d); }
+    }
+    el.appendChild(row);
+  });
+}
+
+//////////////////// ONBOARDING (fresh save only) ////////////////////
+let coachStep=-1;
+function startCoach(){ if(state.seenIntro || state.clicks>0 || totalOwned()>0){ state.seenIntro=true; return; } coachStep=0; showCoach(); }
+function showCoach(){ const c=$('coach');
+  if(coachStep===0) positionCoach(c,$('repbtn'),'👆 Tap <b>DO A REP</b> (or the dude) to train!');
+  else if(coachStep===1) positionCoach(c,$('panel-shop'),'🛒 Now buy your <b>first item</b> in the Shop to grow!');
+  else { endCoach(); return; }
+  c.style.display='block';
+}
+function positionCoach(c,target,html){ const r=target.getBoundingClientRect();
+  c.innerHTML='<span class="cx" id="coachx">✕</span>'+html;
+  c.style.left=Math.max(8,Math.min(window.innerWidth-248,r.left))+'px';
+  c.style.top=(r.top-70>10? r.top-70 : r.bottom+10)+'px';
+  $('coachx').onclick=endCoach;
+}
+function advanceCoach(to){ if(coachStep<0) return; coachStep=to; showCoach(); }
+function endCoach(){ coachStep=-1; const c=$('coach'); if(c) c.style.display='none'; state.seenIntro=true; save(); }
+function confettiBurst(x,y){ const em=['🎉','💪','⭐','🔥','🥤']; for(let i=0;i<16;i++){ const d=document.createElement('div'); d.className='confetti'; d.textContent=em[i%em.length]; d.style.left=(x+(Math.random()*120-60))+'px'; d.style.top=(y+(Math.random()*40-20))+'px'; document.body.appendChild(d); setTimeout(()=>d.remove(),1150); } }
+
+//////////////////// SOCIAL SHARING ////////////////////
+const SHARE_URL=(location.origin&&location.origin!=='null')? location.origin+location.pathname : 'https://your-domain.example/swole-clicker/';
+function shareSnapshot(){
+  const W=600,H=460,sc=document.createElement('canvas'); sc.width=W; sc.height=H; const x=sc.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'#243047'); g.addColorStop(1,'#10131a'); x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.fillStyle='#ffcc33'; x.font='bold 30px "Trebuchet MS",sans-serif'; x.fillText('💪 SWOLE CLICKER',24,46);
+  x.drawImage(cv, W-300,28, 280, 280*(CH/CW)); // live character incl. cosmetics
+  x.fillStyle='#eef2ff'; x.font='bold 26px "Trebuchet MS",sans-serif'; x.fillText(rankInfo().name,24,150);
+  x.font='15px "Trebuchet MS",sans-serif'; x.fillStyle='#8b95ab';
+  x.fillText('Lifetime gains',24,196); x.fillText('Trophies',24,248); x.fillText('Awards',24,300);
+  x.font='bold 28px "Trebuchet MS",sans-serif';
+  x.fillStyle='#5ee07a'; x.fillText(fmt(state.lifetime),24,224);
+  x.fillStyle='#ffd24a'; x.fillText(state.trophies+' 🏆',24,276);
+  x.fillStyle='#eef2ff'; x.fillText(Object.keys(state.achievements).length+' / '+ACHS.length,24,328);
+  x.fillStyle='#8b95ab'; x.font='14px "Trebuchet MS",sans-serif'; x.fillText('Can you out-lift me? Play free →',24,H-22);
+  return sc.toDataURL('image/png');
+}
+// resolve a shareable link — on CrazyGames use the SDK invite link (keeps users on-platform), else the page URL
+function shareLink(cb){
+  if(PLATFORM==='crazygames'){ try{ const g=window.CrazyGames&&window.CrazyGames.SDK&&window.CrazyGames.SDK.game;
+      if(g && typeof g.inviteLink==='function'){ const r=g.inviteLink({}); if(r&&r.then){ r.then(u=>cb(u||SHARE_URL)).catch(()=>cb(SHARE_URL)); return; } cb(r||SHARE_URL); return; } }catch(e){} }
+  cb(SHARE_URL);
+}
+function openShare(){
+  let img=''; try{ img=shareSnapshot(); }catch(e){}
+  const text=`I'm a ${rankInfo().name} with ${fmt(state.lifetime)} lifetime gains & ${state.trophies} 🏆 in SWOLE CLICKER! 💪`;
+  const ext = PLATFORM==='dev'; // external social links ONLY off-portal — CrazyGames/GD forbid navigating players away
+  modal('📣 Share your gains',
+    `${img?`<img id="shareImg" src="${img}" alt="my gains"/>`:''}
+     <div class="sub" style="margin-top:8px">${text}</div>
+     <div class="sharebtns">
+       ${ext?`<button id="shX" style="background:#1d9bf0">𝕏 Twitter</button>
+       <button id="shF" style="background:#1877f2">Facebook</button>`:''}
+       <button id="shC" style="background:#444a5e">🔗 Copy link</button>
+       <button id="shD" style="background:#3a8f4f">💾 Image</button>
+     </div>`,
+    [{label:'Close', cls:'btnno'}]);
+  const tEnc=encodeURIComponent(text), uEnc=encodeURIComponent(SHARE_URL);
+  const X=$('shX'),F=$('shF'),C=$('shC'),D=$('shD');
+  if(X) X.onclick=()=>window.open('https://twitter.com/intent/tweet?text='+tEnc+'&url='+uEnc,'_blank','noopener');
+  if(F) F.onclick=()=>window.open('https://www.facebook.com/sharer/sharer.php?u='+uEnc,'_blank','noopener');
+  if(C) C.onclick=()=>shareLink(u=>{ try{ navigator.clipboard.writeText(u); toast('🔗 Link copied!'); }catch(e){ toast('Copy not supported'); } });
+  if(D&&img) D.onclick=()=>{ const a=document.createElement('a'); a.href=img; a.download='my-swole-gains.png'; a.click(); };
+}
+// Hook for a future hosted leaderboard:  function submitScore(){ fetch(LEADERBOARD_URL,{method:'POST',body:JSON.stringify({lifetime:state.lifetime,trophies:state.trophies})}); }
+
+//////////////////// LOCKER ROOM (customization UI) ////////////////////
+function locSection(title,node){ const s=document.createElement('div'); s.className='locksec'; const h=document.createElement('div'); h.className='lockh'; h.textContent=title; s.appendChild(h); s.appendChild(node); return s; }
+function swatchRow(cols,sel,cb){ const w=document.createElement('div'); w.className='swatches'; cols.forEach((col,i)=>{ const sw=document.createElement('div'); sw.className='swatch'+(sel===i?' sel':''); sw.style.background=col; sw.onclick=()=>cb(i); w.appendChild(sw); }); return w; }
+function btnRow(opts,isSel,cb){ const w=document.createElement('div'); w.className='swatches'; opts.forEach(o=>{ const b=document.createElement('button'); b.className='mini'+(isSel(o)?' on':''); b.textContent=o.label; b.onclick=()=>cb(o); w.appendChild(b); }); return w; }
+function afterCos(){ save(); renderLocker(); }   // drawing updates live each frame from state.cos
+function renderLocker(){
+  const el=$('locker'); if(!el) return; el.innerHTML=''; const c=state.cos;
+  el.appendChild(locSection('Body Type', btnRow([{id:'male',label:'♂ Male'},{id:'female',label:'♀ Female'}], o=>c.body===o.id, o=>{ c.body=o.id; afterCos(); })));
+  el.appendChild(locSection('Skin Tone', swatchRow(SKINS,c.skin,i=>{ c.skin=i; afterCos(); })));
+  el.appendChild(locSection('Hair', btnRow(HAIR.map(h=>({id:h.id,label:h.name})), o=>c.hair===o.id, o=>{ c.hair=o.id; afterCos(); })));
+  el.appendChild(locSection('Hair Color', swatchRow(HAIRCOL,c.hairColor,i=>{ c.hairColor=i; afterCos(); })));
+  const grid=document.createElement('div'); grid.className='cosgrid';
+  ACCESSORIES.forEach(a=>{
+    const unlocked=cosUnlocked(a), on=!!c.eq[a.id];
+    const card=document.createElement('div'); card.className='coscard'+(on?' on':'')+(unlocked?'':' locked');
+    card.innerHTML=`<div class="ce">${a.emoji}</div><div class="cn">${a.name}</div>`+(unlocked?'':`<div class="lk">${cosLockText(a)}</div>`);
+    card.onclick=()=>{
+      if(unlocked){ if(on) delete c.eq[a.id]; else c.eq[a.id]=true; afterCos(); }
+      else if(a.buy){ if(state.gains>=a.buy){ state.gains-=a.buy; state.cosBought[a.id]=true; c.eq[a.id]=true; toast('🛍️ Unlocked <b>'+a.name+'</b>!'); updateUI(); afterCos(); } else toast('Need 💪 '+fmt(a.buy)+' for '+a.name); }
+      else toast('Locked — '+cosLockText(a).replace('🔒 ','requires: '));
+    };
+    grid.appendChild(card);
+  });
+  el.appendChild(locSection('Accessories', grid));
+}
+
+//////////////////// CANVAS: the dude ////////////////////
+const cv=$('c'), ctx=cv.getContext('2d');
+const CW=480, CH=520, DPR=Math.min(2, window.devicePixelRatio||1);
+cv.width=CW*DPR; cv.height=CH*DPR; ctx.scale(DPR,DPR);
+let pump=0, t=0;
+
+function limb(ax,ay,bx,by,wA,wMid,wB){
+  const dx=bx-ax, dy=by-ay, len=Math.hypot(dx,dy)||1, nx=-dy/len, ny=dx/len, mx=(ax+bx)/2, my=(ay+by)/2;
+  ctx.beginPath();
+  ctx.moveTo(ax+nx*wA, ay+ny*wA);
+  ctx.quadraticCurveTo(mx+nx*wMid*1.55, my+ny*wMid*1.55, bx+nx*wB, by+ny*wB);
+  ctx.lineTo(bx-nx*wB, by-ny*wB);
+  ctx.quadraticCurveTo(mx-nx*wMid*1.55, my-ny*wMid*1.55, ax-nx*wA, ay-ny*wA);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+}
+function lerp(a,b,t){ return a+(b-a)*t; }
+function sc(raw,k){ return Math.log10(raw+1)/k; }
+
+const CXC=CW/2, GROUND=452;
+
+// ---------- animation state ----------
+let curEx='idle', exEnergy=0, exClock=0, lastEx='curls';
+// which exercise each body part performs
+const EXMAP={arms:'curls',pecs:'bench',back:'pullup',delts:'press',abs:'crunch',legs:'squat',mass:'chug',roids:'flex'};
+const EXSPEED={curls:7,press:6,squat:5,bench:5.5,pullup:5,crunch:5,chug:3,flex:9};
+function exForPart(p){ return EXMAP[p]||'curls'; }
+function setExercise(ex,energy){ if(ex!==curEx){ curEx=ex; exClock=0; } exEnergy=Math.max(exEnergy,energy); lastEx=ex; }
+// map a canvas-logical point to the nearest body part
+function partAtPoint(lx,ly){
+  const cx=CXC;
+  const A=[['delts',cx,170],['pecs',cx,215],['abs',cx,265],['legs',cx,385],['arms',cx-74,205],['arms',cx+74,205]];
+  let best='pecs',bd=1e9; A.forEach(a=>{const d=(lx-a[1])**2+(ly-a[2])**2; if(d<bd){bd=d;best=a[0];}}); return best;
+}
+
+// ---------- body metrics (muscle sizes from what you bought) ----------
+function metrics(){
+  const r=partRaw(), flex=pump;
+  const overall=Math.min(1.3,sc(r.mass,1.7)), roid=Math.min(1.4,sc(r.roids,1.6));
+  const m={r,flex,overall,roid};
+  m.arms=Math.min(1.5,sc(r.arms,1.6)+overall*0.25+roid*0.4)+flex*0.25;
+  m.pecs=Math.min(1.5,sc(r.pecs,1.6)+overall*0.2+roid*0.3);
+  m.back=Math.min(1.5,sc(r.back,1.6)+roid*0.3);
+  m.delts=Math.min(1.5,sc(r.delts,1.6)+roid*0.35);
+  m.absm=Math.min(1.4,sc(r.abs,1.5));
+  m.legs=Math.min(1.5,sc(r.legs,1.6)+overall*0.25+roid*0.3);
+  m.ri=rankIndex(); m.headR=22;
+  m.shoulderW=24+m.delts*34+m.back*18+overall*8;
+  m.waistW=19+overall*7; m.trapW=7+m.delts*7+roid*16;
+  m.bicep=7+m.arms*20; m.fore=5+m.arms*11;
+  m.thigh=8+m.legs*18+overall*4; m.calf=6+m.legs*10;
+  m.pecSize=6+m.pecs*11; m.pecX=8+m.pecs*9;
+  // body type (cosmetic): female = narrower shoulders/waist, wider hips, rounder chest
+  m.female=(state.cos&&state.cos.body)==='female';
+  if(m.female){ m.shoulderW*=0.86; m.waistW*=0.82; }
+  m.hipMul=m.female?1.7:1.0;
+  // skin: chosen base tone (+ optional fake-tan), roid red tint layered ON TOP
+  let b=hexToRgb(SKINS[(state.cos&&state.cos.skin)||0]||SKINS[0]);
+  if(state.cos&&state.cos.eq&&state.cos.eq.faketan&&cosUnlocked(ACC_BY_ID.faketan)) b={r:lerp(b.r,255,.4),g:lerp(b.g,138,.4),b:lerp(b.b,30,.4)};
+  const k=Math.min(1,roid/1.2);
+  m.skin = roid>0.05 ? rgbStr(lerp(b.r,255,k),lerp(b.g,150,k),lerp(b.b,140,k)) : rgbStr(b.r,b.g,b.b);
+  m.skinLine = rgbStr(b.r*0.72,b.g*0.68,b.b*0.66);
+  return m;
+}
+
+// ---------- equipment props ----------
+function drawBarH(xc,y,halfW){
+  ctx.save();
+  ctx.strokeStyle='#cdd2dc'; ctx.lineWidth=5; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(xc-halfW,y); ctx.lineTo(xc+halfW,y); ctx.stroke();
+  ctx.fillStyle='#23272f'; ctx.strokeStyle='#4a5163'; ctx.lineWidth=2;
+  [-1,1].forEach(d=>{ const px=xc+d*(halfW-3); ctx.beginPath(); ctx.ellipse(px,y,5,16,0,0,7); ctx.fill(); ctx.stroke(); });
+  ctx.restore();
+}
+function drawDumbbell(x,y){
+  ctx.save();
+  ctx.strokeStyle='#cdd2dc'; ctx.lineWidth=4; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x-11,y); ctx.lineTo(x+11,y); ctx.stroke();
+  ctx.fillStyle='#23272f'; ctx.strokeStyle='#4a5163'; ctx.lineWidth=2;
+  [-1,1].forEach(d=>{ ctx.beginPath(); ctx.ellipse(x+d*12,y,5,9,0,0,7); ctx.fill(); ctx.stroke(); });
+  ctx.restore();
+}
+function drawShake(x,y){
+  ctx.save();
+  ctx.fillStyle='#e85d75'; ctx.strokeStyle='#a83a52'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(x-8,y-12); ctx.lineTo(x+8,y-12); ctx.lineTo(x+6,y+12); ctx.lineTo(x-6,y+12); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#fff'; ctx.fillRect(x-9,y-15,18,5);
+  ctx.fillStyle='#b03a52'; ctx.fillRect(x-2,y-22,4,8);
+  ctx.restore();
+}
+function drawBench(centerX,topY){
+  ctx.save();
+  ctx.fillStyle='#414a5e'; ctx.strokeStyle='#2a3040'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.rect(centerX-82,topY,132,14); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#2a3040';
+  ctx.fillRect(centerX-74,topY+14,8,GROUND-topY-14);
+  ctx.fillRect(centerX+38,topY+14,8,GROUND-topY-14);
+  ctx.restore();
+}
+function drawPullupBar(barY){
+  ctx.save();
+  ctx.fillStyle='#414a5e';
+  ctx.fillRect(CXC-82,44,8,barY-44); ctx.fillRect(CXC+74,44,8,barY-44);
+  ctx.strokeStyle='#cdd2dc'; ctx.lineWidth=6; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(CXC-84,barY); ctx.lineTo(CXC+84,barY); ctx.stroke();
+  ctx.restore();
+}
+
+// ---------- shared body parts ----------
+function drawFoot(k,f,m){
+  const dir=Math.sign(f.x-k.x)||1;
+  ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2;
+  ctx.beginPath(); ctx.ellipse(f.x+dir*4,f.y+2,12,5,0,0,7); ctx.fill(); ctx.stroke();
+}
+function drawShorts(J,m){
+  ctx.save(); ctx.fillStyle=m.ri>=4?'#3a64d8':'#39414f';
+  ctx.beginPath();
+  ctx.moveTo(J.hipL.x-3,J.hipL.y-14); ctx.lineTo(J.hipR.x+3,J.hipR.y-14);
+  ctx.lineTo(J.kR.x+m.calf*0.4,lerp(J.hipR.y,J.kR.y,0.45));
+  ctx.lineTo((J.hipL.x+J.hipR.x)/2,J.hipL.y+16);
+  ctx.lineTo(J.kL.x-m.calf*0.4,lerp(J.hipL.y,J.kL.y,0.45));
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+function drawTankPecsAbs(J,m){
+  const sL=J.sL,sR=J.sR, scx=(sL.x+sR.x)/2, scy=(sL.y+sR.y)/2;
+  const hcx=(J.hipL.x+J.hipR.x)/2, hcy=(J.hipL.y+J.hipR.y)/2, h=hcy-scy;
+  if(m.ri>=2){ ctx.save(); ctx.fillStyle=m.ri>=7?'#e0b020':'#2f3a52';
+    ctx.beginPath();
+    ctx.moveTo(sL.x+3,sL.y+2);
+    ctx.quadraticCurveTo(sL.x,scy+h*0.35,J.hipL.x+1,J.hipL.y-2);
+    ctx.lineTo(J.hipR.x-1,J.hipR.y-2);
+    ctx.quadraticCurveTo(sR.x,scy+h*0.35,sR.x-3,sR.y+2);
+    ctx.lineTo(scx+m.shoulderW*0.42,sL.y+2);
+    ctx.quadraticCurveTo(scx,scy+h*0.22,scx-m.shoulderW*0.42,sR.y+2);
+    ctx.closePath(); ctx.fill(); ctx.restore(); }
+  ctx.save(); ctx.strokeStyle='rgba(120,80,50,.55)'; ctx.lineWidth=2;
+  const py=scy+h*(m.female?0.26:0.22);
+  const pr=m.female?(9+m.pecs*9):m.pecSize, prx=m.female?(11+m.pecs*7):m.pecX, pry=m.female?0.95:0.8;
+  ctx.beginPath(); ctx.ellipse(scx-prx,py,pr,pr*pry,0,0,7); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(scx+prx,py,pr,pr*pry,0,0,7); ctx.stroke(); ctx.restore();
+  if(m.absm>0.12){ ctx.save(); ctx.strokeStyle='rgba(120,80,50,.6)'; ctx.lineWidth=1.6; ctx.globalAlpha=Math.min(1,m.absm);
+    const aT=scy+h*0.45, aB=hcy-8, aw=8+m.overall*4;
+    ctx.beginPath(); ctx.moveTo(scx,aT); ctx.lineTo(scx,aB); ctx.stroke();
+    for(let i=0;i<3;i++){ const yy=aT+(aB-aT)*((i+1)/3.4); ctx.beginPath(); ctx.moveTo(scx-aw,yy); ctx.lineTo(scx+aw,yy); ctx.stroke(); }
+    ctx.restore(); }
+}
+
+// ---------- the figure, drawn from a skeleton ----------
+function drawBody(J,m,opts){
+  const front=opts.front!==false;
+  ctx.lineJoin='round'; ctx.lineCap='round';
+  ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2;
+  // legs (behind)
+  limb(J.hipL.x,J.hipL.y,J.kL.x,J.kL.y,m.thigh,m.thigh*1.15,m.calf);
+  limb(J.kL.x,J.kL.y,J.fL.x,J.fL.y,m.calf,m.calf*1.05,4);
+  limb(J.hipR.x,J.hipR.y,J.kR.x,J.kR.y,m.thigh,m.thigh*1.15,m.calf);
+  limb(J.kR.x,J.kR.y,J.fR.x,J.fR.y,m.calf,m.calf*1.05,4);
+  drawFoot(J.kL,J.fL,m); drawFoot(J.kR,J.fR,m);
+  if(opts.shorts!==false) drawShorts(J,m);
+  // torso
+  const scx=(J.sL.x+J.sR.x)/2,scy=(J.sL.y+J.sR.y)/2,hcx=(J.hipL.x+J.hipR.x)/2,hcy=(J.hipL.y+J.hipR.y)/2;
+  ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2;
+  if(opts.torso==='capsule'){
+    const w=opts.capW||m.shoulderW*0.5; limb(scx,scy,hcx,hcy,w,w*0.95,w*0.82);
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(J.sL.x,J.sL.y);
+    ctx.quadraticCurveTo(J.sL.x-4,(J.sL.y+J.hipL.y)/2,J.hipL.x,J.hipL.y);
+    ctx.quadraticCurveTo(hcx,hcy+9,J.hipR.x,J.hipR.y);
+    ctx.quadraticCurveTo(J.sR.x+4,(J.sR.y+J.hipR.y)/2,J.sR.x,J.sR.y);
+    ctx.quadraticCurveTo(scx,scy-6,J.sL.x,J.sL.y);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  if(front && opts.torso!=='capsule') drawTankPecsAbs(J,m);
+  // neck / traps (grows with delts + roids)
+  ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2;
+  limb(scx,scy,J.head.x,J.head.y+m.headR*0.5,m.trapW*0.6,m.trapW*0.9,m.trapW*0.7);
+  // arms (in front)
+  function arm(s,e,h){
+    limb(s.x,s.y,e.x,e.y,8,m.bicep,m.fore);
+    limb(e.x,e.y,h.x,h.y,m.fore,m.fore*0.9,6);
+    ctx.beginPath(); ctx.arc(h.x,h.y,6+m.arms*2,0,7); ctx.fill(); ctx.stroke();
+    if(m.roid>0.6){ ctx.save(); ctx.strokeStyle='rgba(90,40,40,.5)'; ctx.lineWidth=1.4; ctx.globalAlpha=Math.min(1,(m.roid-0.6)/0.6);
+      const mx=(s.x+e.x)/2,my=(s.y+e.y)/2,d=Math.sign(e.x-s.x)||1;
+      ctx.beginPath(); ctx.moveTo(mx-4*d,my-m.bicep*0.4); ctx.quadraticCurveTo(mx+2*d,my,mx-2*d,my+m.bicep*0.4); ctx.stroke(); ctx.restore(); }
+  }
+  arm(J.sL,J.eL,J.hL); arm(J.sR,J.eR,J.hR);
+  // head
+  ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2;
+  ctx.beginPath(); ctx.arc(J.head.x,J.head.y,m.headR,0,7); ctx.fill(); ctx.stroke();
+  drawHair(J,m); // chosen hair on the scalp (under the rank headband)
+  if(m.ri>=4){ ctx.fillStyle=m.ri>=9?'#ffd24a':'#d83a3a';
+    ctx.fillRect(J.head.x-m.headR,J.head.y-m.headR*0.55,m.headR*2,7);
+    ctx.beginPath(); ctx.moveTo(J.head.x+m.headR-2,J.head.y-m.headR*0.4); ctx.lineTo(J.head.x+m.headR+10,J.head.y-2); ctx.lineTo(J.head.x+m.headR+3,J.head.y-m.headR*0.1); ctx.closePath(); ctx.fill(); }
+  // face
+  ctx.fillStyle='#3a2a1c';
+  ctx.beginPath(); ctx.arc(J.head.x-7,J.head.y-2,2.3,0,7); ctx.fill();
+  ctx.beginPath(); ctx.arc(J.head.x+7,J.head.y-2,2.3,0,7); ctx.fill();
+  if(opts.active){ ctx.beginPath(); ctx.ellipse(J.head.x,J.head.y+7,3.5,3,0,0,7); ctx.fill(); }
+  else { ctx.strokeStyle='#3a2a1c'; ctx.lineWidth=2; ctx.beginPath();
+    if(m.overall+m.arms>1.2) ctx.arc(J.head.x,J.head.y+4,6,0.15*Math.PI,0.85*Math.PI);
+    else { ctx.moveTo(J.head.x-5,J.head.y+8); ctx.lineTo(J.head.x+5,J.head.y+8); }
+    ctx.stroke(); }
+  if(opts.active||m.flex>0.1){ ctx.fillStyle='rgba(120,200,255,.9)'; ctx.beginPath(); ctx.arc(J.head.x+m.headR-2,J.head.y-6,2.5+m.flex*2,0,7); ctx.fill(); }
+  drawAccessories(J,m); // equipped silly accessories (glasses, mustache, hats, chain…)
+}
+
+function baseUpright(m,breathe){
+  const cx=CXC, sy=196, hy=300, ky=372, fy=452, st=14+m.legs*5+m.overall*3;
+  return {
+    head:{x:cx,y:166-breathe},
+    sL:{x:cx-m.shoulderW,y:sy}, sR:{x:cx+m.shoulderW,y:sy},
+    hipL:{x:cx-m.waistW*0.8*m.hipMul,y:hy}, hipR:{x:cx+m.waistW*0.8*m.hipMul,y:hy},
+    kL:{x:cx-st,y:ky}, kR:{x:cx+st,y:ky}, fL:{x:cx-st-3,y:fy}, fR:{x:cx+st+3,y:fy}
+  };
+}
+
+function drawDude(){
+  ctx.clearRect(0,0,CW,CH);
+  const m=metrics(), cx=CXC;
+  ctx.fillStyle='rgba(0,0,0,.28)';
+  ctx.beginPath(); ctx.ellipse(cx,GROUND+8,70+(m.overall+m.legs)*22,16,0,0,7); ctx.fill();
+
+  const breathe=Math.sin(t*2)*1.2;
+  const active = curEx!=='idle' && exEnergy>0;
+  const sp=EXSPEED[curEx]||6;
+  const ph=active ? (1-Math.cos(exClock*sp))/2 : 0; // rep cycle 0..1..0
+  let J=baseUpright(m,breathe);
+  let opts={front:true,torso:'taper',shorts:true,active};
+  let back=null, frontD=null;
+  const sy=196;
+
+  if(!active){
+    const lift=10+m.arms*5+m.delts*4+m.flex*6;
+    J.eL={x:J.sL.x-(16+m.arms*9),y:sy-lift}; J.hL={x:cx-(m.headR+6),y:J.head.y+2};
+    J.eR={x:J.sR.x+(16+m.arms*9),y:sy-lift}; J.hR={x:cx+(m.headR+6),y:J.head.y+2};
+  } else if(curEx==='curls'){               // arms — alternating dumbbell curls
+    const eY=sy+46;
+    J.eL={x:cx-(m.waistW+8),y:eY}; J.eR={x:cx+(m.waistW+8),y:eY};
+    const cL=ph, cR=1-ph;
+    J.hL={x:lerp(J.eL.x,cx-12,cL),y:lerp(eY+34,eY-28,cL)};
+    J.hR={x:lerp(J.eR.x,cx+12,cR),y:lerp(eY+34,eY-28,cR)};
+    frontD=()=>{ drawDumbbell(J.hL.x,J.hL.y); drawDumbbell(J.hR.x,J.hR.y); };
+  } else if(curEx==='press'){               // delts — overhead barbell press
+    const upY=lerp(sy-2,J.head.y-50,ph);
+    J.hL={x:cx-24,y:upY}; J.hR={x:cx+24,y:upY};
+    J.eL={x:cx-(30+(1-ph)*12),y:(sy+upY)/2+6}; J.eR={x:cx+(30+(1-ph)*12),y:(sy+upY)/2+6};
+    frontD=()=>drawBarH(cx,upY,44);
+  } else if(curEx==='squat'){               // legs — barbell squat
+    const drop=ph*48;
+    J.head.y+=drop*0.96; J.sL.y+=drop; J.sR.y+=drop; J.hipL.y+=drop; J.hipR.y+=drop;
+    const st=18+m.legs*5+drop*0.45;
+    J.kL={x:cx-st,y:372+drop*0.18}; J.kR={x:cx+st,y:372+drop*0.18};
+    J.fL={x:cx-st+2,y:452}; J.fR={x:cx+st-2,y:452};
+    J.hL={x:J.sL.x-4,y:J.sL.y-6}; J.hR={x:J.sR.x+4,y:J.sR.y-6};
+    J.eL={x:J.sL.x+2,y:J.sL.y+24}; J.eR={x:J.sR.x-2,y:J.sR.y+24};
+    back=()=>drawBarH(cx,J.sL.y-6,m.shoulderW+26);
+  } else if(curEx==='pullup'){              // back — pull-ups on a bar
+    const barY=104, rise=ph*24;
+    J.head={x:cx,y:barY+44-rise};
+    J.sL={x:cx-m.shoulderW*0.7,y:barY+70-rise}; J.sR={x:cx+m.shoulderW*0.7,y:barY+70-rise};
+    J.hipL={x:cx-m.waistW*0.7,y:barY+150-rise}; J.hipR={x:cx+m.waistW*0.7,y:barY+150-rise};
+    J.kL={x:cx-16,y:barY+196-rise}; J.kR={x:cx+16,y:barY+196-rise};
+    J.fL={x:cx-22,y:barY+232-rise}; J.fR={x:cx+22,y:barY+232-rise};
+    J.hL={x:cx-24,y:barY}; J.hR={x:cx+24,y:barY};
+    J.eL={x:lerp(J.sL.x,J.hL.x,0.5)-(2+ph*7),y:(J.sL.y+barY)/2}; J.eR={x:lerp(J.sR.x,J.hR.x,0.5)+(2+ph*7),y:(J.sR.y+barY)/2};
+    back=()=>drawPullupBar(barY);
+  } else if(curEx==='bench'){               // pecs — bench press (side view + bench + barbell)
+    opts.torso='capsule'; opts.front=false; opts.shorts=false; opts.capW=15+m.pecs*8+m.overall*4;
+    const benchY=300, bodyY=benchY-14-m.overall*4;
+    J.hipL={x:cx-42,y:bodyY+2}; J.hipR={x:cx-42,y:bodyY+8};
+    J.sL={x:cx+30,y:bodyY-2}; J.sR={x:cx+30,y:bodyY+6};
+    J.head={x:cx+66,y:bodyY+2};
+    J.kL={x:cx-58,y:benchY+44}; J.kR={x:cx-50,y:benchY+46};
+    J.fL={x:cx-52,y:GROUND}; J.fR={x:cx-42,y:GROUND};
+    const barY=bodyY-(24+ph*48);
+    J.hL={x:cx+22,y:barY}; J.hR={x:cx+30,y:barY};
+    J.eL={x:cx+40,y:(bodyY+barY)/2}; J.eR={x:cx+36,y:(bodyY+barY)/2+5};
+    back=()=>drawBench(cx-8,benchY);
+    frontD=()=>drawBarH(cx+26,barY,42);
+  } else if(curEx==='crunch'){              // abs — sit-ups on the floor (side view)
+    opts.torso='capsule'; opts.front=false; opts.shorts=false; opts.capW=16+m.absm*6+m.overall*4;
+    const fl=GROUND-12;
+    J.hipL={x:cx-6,y:fl}; J.hipR={x:cx-6,y:fl-8};
+    J.kL={x:cx+30,y:fl-40}; J.kR={x:cx+34,y:fl-44};
+    J.fL={x:cx+58,y:fl}; J.fR={x:cx+62,y:fl};
+    const ang=lerp(0.05,0.9,ph), tl=70;
+    const sxx=cx-6-Math.cos(ang)*tl, syy=fl-Math.sin(ang)*tl;
+    J.sL={x:sxx-2,y:syy-4}; J.sR={x:sxx+2,y:syy+4};
+    J.head={x:sxx-Math.cos(ang)*22,y:syy-Math.sin(ang)*22};
+    J.hL={x:J.head.x-2,y:J.head.y+4}; J.hR={x:J.head.x+6,y:J.head.y+10};
+    J.eL={x:(J.sL.x+J.head.x)/2-10,y:(J.sL.y+J.head.y)/2}; J.eR={x:(J.sR.x+J.head.x)/2-6,y:(J.sR.y+J.head.y)/2+6};
+  } else if(curEx==='chug'){                // mass — chug a protein shake
+    const eY=sy+44;
+    J.eL={x:cx-(m.waistW+8),y:eY}; J.hL={x:cx-(m.waistW+6),y:sy+86};
+    J.hR={x:lerp(cx+(m.waistW+8),cx+8,ph),y:lerp(sy+82,J.head.y+4,ph)};
+    J.eR={x:cx+(m.waistW+12),y:lerp(eY,J.head.y+28,ph)};
+    if(ph>0.5) J.head.x+=ph*3;
+    frontD=()=>drawShake(J.hR.x,J.hR.y);
+  } else if(curEx==='flex'){                // roids — most-muscular pose pulse
+    m.bicep+=(0.5+ph*0.5)*5; m.arms+=ph*0.15;
+    J.eL={x:cx-(m.shoulderW+12),y:sy+26}; J.hL={x:cx-16,y:sy+66};
+    J.eR={x:cx+(m.shoulderW+12),y:sy+26}; J.hR={x:cx+16,y:sy+66};
+  } else {                                  // fallback
+    J.eL={x:J.sL.x-20,y:sy-8}; J.hL={x:cx-(m.headR+6),y:J.head.y+2};
+    J.eR={x:J.sR.x+20,y:sy-8}; J.hR={x:cx+(m.headR+6),y:J.head.y+2};
+  }
+
+  if(back) back();
+  drawBody(J,m,opts);
+  if(frontD) frontD();
+
+  // particles
+  ctx.fillStyle='rgba(150,210,255,.85)';
+  particles.forEach(p=>{ ctx.globalAlpha=Math.max(0,1-p.t/p.life); ctx.beginPath(); ctx.arc(p.x,p.y,2.2,0,7); ctx.fill(); });
+  ctx.globalAlpha=1;
+}
+
+//////////////////// LOOP ////////////////////
+let last=performance.now(), saveAcc=0, rafId=null;
+function loop(now){
+  const dt=Math.min(0.1,(now-last)/1000); last=now;
+  const inc=perSec()*dt;
+  if(inc>0){ state.gains+=inc; state.total+=inc; state.lifetime+=inc; }
+  t+=dt; state.playtime+=dt;
+  pump=Math.max(0,pump-dt*2.2);
+  if(exEnergy>0){ exEnergy=Math.max(0,exEnergy-dt); exClock+=dt; }
+  if(exEnergy<=0 && curEx!=='idle') curEx='idle';
+  if(frenzy>0) frenzy=Math.max(0,frenzy-dt);
+  // particles
+  particles.forEach(p=>{ p.t+=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=160*dt; });
+  particles=particles.filter(p=>p.t<p.life);
+  // golden
+  goldTimer-=dt; if(goldTimer<=0 && !goldActive){ spawnGold(); scheduleGold(); }
+  // periodic
+  saveAcc+=dt; if(saveAcc>2){ saveAcc=0; checkAchievements(); ensureQuests(); updateUI(); updateAdButtons(); updateQuestBadge();
+    if(activeTab==='stats') renderStats(); if(activeTab==='quests') renderQuests(); }
+  drawDude();
+  rafId=requestAnimationFrame(loop);
+}
+// Pause the render loop when the tab is hidden; idle income is credited from the
+// timestamp on return (visibilitychange handler) so it never relies on the rAF loop.
+function startLoop(){ if(rafId==null){ last=performance.now(); rafId=requestAnimationFrame(loop); } }
+function stopLoop(){ if(rafId!=null){ cancelAnimationFrame(rafId); rafId=null; } }
+
+//////////////////// OFFLINE PROGRESS ////////////////////
+function offlineProgress(){
+  const away=(Date.now()-(state.lastSeen||Date.now()))/1000;
+  if(away<60) return;
+  const capped=Math.min(away, 3*3600); // 3h cap
+  const earned=perSecRaw()*capped*0.5; // 50% efficiency
+  if(earned<=0) return;
+  state.gains+=earned; state.total+=earned; state.lifetime+=earned;
+  // (placement a) rewarded ad to double offline earnings — only offered if ads are available.
+  // the plain claim button triggers an interstitial on close (natural break, 3-min guarded).
+  const btns=[{label:'Get swole 💪', cls:'btnyes', fn:()=>ads.showInterstitial()}];
+  if(ads.available()) btns.unshift({label:'📺 Watch: 2× it', cls:'btnno', fn:()=>{
+    ads.showRewarded('offline2x',
+      ()=>{ state.gains+=earned; state.total+=earned; state.lifetime+=earned; toast('📺 Offline earnings doubled! +'+fmt(earned)); afterChange(true); },
+      ()=>toast('📺 Ad unavailable — try later')); }});
+  modal('💤 While you were gone…',
+    `<div class="sub">You were away for <b style="color:#fff">${fmtTime(away)}</b>${away>10800?' (capped at 3h)':''}.</div>
+     <div style="font-size:26px;margin-top:10px;color:var(--accent)">+${fmt(earned)} gains</div>
+     <div class="sub" style="margin-top:6px">Idle earnings run at 50% rate while the tab is closed.</div>`,
+    btns);
+}
+
+//////////////////// EVENTS ////////////////////
+// touchstart makes reps feel instant on phones; the 700ms guard stops the
+// browser's synthetic click from firing a second rep.
+let touchedAt=0;
+function bindTap(el, handler){
+  el.addEventListener('touchstart', e=>{ e.preventDefault(); touchedAt=Date.now(); const tt=e.changedTouches&&e.changedTouches[0]; handler(tt?tt.clientX:undefined, tt?tt.clientY:undefined); }, {passive:false});
+  el.addEventListener('click', e=>{ if(Date.now()-touchedAt<700) return; handler(e.clientX,e.clientY); });
+}
+bindTap(cv,(x,y)=>doRep(x,y));
+bindTap($('repbtn'),()=>doRep());
+document.addEventListener('keydown',e=>{ if(e.code==='Space'&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){ e.preventDefault(); doRep(); }});
+
+document.querySelectorAll('.tab').forEach(tb=>tb.addEventListener('click',()=>{
+  activeTab=tb.dataset.tab;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===tb));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+activeTab));
+  if(activeTab==='shop') renderShop(); if(activeTab==='upgrades') renderUpgrades();
+  if(activeTab==='ach') renderAch(); if(activeTab==='quests') renderQuests();
+  if(activeTab==='locker') renderLocker(); if(activeTab==='stats') renderStats();
+}));
+
+// rewarded-ad placements (b) frenzy + (c) windfall — cooldowns tracked in save, graceful on fail
+$('adfrenzy').onclick=()=>{ if($('adfrenzy').disabled) return;
+  ads.showRewarded('frenzy',
+    ()=>{ frenzy=Math.max(frenzy,120); state.adFrenzyAt=Date.now(); toast('🔥 <b>7× Frenzy</b> for 2 minutes!'); updateUI(); updateAdButtons(); save(); },
+    ()=>toast('📺 Ad unavailable — try later')); };
+$('adwindfall').onclick=()=>{ if($('adwindfall').disabled) return;
+  ads.showRewarded('windfall',
+    ()=>{ const lump=Math.max(perClick()*300, perSecRaw()*600, 500); state.gains+=lump; state.total+=lump; state.lifetime+=lump; state.adWindfallAt=Date.now(); toast('✨ <b>+'+fmt(lump)+'</b> protein windfall!'); spawnFloat('+'+fmt(lump)); shakeStage(); afterChange(true); updateAdButtons(); },
+    ()=>toast('📺 Ad unavailable — try later')); };
+$('sharebtn').onclick=openShare;
+
+// pause render loop when hidden; credit idle income from the hidden duration on return
+let hiddenAt=0;
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){ hiddenAt=Date.now(); stopLoop(); save(); }
+  else { if(hiddenAt){ const away=(Date.now()-hiddenAt)/1000; const g=perSec()*Math.min(away,3*3600); if(g>0){ state.gains+=g; state.total+=g; state.lifetime+=g; } hiddenAt=0; } startLoop(); }
+});
+$('buy1').addEventListener('click',()=>{ buyAmt=1; $('buy1').classList.add('on'); $('buy10').classList.remove('on'); renderShop(); });
+$('buy10').addEventListener('click',()=>{ buyAmt=10; $('buy10').classList.add('on'); $('buy1').classList.remove('on'); renderShop(); });
+
+$('prestigebtn').addEventListener('click',()=>{
+  const proj=projectedTrophies()-state.trophies; if(proj<=0) return;
+  modal('🏆 Hit the Stage?',
+    `<div class="sub">Compete in a tournament: <b style="color:#fff">reset this run</b> (gains, items & upgrades) in exchange for permanent trophies.</div>
+     <div style="font-size:24px;margin-top:12px;color:#b06bff">+${proj} 🏆 → ×${(1+(state.trophies+proj)*0.03).toFixed(2)} forever</div>
+     <div class="sub" style="margin-top:6px">Awards, trophies & prestige count are kept.</div>`,
+    [{label:'Hit the stage', cls:'btnyes', fn:doPrestige}, {label:'Not yet', cls:'btnno'}]);
+});
+$('soundbtn').addEventListener('click',()=>{ state.sound=!state.sound; $('soundbtn').textContent=state.sound?'🔊 Sound: On':'🔇 Sound: Off'; beep(500,0.08); save(); });
+$('savebtn').addEventListener('click',()=>{ save(); $('savebtn').textContent='✓ Saved'; setTimeout(()=>$('savebtn').textContent='💾 Save',900); });
+$('exportbtn').addEventListener('click',()=>{ save(); const code=btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+  modal('⤴ Export Save', `<div class="sub">Copy this code to back up or move your gains:</div><textarea readonly>${code}</textarea>`,
+    [{label:'Done', cls:'btnyes'}]); });
+$('importbtn').addEventListener('click',()=>{
+  modal('⤵ Import Save', `<div class="sub">Paste a save code:</div><textarea id="impta"></textarea>`,
+    [{label:'Import', cls:'btnyes', fn:()=>{ try{ const raw=JSON.parse(decodeURIComponent(escape(atob($('impta').value.trim()))));
+        const m=migrate(raw); if(m){ state=m; recomputeAchBonus(); renderAll(); save(); toast('✓ Save imported!'); } }catch(e){ toast('❌ Invalid code'); } }},
+     {label:'Cancel', cls:'btnno'}]); });
+$('resetbtn').addEventListener('click',()=>{
+  modal('♻ Full Reset?', `<div class="sub">This wipes <b style="color:#fff">everything</b> — gains, items, awards, trophies. No undo.</div>`,
+    [{label:'Wipe it all', cls:'btnyes', fn:()=>{ state=defaultState(); recomputeAchBonus(); renderAll(); save(); }},
+     {label:'Cancel', cls:'btnno'}]); });
+
+setInterval(save, 10000);
+window.addEventListener('beforeunload', save);
+
+//////////////////// START ////////////////////
+function boot(){
+  load();              // reads CrazyGames cloud save on the portal, else localStorage
+  if(PLATFORM==='selfhost'){ const ar=document.getElementById('adrow'); if(ar) ar.style.display='none'; } // no ads on the website build
+  recomputeAchBonus();
+  ensureQuests();      // seed today's daily quests
+  $('soundbtn').textContent=state.sound?'🔊 Sound: On':'🔇 Sound: Off';
+  scheduleGold();
+  renderAll();
+  updateAdButtons();
+  offlineProgress();   // modal (queued)
+  checkDaily();        // daily-login reward modal (queued after offline)
+  startCoach();        // first-60s coach-marks on a fresh save only
+  startLoop();
+}
+// On CrazyGames, wait for SDK.init() (it preloads the cloud save) before reading the save.
+// Hard fallback timer guarantees the game always starts even if the SDK never loads.
+if(PLATFORM==='crazygames'){ let booted=false; const go=()=>{ if(booted) return; booted=true; boot(); }; onCgReady(go); setTimeout(go,4000); }
+else boot();
+</script>
+</body>
+</html>

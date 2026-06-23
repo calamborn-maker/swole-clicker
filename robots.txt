@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://calamborn-maker.github.io/swole-clicker/sitemap.xml
