@@ -1,0 +1,73 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Swole Clicker — preview renderer</title>
+<style>body{margin:0;background:#10131a;color:#fff;font-family:sans-serif} iframe{position:absolute;left:-3000px;top:0;width:480px;height:900px;border:0} img{display:block;max-width:100%;margin:8px 0}</style>
+</head><body>
+<!-- Renders marketing images from the live game drawing. Serve the repo root over http and open
+     tools/preview.html (or run tools/render-previews.sh, which uses headless Chrome). -->
+<iframe id="g" src="../index.html"></iframe>
+<div id="out"></div>
+<script>
+const FONT='"Trebuchet MS",Verdana,sans-serif';
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+async function main(){
+  const f=document.getElementById('g'); await new Promise(r=>f.complete||f.contentDocument&&f.contentDocument.readyState==='complete'?r():f.addEventListener('load',r)); await wait(1500);
+  const W=f.contentWindow;
+  W.eval(`while(document.getElementById('modalwrap').style.display==='flex') closeModal(); endCoach(); stopLoop(); save=()=>{}; cleanRender=true;`);
+  // pose the lifter and grab a copy of the game canvas
+  const snap=(cfg)=>W.eval(`(()=>{ const c=${JSON.stringify(cfg)};
+    state=defaultState(); MUSCLES.forEach(mu=>state.muscles[mu.id]=c.pts); Object.assign(state.owned,c.owned||{}); state.total=c.total||0; state.trophies=c.trophies||0;
+    state.view=c.view||'front'; Object.assign(state.cos,c.cos||{}); state.cos.eq=c.eq||{}; (c.rivals||[]).forEach(r=>state.rivals[r]={beat:true,wins:1});
+    musDirty=true; gymKey=''; curEx=c.ex||'idle'; exEnergy=c.ex?5:0; exClock=c.ex?Math.PI*(c.ph||1)/EX[c.ex].sp:0; idleIdx=c.idle||0; idleClock=0;
+    poseFrom=null; blendT=1; poseKey=(c.ex?c.ex:'idle'+idleIdx)+state.view; turnT=-1; hoverMus=null; for(const k in musFlash) musFlash[k]=0;
+    stageOn=!!c.stage; drawDude(0); stageOn=false; const o=document.createElement('canvas'); o.width=cv.width; o.height=cv.height; o.getContext('2d').drawImage(cv,0,0); return o; })()`);
+  const noodle=snap({pts:0, total:0, idle:0});
+  const mid=snap({pts:250, total:2e7, owned:{dumbbell:6,bench:4,shake:3}, idle:1});
+  const beast=snap({pts:1600, total:2e13, owned:{gainer:12,dumbbell:9,squatrack:3}, idle:2, stage:true});
+  const dungeon=snap({pts:1200, total:6e9, owned:{gainer:10,dumbbell:9,squatrack:3,shake:2}, idle:0, eq:{champbelt:true}, rivals:['ollie']});
+
+  // crop helper: draw the lifter area of a snap (it's 480x520 logical, drawn at the game's DPR)
+  const put=(g,src,x,y,w,h,crop)=>{ const k=src.width/480, c=crop||[0,0,480,520]; g.drawImage(src,c[0]*k,c[1]*k,c[2]*k,c[3]*k,x,y,w,h); };
+  const title=(g,x,y,size,align)=>{ g.save(); g.textAlign=align||'left'; g.font=`bold ${size}px ${FONT}`; g.lineWidth=size*0.14; g.strokeStyle='#1a1206'; g.lineJoin='round';
+    const gr=g.createLinearGradient(0,y-size,0,y); gr.addColorStop(0,'#fff6d6'); gr.addColorStop(1,'#ffcc33'); g.strokeText('SWOLE CLICKER',x,y); g.fillStyle=gr; g.fillText('SWOLE CLICKER',x,y); g.restore(); };
+  const card=(g,src,x,y,w,h,label)=>{ g.save(); g.beginPath(); g.roundRect(x,y,w,h,14); g.clip(); put(g,src,x,y,w,h,[110,112,260,260*h/w]); g.restore();
+    g.strokeStyle='rgba(255,255,255,.18)'; g.lineWidth=2; g.beginPath(); g.roundRect(x,y,w,h,14); g.stroke();
+    g.font=`bold 15px ${FONT}`; const tw=g.measureText(label).width+18; g.fillStyle='rgba(10,13,20,.85)'; g.beginPath(); g.roundRect(x+w/2-tw/2,y+h-34,tw,24,12); g.fill();
+    g.fillStyle='#eef2ff'; g.textAlign='center'; g.fillText(label,x+w/2,y+h-17); g.textAlign='left'; };
+  const chips=(g,list,x,y)=>{ g.font=`bold 17px ${FONT}`; list.forEach(t=>{ const w=g.measureText(t).width+24; g.fillStyle='rgba(255,204,51,.14)'; g.strokeStyle='rgba(255,204,51,.6)'; g.lineWidth=1.5;
+    g.beginPath(); g.roundRect(x,y,w,34,17); g.fill(); g.stroke(); g.fillStyle='#ffe08a'; g.fillText(t,x+12,y+23); x+=w+10; }); };
+  const bg=(g,w,h)=>{ const gr=g.createRadialGradient(w*0.3,h*0.1,40,w*0.5,h*0.5,w*0.8); gr.addColorStop(0,'#26324a'); gr.addColorStop(1,'#0d1017'); g.fillStyle=gr; g.fillRect(0,0,w,h); };
+
+  // 1) Open Graph / social card 1200x630
+  const og=document.createElement('canvas'); og.width=1200; og.height=630; let g=og.getContext('2d');
+  bg(g,1200,630);
+  g.save(); g.beginPath(); g.roundRect(640,0,560,630,0); g.clip(); put(g,beast,600,-10,620,672); g.restore();
+  const fade=g.createLinearGradient(600,0,700,0); fade.addColorStop(0,'#111621'); fade.addColorStop(1,'rgba(17,22,33,0)'); g.fillStyle=fade; g.fillRect(600,0,100,630);
+  title(g,56,120,84);
+  g.fillStyle='#eef2ff'; g.font=`bold 30px ${FONT}`; g.fillText('Tap any muscle. Get absolutely massive.',58,172);
+  card(g,noodle,58,214,150,230,'Day 1'); card(g,mid,232,214,150,230,'Week 1'); card(g,dungeon,406,214,150,230,'Mr. Swoleympia');
+  g.fillStyle='#ffcc33'; g.font=`bold 30px ${FONT}`; g.fillText('›',212,338); g.fillText('›',386,338);
+  chips(g,['15 muscles','35 exercises','8 rivals','5 gyms'],58,478);
+  g.fillStyle='#8b95ab'; g.font=`18px ${FONT}`; g.fillText('Free idle clicker · plays in your browser',58,560);
+
+  // 2) Portal cover 1280x720
+  const cover=document.createElement('canvas'); cover.width=1280; cover.height=720; g=cover.getContext('2d');
+  bg(g,1280,720); g.save(); g.beginPath(); g.rect(560,0,720,720); g.clip(); put(g,beast,560,-30,700,758); g.restore();
+  const f2=g.createLinearGradient(560,0,680,0); f2.addColorStop(0,'#111621'); f2.addColorStop(1,'rgba(17,22,33,0)'); g.fillStyle=f2; g.fillRect(560,0,120,720);
+  title(g,60,170,92); g.fillStyle='#eef2ff'; g.font=`bold 32px ${FONT}`; g.fillText('From noodle arms',62,240); g.fillText('to Mr. Swoleympia.',62,282);
+  card(g,noodle,62,330,200,300,'Day 1'); card(g,dungeon,290,330,200,300,'Champion');
+  g.fillStyle='#ffcc33'; g.font=`bold 40px ${FONT}`; g.fillText('›',265,490);
+
+  // 3) Square icon 512x512
+  const icon=document.createElement('canvas'); icon.width=512; icon.height=512; g=icon.getContext('2d');
+  put(g,dungeon,0,0,512,512,[50,100,380,380]);
+  const f3=g.createLinearGradient(0,330,0,512); f3.addColorStop(0,'rgba(10,13,20,0)'); f3.addColorStop(1,'rgba(10,13,20,.95)'); g.fillStyle=f3; g.fillRect(0,330,512,182);
+  g.save(); g.textAlign='center'; g.font=`bold 74px ${FONT}`; g.lineWidth=10; g.strokeStyle='#1a1206'; g.lineJoin='round'; g.strokeText('SWOLE',256,470);
+  const gr3=g.createLinearGradient(0,410,0,470); gr3.addColorStop(0,'#fff6d6'); gr3.addColorStop(1,'#ffcc33'); g.fillStyle=gr3; g.fillText('SWOLE',256,470); g.restore();
+
+  const out=document.getElementById('out');
+  [['preview',og],['cover-1280x720',cover],['icon-512',icon]].forEach(([n,c])=>{ const im=document.createElement('img'); im.id=n; im.alt=n; im.src=c.toDataURL('image/png'); out.appendChild(im); });
+  document.title='READY';
+}
+main();
+</script>
+</body></html>

@@ -4,23 +4,23 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <title>Swole Clicker — Idle Gym Game</title>
-<meta name="description" content="Swole Clicker is a free idle/clicker game: do reps, buy gym equipment, steroids and supplements, and grow your stick-figure lifter from noodle arms to absolute unit." />
+<meta name="description" content="Swole Clicker is a free idle/clicker game: tap any of 15 muscles to train them, buy gym gear, beat gym rivals in minigames and grow your lifter from noodle arms to Mr. Swoleympia." />
 <meta name="theme-color" content="#10131a" />
 <link rel="canonical" href="https://calamborn-maker.github.io/swole-clicker/" />
 <!-- Open Graph / social preview -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://calamborn-maker.github.io/swole-clicker/" />
 <meta property="og:title" content="Swole Clicker — Idle Gym Game" />
-<meta property="og:description" content="Do reps, buy equipment & steroids, and get absolutely massive. A free idle clicker." />
+<meta property="og:description" content="Tap any muscle to train it, beat gym rivals and pose your way to Mr. Swoleympia. A free idle clicker." />
 <meta property="og:image" content="https://calamborn-maker.github.io/swole-clicker/preview.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Swole Clicker — Idle Gym Game" />
-<meta name="twitter:description" content="Do reps, buy equipment & steroids, and get absolutely massive." />
+<meta name="twitter:description" content="Tap any muscle to train it, beat gym rivals and pose your way to Mr. Swoleympia." />
 <meta name="twitter:image" content="https://calamborn-maker.github.io/swole-clicker/preview.png" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"VideoGame","name":"Swole Clicker","url":"https://calamborn-maker.github.io/swole-clicker/","image":"https://calamborn-maker.github.io/swole-clicker/preview.png","description":"A free idle/clicker game — do reps, buy gym equipment, steroids and supplements, and grow your stick-figure lifter from noodle arms to absolute unit.","genre":["Idle","Clicker","Simulation"],"applicationCategory":"Game","operatingSystem":"Any (web browser)","playMode":"SinglePlayer","author":{"@type":"Person","name":"Dumped"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+{"@context":"https://schema.org","@type":"VideoGame","name":"Swole Clicker","url":"https://calamborn-maker.github.io/swole-clicker/","image":"https://calamborn-maker.github.io/swole-clicker/preview.png","description":"A free idle/clicker game — do reps, buy gym equipment, steroids and supplements, and grow your lifter muscle-by-muscle from noodle arms to Mr. Swoleympia.","genre":["Idle","Clicker","Simulation"],"applicationCategory":"Game","operatingSystem":"Any (web browser)","playMode":"SinglePlayer","author":{"@type":"Person","name":"Dumped"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
 </script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%92%AA</text></svg>" />
 <style>
@@ -299,6 +299,8 @@
          border-radius:11px; font-size:13px; font-weight:bold; box-shadow:0 8px 24px rgba(0,0,0,.5); display:none}
   #coach .cx{float:right; margin-left:8px; cursor:pointer; opacity:.7}
   #coach b{color:#6a1f00}
+  #coach.dock{left:50%; top:auto; bottom:16px; transform:translateX(-50%); width:min(300px,calc(100vw - 24px)); max-width:none}
+  .tipok{margin-top:8px; background:#1a1206; color:var(--accent); border:none; border-radius:7px; padding:5px 12px; font-weight:bold; font-size:12px; cursor:pointer}
   /* confetti burst */
   .confetti{position:fixed; z-index:140; font-size:20px; pointer-events:none; animation:conf 1.1s ease-out forwards}
   @keyframes conf{from{opacity:1; transform:translateY(0) rotate(0)} to{opacity:0; transform:translateY(-130px) rotate(220deg)}}
@@ -749,7 +751,8 @@ function defaultState(){
     settings:defaultSettings(),
     hist:[],                // [timestamp, gains/sec] one per minute (last 4h) for the stats chart
     flags:{},               // one-off award triggers
-    bestRep:0, weakReps:0, turns:0, questsDone:0, headTaps:0 };
+    bestRep:0, weakReps:0, turns:0, questsDone:0, headTaps:0,
+    tips:{} };              // one-time tutorial tips already shown
   ITEMS.forEach(i=>s.owned[i.id]=0);
   MUSCLES.forEach(mu=>s.muscles[mu.id]=0);
   return s;
@@ -1678,6 +1681,68 @@ function advanceCoach(to){ if(coachStep<0) return; coachStep=to; showCoach(); }
 function endCoach(){ coachStep=-1; const c=$('coach'); if(c) c.style.display='none'; state.seenIntro=true; save(); }
 function confettiBurst(x,y){ if(reduceMotion()) return; const em=['🎉','💪','⭐','🔥','🥤']; for(let i=0;i<16;i++){ const d=document.createElement('div'); d.className='confetti'; d.textContent=em[i%em.length]; d.style.left=(x+(Math.random()*120-60))+'px'; d.style.top=(y+(Math.random()*40-20))+'px'; document.body.appendChild(d); setTimeout(()=>d.remove(),1150); } }
 
+//////////////////// TIPS: one-time hints as each feature becomes relevant ////////////////////
+// Shown one at a time after the first-60s onboarding. A tip disappears when you do the thing it
+// describes (done), tap "Got it", or after a while; either way it never shows again.
+const TIPS=[
+  {id:'event',  pri:true, when:()=>!!evtEl, el:()=>evtEl, done:()=>!evtEl,
+   html:'📦 Something\'s happening in the gym! <b>Tap the bubble</b> before it disappears.'},
+  {id:'golden', pri:true, when:()=>goldActive, el:()=>goldEl, done:()=>!goldActive||state.goldenClicked>0,
+   html:'🥤 A <b>golden shake</b>! Tap it for a frenzy, a rep storm or a pile of gains.'},
+  {id:'muscles', when:()=>state.clicks>=8, el:()=>$('musgrid'), done:()=>MUSCLES.filter(mu=>state.muscles[mu.id]>0).length>=4,
+   html:'💪 Every muscle grows on its own. <b>Tap different muscles</b> on the lifter (or these chips) — training evenly earns a symmetry bonus.'},
+  {id:'turn', when:()=>state.clicks>=25, el:()=>$('turnbtn'), done:()=>(state.turns||0)>0,
+   html:'🔄 <b>Turn around</b> to reach your back, lats, triceps, glutes and hamstrings.'},
+  {id:'pump', when:()=>state.clicks>=40, el:()=>$('pumpbar'), done:()=>(state.beastCount||0)>0,
+   html:'🔥 <b>Tap fast</b> to fill the PUMP bar. When it\'s full you go <b>Beast Mode</b> — reps ×5!'},
+  {id:'upgrades', when:()=>UPGRADES.some(u=>!state.upgrades[u.id]&&u.req(state)&&state.gains>=u.cost), el:()=>document.querySelector('.tab[data-tab=upgrades]'), done:()=>Object.keys(state.upgrades).length>0,
+   html:'⭐ You can afford an <b>upgrade</b> — they double whole muscle groups and more.'},
+  {id:'milestone', when:()=>maxOwned()>=18, el:()=>$('shop'), done:()=>maxOwned()>=25,
+   html:'🏅 Own <b>25</b> of one item for a milestone boost. The gold bars under each item track it.'},
+  {id:'weak', when:()=>musStats().weakOn&&state.clicks>=60, el:()=>$('musgrid'), done:()=>(state.weakReps||0)>=5,
+   html:'🎯 Muscles marked 🎯 are your <b>weak points</b> — reps on them earn ×2 until they catch up.'},
+  {id:'rivals', when:()=>(state.bestRank||0)>=1, el:()=>document.querySelector('.tab[data-tab=rivals]'), done:()=>rivalsBeaten()>0,
+   html:'⚔️ A <b>rival</b> wants to challenge you! Beat them in the Rivals tab for a title, a cosmetic and +5% gains.'},
+  {id:'quests', when:()=>state.playtime>=150, el:()=>document.querySelector('.tab[data-tab=quests]'), done:()=>(state.questsDone||0)>0,
+   html:'🎯 <b>Daily quests</b> refresh every day and pay out bonus gains.'},
+  {id:'locker', when:()=>state.playtime>=240, el:()=>document.querySelector('.tab[data-tab=locker]'), done:()=>false,
+   html:'🪞 Make the lifter yours in the <b>Locker</b> — body type, skin, hair and silly accessories.'},
+  {id:'music', when:()=>state.playtime>=330&&!state.settings.music, el:()=>$('setbtn'), done:()=>state.settings.music,
+   html:'🎵 Turn on <b>gym music</b> in ⚙️ Settings — every gym has its own style.'},
+  {id:'stage', when:()=>projectedTrophies()>state.trophies, el:()=>document.querySelector('.tab[data-tab=stage]'), done:()=>state.prestiges>0,
+   html:'🎤 You can <b>hit the stage</b>! Trade this run for trophies — permanent boosts and perks.'},
+];
+let tipNow=null, tipShownAt=0, tipLastEnd=-1e9;
+function tipBlocked(){ return coachStep>=0 || modalOpen || arenaOn || stageOn; }
+function endTip(){ if(!tipNow) return; state.tips[tipNow.id]=true; tipNow=null; tipLastEnd=performance.now(); const c=$('coach'); if(c) c.style.display='none'; save(); }
+function placeTip(){
+  const c=$('coach'), el=tipNow&&tipNow.el(); if(!c||!el) return;
+  const r=el.getBoundingClientRect(), vis=el.offsetWidth>0 && r.bottom>0 && r.top<window.innerHeight;
+  c.classList.toggle('dock',!vis);
+  if(!vis){ c.style.left=''; c.style.top=''; return; }       // target is off-screen: dock at the bottom
+  const w=Math.min(260,window.innerWidth-16);
+  c.style.left=Math.max(8,Math.min(window.innerWidth-w-8,r.left+r.width/2-w/2))+'px';
+  const h=c.offsetHeight||70; c.style.top=(r.top-h-10>8 ? r.top-h-10 : Math.min(window.innerHeight-h-8,r.bottom+10))+'px';
+}
+function tickTips(){
+  if(!state.tips) state.tips={};
+  if(tipNow && !tipNow.pri && !tipBlocked()){ // a time-sensitive tip bumps a normal one (which comes back later)
+    const p=TIPS.find(t=>t.pri && !state.tips[t.id] && t.when() && !t.done() && t.el()); if(p){ tipNow=null; }
+  }
+  if(tipNow){
+    if(tipBlocked()){ $('coach').style.display='none'; return; }
+    if(tipNow.done()||!tipNow.el()||performance.now()-tipShownAt>(tipNow.pri?9000:16000)){ endTip(); return; }
+    $('coach').style.display='block'; placeTip(); return;
+  }
+  if(tipBlocked()) return;
+  const gap=performance.now()-tipLastEnd;
+  const t=TIPS.find(t=>!state.tips[t.id] && (t.pri||gap>20000) && t.when() && !t.done() && t.el());
+  if(!t) return;
+  tipNow=t; tipShownAt=performance.now();
+  const c=$('coach'); c.innerHTML=`<span class="cx" id="coachx">✕</span>${t.html}<div><button class="tipok" id="tipok">Got it</button></div>`;
+  c.style.display='block'; $('coachx').onclick=endTip; $('tipok').onclick=endTip; placeTip();
+}
+
 //////////////////// SOCIAL SHARING ////////////////////
 const SHARE_URL=(location.origin&&location.origin!=='null')? location.origin+location.pathname : 'https://your-domain.example/swole-clicker/';
 function shareSnapshot(){
@@ -2080,7 +2145,7 @@ const hitCtx=document.createElement('canvas').getContext('2d'); // identity tran
 let pump=0, t=0;
 const musPump={}, musFlash={};   // per-muscle temporary swell + highlight flash (0..1)
 let hoverMus=null, regions=[];   // regions: [{id, p:Path2D}] built from the last drawn pose, in hit-priority order
-let turnT=-1;                    // -1 idle, else 0..1 progress of the turn-around spin
+let turnT=-1, cleanRender=false;                    // -1 idle, else 0..1 progress of the turn-around spin
 const UA=56, FA=48;              // upper-arm / forearm length used by the IK helper
 const SY=196;                    // standing shoulder height
 
@@ -2953,14 +3018,15 @@ function drawDude(dt){
   ctx.fillStyle='rgba(150,210,255,.85)';
   particles.forEach(p=>{ ctx.globalAlpha=Math.max(0,1-p.t/p.life); ctx.beginPath(); ctx.arc(p.x,p.y,2.2,0,7); ctx.fill(); });
   ctx.globalAlpha=1;
-  // labels
+  // labels (cleanRender: marketing renders from tools/preview.html skip all overlays)
+  if(cleanRender) return;
   if(label) drawPill(label,cx,CH-28,'center',active?Math.min(1,0.4+exEnergy):0.55,active?'#ffcc33':'#c9d1e4');
   if(hoverMus){ const L=S.lvl[hoverMus]; drawPill(MUS[hoverMus].name+' · Lv '+L+(isWeak(hoverMus)?'  🎯 ×'+weakMult():''),12,24,'left',1,'#ffcc33'); }
   if(!stageOn){ drawPill(view==='front'?'FRONT':'BACK',12,hoverMus?54:24,'left',0.5,'#8b95ab'); drawPill('📍 '+GYMS[gymTier()].name,CW-12,58,'right',0.6,'#c9d1e4'); }
 }
 
 //////////////////// LOOP ////////////////////
-let last=performance.now(), saveAcc=0, rafId=null, spotAcc=0;
+let last=performance.now(), saveAcc=0, rafId=null, spotAcc=0, tipAcc=0;
 function loop(now){
   const dt=Math.min(0.1,(now-last)/1000); last=now;
   const inc=perSec()*dt;
@@ -2976,6 +3042,7 @@ function loop(now){
   const sr=[0,1,2,4][perk('spotter')];
   if(sr && !stageOn){ spotAcc+=dt*sr; while(spotAcc>=1){ spotAcc-=1; freeRep(); } }
   tickPump(dt); tickEvents(dt); recordHistory(dt);
+  tipAcc+=dt; if(tipAcc>0.2){ tipAcc=0; tickTips(); }
   // particles
   particles.forEach(p=>{ p.t+=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=160*dt; });
   particles=particles.filter(p=>p.t<p.life);
