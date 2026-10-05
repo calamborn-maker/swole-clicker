@@ -142,6 +142,49 @@
   .btnno{background:var(--panel2); color:var(--ink); border:1px solid var(--line)!important}
   textarea{width:100%; height:90px; background:#0c0f16; color:var(--ink); border:1px solid var(--line); border-radius:8px; font-size:11px; margin-top:8px}
 
+  /* shop extras */
+  .item .info{color:var(--muted); font-size:12px; cursor:pointer; padding:0 4px}
+  .item .info:hover{color:var(--accent)}
+  .pips{display:flex; gap:3px; align-items:center; margin-top:4px}
+  .pips i{width:12px; height:4px; border-radius:2px; background:#0c0f16; border:1px solid var(--line)}
+  .pips i.on{background:var(--gold); border-color:var(--gold)}
+  .pips span{font-size:10px; color:var(--muted); margin-left:4px}
+  .item.mystery{opacity:.55; filter:grayscale(1)}
+  /* stage tab + show */
+  .stagehead{display:flex; justify-content:space-between; align-items:flex-end; background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:10px 12px}
+  .stagehead .big{font-size:24px; font-weight:bold; color:var(--gold)}
+  #stage.onstage{position:fixed; inset:0; z-index:110; border-radius:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:radial-gradient(ellipse 45% 70% at 50% 35%, rgba(255,240,190,.28), rgba(0,0,0,0) 70%), #07080c}
+  #stage.onstage canvas{width:auto; height:min(62vh,560px); max-width:100vw}
+  #stage.onstage .stagebtn{display:none}
+  #stageov{width:100%; max-width:560px; padding:0 14px; text-align:center}
+  .stitle{position:fixed; top:14px; left:0; right:0; font-size:22px; font-weight:bold; letter-spacing:3px; color:var(--gold); text-shadow:0 0 18px rgba(255,210,74,.6)}
+  .judges{display:flex; gap:10px; justify-content:center; margin-top:8px}
+  .judge{flex:1; max-width:150px; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 6px}
+  .judge .jn{font-weight:bold; font-size:12px} .judge .jk{font-size:10px; color:var(--muted)}
+  .judge .jv{font-size:30px; font-weight:bold; color:var(--muted); transition:transform .3s}
+  .judge .jv.show{color:var(--gold); transform:scale(1.25)}
+  .sresult .sgain{font-size:30px; font-weight:bold; color:#b06bff; margin-top:10px}
+  #stagedone{background:var(--accent); color:#1a1206; max-width:320px}
+  /* muscle chips + turn button */
+  .stagebtn{position:absolute; top:10px; right:10px; z-index:2; background:rgba(10,13,20,.72); color:var(--ink);
+            border:1px solid var(--line); border-radius:9px; padding:7px 11px; font-size:12px; font-weight:bold; cursor:pointer}
+  .stagebtn:hover{border-color:var(--accent)}
+  .mushead{display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-weight:bold; font-size:14px}
+  .mushead .sub{text-align:right}
+  #musgrid{display:grid; grid-template-columns:repeat(5,1fr); gap:5px; margin-top:8px}
+  .mchip{background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:5px 3px 6px; cursor:pointer; text-align:center; touch-action:manipulation; min-width:0}
+  .mchip:hover{border-color:var(--accent)}
+  .mchip.sel{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent)}
+  .mchip{position:relative}
+  .mchip.weak{border-color:var(--good)}
+  .mchip.weak::after{content:'🎯'; position:absolute; top:-7px; right:-5px; font-size:12px}
+  .mchip .mn{font-size:11px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .mchip .ml{font-size:9.5px; color:var(--muted); white-space:nowrap}
+  .mchip .mb{height:4px; background:#0c0f16; border-radius:3px; overflow:hidden; margin-top:3px}
+  .mchip .mb i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--accent2),var(--accent))}
+  .float.lv{color:var(--good); font-size:14px}
+  .float.miss{color:var(--muted); font-size:13px}
   /* mobile tap feel */
   button{touch-action:manipulation}
   /* rewarded-ad buttons under DO A REP */
@@ -196,6 +239,7 @@
     #game{padding:12px; gap:12px}
     h1{font-size:24px}
     .tab{padding:10px 3px; font-size:11px}
+    #tabs{overflow-x:auto; scrollbar-width:none} #tabs::-webkit-scrollbar{display:none} .tab{flex:0 0 auto; min-width:64px}
     .item{padding:11px}
     .mini{padding:8px 10px; font-size:12px}
     #repbtn{padding:18px; font-size:22px}
@@ -225,17 +269,23 @@
 
     <div id="stage" class="card" style="padding:0">
       <canvas id="c"></canvas>
+      <button id="turnbtn" class="stagebtn">🔄 See back</button>
       <div id="floatwrap"></div>
     </div>
 
     <div class="card">
       <button id="repbtn">DO A REP</button>
-      <div class="perclick">+<span id="perclick">1</span> gain per rep — click the dude, button, or hit Space</div>
+      <div class="perclick">+<span id="perclick">1</span> per rep · training <b id="selmus">Chest</b> — tap any muscle on the lifter, or press Space (T to turn)</div>
       <!-- rewarded-ad placements (b) frenzy + (c) windfall -->
       <div id="adrow">
         <button class="adbtn" id="adfrenzy">📺 7× Frenzy (2 min)</button>
         <button class="adbtn" id="adwindfall">📺 Protein Windfall</button>
       </div>
+    </div>
+
+    <div class="card">
+      <div class="mushead"><span>💪 Muscles</span><span class="sub" id="symtxt"></span></div>
+      <div id="musgrid"></div>
     </div>
   </div>
 
@@ -243,6 +293,7 @@
     <div id="tabs">
       <div class="tab active" data-tab="shop">🏋️ Shop</div>
       <div class="tab" data-tab="upgrades">⭐ Upgrades</div>
+      <div class="tab" data-tab="stage">🎤 Stage</div>
       <div class="tab" data-tab="ach">🏅 Awards</div>
       <div class="tab" data-tab="quests">🎯 Quests</div>
       <div class="tab" data-tab="locker">🪞 Locker</div>
@@ -254,14 +305,19 @@
         <span class="sub">Buy amount:</span>
         <button class="mini on" id="buy1">×1</button>
         <button class="mini" id="buy10">×10</button>
-        <span class="sub">(shift-click = ×10)</span>
+        <button class="mini" id="buy100">×100</button>
+        <button class="mini" id="buymax">Max</button>
       </div>
       <div id="shop" style="margin-top:8px"></div>
     </div>
 
     <div class="panel" id="panel-upgrades">
-      <div class="sub" style="margin-bottom:8px">One-time boosts. Each doubles a muscle group's gains &amp; size, or supercharges your whole physique.</div>
+      <div class="sub" style="margin-bottom:8px">One-time boosts. New ones unlock as your muscles level up and your gym grows.</div>
       <div id="upgrades"></div>
+    </div>
+
+    <div class="panel" id="panel-stage">
+      <div id="stagepanel"></div>
     </div>
 
     <div class="panel" id="panel-ach">
@@ -281,7 +337,6 @@
 
     <div class="panel" id="panel-stats">
       <div id="stats"></div>
-      <button class="bigbtn" id="prestigebtn">🏆 Hit the Stage</button>
       <div class="toolbar" style="margin-top:14px">
         <button class="mini" id="soundbtn">🔇 Sound: Off</button>
         <button class="mini" id="sharebtn">📣 Share</button>
@@ -307,40 +362,99 @@
 <script>
 "use strict";
 //////////////////// DATA ////////////////////
-// part keys: arms pecs back delts abs legs mass roids
+// part = upgrade group (arms pecs back delts abs legs mass roids); mus = the muscles the item trains
 const ITEMS = [
   // --- per-rep (click) ---
-  {id:'pushup', emoji:'🤸', name:'Push-Up Form',      base:10,    type:'click', power:1,    part:'pecs',  amt:0.45},
-  {id:'curls',  emoji:'🏋️', name:'Barbell Curls',     base:55,    type:'click', power:2,    part:'arms',  amt:0.55},
-  {id:'squats', emoji:'🦵', name:'Bodyweight Squats',  base:130,   type:'click', power:3,    part:'legs',  amt:0.55},
-  {id:'pullup', emoji:'🧗', name:'Pull-Up Bar',        base:420,   type:'click', power:6,    part:'back',  amt:0.55},
-  {id:'press',  emoji:'🤾', name:'Shoulder Press',     base:950,   type:'click', power:10,   part:'delts', amt:0.55},
-  {id:'abroll', emoji:'🛞', name:'Ab Roller',          base:1600,  type:'click', power:14,   part:'abs',   amt:0.6},
-  {id:'eggs',   emoji:'🥚', name:'Dozen Raw Eggs',     base:6500,  type:'click', power:42,   part:'mass',  amt:0.45},
-  {id:'clap',   emoji:'👏', name:'Clap Push-Ups',      base:40000, type:'click', power:240,  part:'pecs',  amt:0.5},
+  {id:'pushup', emoji:'🤸', name:'Push-Up Form',      base:10,    type:'click', power:1,    part:'pecs',  mus:['chest','triceps'], amt:0.45},
+  {id:'curls',  emoji:'🏋️', name:'Barbell Curls',     base:55,    type:'click', power:2,    part:'arms',  mus:['biceps'],   amt:0.55},
+  {id:'squats', emoji:'🦵', name:'Bodyweight Squats',  base:130,   type:'click', power:3,    part:'legs',  mus:['quads','glutes'], amt:0.55},
+  {id:'grip',   emoji:'🤜', name:'Grip Crusher',       base:280,   type:'click', power:4.5,  part:'arms',  mus:['forearms'], amt:0.55},
+  {id:'pullup', emoji:'🧗', name:'Pull-Up Bar',        base:420,   type:'click', power:6,    part:'back',  mus:['lats','biceps'], amt:0.55},
+  {id:'press',  emoji:'🤾', name:'Shoulder Press',     base:950,   type:'click', power:10,   part:'delts', mus:['delts','triceps'], amt:0.55},
+  {id:'abroll', emoji:'🛞', name:'Ab Roller',          base:1600,  type:'click', power:14,   part:'abs',   mus:['abs'],      amt:0.6},
+  {id:'eggs',   emoji:'🥚', name:'Dozen Raw Eggs',     base:6500,  type:'click', power:36,   part:'mass',  mus:[],           amt:0.45},
+  {id:'medball',emoji:'🥎', name:'Medicine Ball Twists',base:15000,type:'click', power:75,   part:'abs',   mus:['obliques'], amt:0.55},
+  {id:'clap',   emoji:'👏', name:'Clap Push-Ups',      base:40000, type:'click', power:170,  part:'pecs',  mus:['chest'],    amt:0.5},
   // --- per-sec (auto) ---
-  {id:'bands',  emoji:'🎗️', name:'Resistance Bands',   base:35,    type:'auto', power:0.3,   part:'arms',  amt:0.3},
-  {id:'shake',  emoji:'🥤', name:'Protein Shake',      base:90,    type:'auto', power:0.7,   part:'mass',  amt:0.3},
-  {id:'dumbbell',emoji:'🏋️',name:'Dumbbells',          base:260,   type:'auto', power:1.6,   part:'arms',  amt:0.5},
-  {id:'bench',  emoji:'🛋️', name:'Bench Press',        base:720,   type:'auto', power:4,     part:'pecs',  amt:0.5},
-  {id:'latpull',emoji:'🪝', name:'Lat Pulldown',       base:1900,  type:'auto', power:9,     part:'back',  amt:0.5},
-  {id:'legpress',emoji:'🦿',name:'Leg Press',          base:4200,  type:'auto', power:19,    part:'legs',  amt:0.6},
-  {id:'lateral',emoji:'🏐', name:'Lateral Raises',     base:8500,  type:'auto', power:34,    part:'delts', amt:0.5},
-  {id:'crunch', emoji:'🔄', name:'Crunch Machine',     base:17000, type:'auto', power:62,    part:'abs',   amt:0.5},
-  {id:'calf',   emoji:'🦶', name:'Calf Raises',        base:33000, type:'auto', power:105,   part:'legs',  amt:0.4},
-  {id:'rowing', emoji:'🚣', name:'Rowing Machine',     base:65000, type:'auto', power:190,   part:'back',  amt:0.5},
-  {id:'flyes',  emoji:'✈️', name:'Cable Flyes',        base:130000,type:'auto', power:360,   part:'pecs',  amt:0.5},
-  {id:'gainer', emoji:'🍶', name:'Mass Gainer',        base:260000,type:'auto', power:680,   part:'mass',  amt:0.5},
-  {id:'trainer',emoji:'🧑‍🏫',name:'Personal Trainer',   base:520000,type:'auto', power:1350,  part:'mass',  amt:0.3},
-  {id:'squatrack',emoji:'🏗️',name:'Squat Rack',        base:1.1e6, type:'auto', power:2700,  part:'legs',  amt:0.6},
-  {id:'steroids',emoji:'💉',name:'Steroids',           base:2.6e6, type:'auto', power:6800,  part:'roids', amt:1.0},
-  {id:'chef',   emoji:'👨‍🍳',name:'Personal Chef',      base:6.2e6, type:'auto', power:15500, part:'mass',  amt:0.4},
-  {id:'gym',    emoji:'🏢', name:'Own a Gym',          base:1.6e7, type:'auto', power:39000, part:'mass',  amt:0.25},
-  {id:'lab',    emoji:'⚗️', name:'Supplement Lab',     base:5.2e7, type:'auto', power:105000, part:'roids', amt:0.5},
-  {id:'clinic', emoji:'🧬', name:'Genetics Clinic',    base:2.1e8, type:'auto', power:320000, part:'roids', amt:0.6},
-  {id:'sponsor',emoji:'📣', name:'Sponsorship Deal',   base:1.05e9,type:'auto', power:1.1e6,  part:'mass',  amt:0.2},
-  {id:'olympia',emoji:'🏆', name:'Mr. Olympia Title',  base:5.5e9, type:'auto', power:4.2e6,  part:'roids', amt:0.5},
+  {id:'bands',  emoji:'🎗️', name:'Resistance Bands',   base:35,    type:'auto', power:0.3,   part:'arms',  mus:['biceps','triceps'], amt:0.3},
+  {id:'shake',  emoji:'🥤', name:'Protein Shake',      base:90,    type:'auto', power:0.7,   part:'mass',  mus:[],           amt:0.3},
+  {id:'dumbbell',emoji:'🏋️',name:'Dumbbells',          base:260,   type:'auto', power:1.6,   part:'arms',  mus:['biceps','forearms'], amt:0.5},
+  {id:'bench',  emoji:'🛋️', name:'Bench Press',        base:720,   type:'auto', power:4,     part:'pecs',  mus:['chest','triceps'], amt:0.5},
+  {id:'dips',   emoji:'🪜', name:'Dip Station',        base:1200,  type:'auto', power:6.2,   part:'arms',  mus:['triceps'],  amt:0.5},
+  {id:'latpull',emoji:'🪝', name:'Lat Pulldown',       base:1900,  type:'auto', power:9,     part:'back',  mus:['lats'],     amt:0.5},
+  {id:'shrugbar',emoji:'🤷',name:'Shrug Bar',          base:2900,  type:'auto', power:12.5,  part:'back',  mus:['traps'],    amt:0.5},
+  {id:'legpress',emoji:'🦿',name:'Leg Press',          base:4200,  type:'auto', power:19,    part:'legs',  mus:['quads'],    amt:0.6},
+  {id:'lateral',emoji:'🏐', name:'Lateral Raises',     base:8500,  type:'auto', power:34,    part:'delts', mus:['delts'],    amt:0.5},
+  {id:'hipthrust',emoji:'🍑',name:'Hip Thrust Bench',  base:12500, type:'auto', power:46,    part:'legs',  mus:['glutes'],   amt:0.5},
+  {id:'crunch', emoji:'🔄', name:'Crunch Machine',     base:17000, type:'auto', power:62,    part:'abs',   mus:['abs'],      amt:0.5},
+  {id:'legcurl',emoji:'⚙️', name:'Leg Curl Machine',   base:24000, type:'auto', power:82,    part:'legs',  mus:['hamstrings'], amt:0.5},
+  {id:'calf',   emoji:'🦶', name:'Calf Raises',        base:33000, type:'auto', power:105,   part:'legs',  mus:['calves'],   amt:0.4},
+  {id:'deadlift',emoji:'⛓️',name:'Deadlift Platform',  base:47000, type:'auto', power:145,   part:'back',  mus:['lowerback','hamstrings'], amt:0.5},
+  {id:'rowing', emoji:'🚣', name:'Rowing Machine',     base:65000, type:'auto', power:190,   part:'back',  mus:['upperback','lats'], amt:0.5},
+  {id:'woodchop',emoji:'🪓',name:'Cable Woodchoppers', base:92000, type:'auto', power:260,   part:'abs',   mus:['obliques'], amt:0.5},
+  {id:'flyes',  emoji:'✈️', name:'Cable Flyes',        base:130000,type:'auto', power:360,   part:'pecs',  mus:['chest'],    amt:0.5},
+  {id:'gainer', emoji:'🍶', name:'Mass Gainer',        base:260000,type:'auto', power:680,   part:'mass',  mus:[],           amt:0.5},
+  {id:'trainer',emoji:'🧑‍🏫',name:'Personal Trainer',   base:520000,type:'auto', power:1350,  part:'mass',  mus:[],           amt:0.3},
+  {id:'squatrack',emoji:'🏗️',name:'Squat Rack',        base:1.1e6, type:'auto', power:2700,  part:'legs',  mus:['quads','glutes','hamstrings'], amt:0.6},
+  {id:'steroids',emoji:'💉',name:'Steroids',           base:2.6e6, type:'auto', power:6800,  part:'roids', mus:[],           amt:1.0},
+  {id:'chef',   emoji:'👨‍🍳',name:'Personal Chef',      base:6.2e6, type:'auto', power:15500, part:'mass',  mus:[],           amt:0.4},
+  {id:'gym',    emoji:'🏢', name:'Own a Gym',          base:1.6e7, type:'auto', power:39000, part:'mass',  mus:[],           amt:0.25},
+  {id:'lab',    emoji:'⚗️', name:'Supplement Lab',     base:5.2e7, type:'auto', power:105000, part:'roids', mus:[],          amt:0.5},
+  {id:'clinic', emoji:'🧬', name:'Genetics Clinic',    base:2.1e8, type:'auto', power:320000, part:'roids', mus:[],          amt:0.6},
+  {id:'sponsor',emoji:'📣', name:'Sponsorship Deal',   base:1.05e9,type:'auto', power:1.1e6,  part:'mass',  mus:[],          amt:0.2},
+  {id:'olympia',emoji:'🏆', name:'Mr. Olympia Title',  base:5.5e9, type:'auto', power:4.2e6,  part:'roids', mus:[],          amt:0.5},
 ];
+
+// Idle items: power is derived from cost so each tier pays for itself ~PB_GROWTH× slower than the last
+// (the old flat curve let a run hit 1T in under an hour). Milestones, upgrades and perks speed it back up.
+const PB_BASE=150, PB_GROWTH=1.33;
+ITEMS.filter(i=>i.type==='auto').forEach((it,k)=>{ const p=it.base/(PB_BASE*Math.pow(PB_GROWTH,k)); const e=Math.pow(10,Math.floor(Math.log10(p))-2); it.power=Math.round(p/e)*e; });
+const ITEM_BY_ID={}; ITEMS.forEach(i=>ITEM_BY_ID[i.id]=i);
+const MILESTONES=[25,50,100,150,200];  // owning this many of one item boosts its output ×MS_MULT (each)
+const MS_MULT=1.5;
+const FLAVOR={
+  pushup:'The classic. Your chest and triceps remember every single one.', curls:'Curls for the girls. And the guys. And the mirror.',
+  squats:'No equipment, no excuses, no feeling in your legs tomorrow.', grip:'Crush it. Crush everything. Handshakes will never be the same.',
+  pullup:'Doorframe-mounted. Landlord-unapproved.', press:"Pressing heavy things overhead: humanity's oldest flex.",
+  abroll:'Roll out. Faceplant. Repeat.', eggs:'Raw, like a movie montage. Salmonella is a state of mind.',
+  medball:'Twist left, twist right, question your life choices.', clap:'Applaud yourself mid-rep. You earned it.',
+  bands:'Basically giant rubber bands. Do not snap at face.', shake:'Chocolate-flavoured chalk. Delicious gains.',
+  dumbbell:'Dumb name, smart investment.', bench:'International Chest Day is every Monday.',
+  dips:'Lower yourself. Emotionally and physically.', latpull:'Pull down to grow out. Wings incoming.',
+  shrugbar:"The official exercise of 'I dunno'.", legpress:'Load every plate in the gym. Add a guy sitting on top.',
+  lateral:'Tiny weights, huge pain, wider doorways needed.', hipthrust:'Awkward to watch. Incredible results.',
+  crunch:'A machine that does crunches with you. Mostly you.', legcurl:"The hamstring's only friend.",
+  calf:"Genetics said no. You said 'twice a day'.", deadlift:'Pick it up. Put it down. Feel like a god.',
+  rowing:'Row, row, row your back, gently down the gains stream.', woodchop:'Chop wood without the wood. Lumberjack cosplay.',
+  flyes:'Hug a giant invisible tree, repeatedly.', gainer:'1,250 calories per scoop. The scoop is the size of your head.',
+  trainer:"Yells 'one more!' eleven more times.", squatrack:"Not for curls. (It's for curls.)",
+  steroids:"Totally natural. Absolutely natural. Don't ask.", chef:'Chicken, rice, broccoli. Forever. Beautifully plated.',
+  gym:'Your own gym. Nobody touching your bench ever again.', lab:"Proprietary blend of 'trust me, bro'.",
+  clinic:'Edits your DNA to grow an extra bicep. Probably.', sponsor:'Get paid to drink shakes and post shirtless.',
+  olympia:'The Sandow trophy gleams on your mantel. Absolute peak.',
+};
+
+// Every muscle is tappable on the lifter. view = which side it's visible from.
+// ex = its exercises; the 2nd/3rd unlock at the muscle levels in MOVE_UNLOCK.
+const MUSCLES = [
+  {id:'traps',     name:'Traps',      view:'both',  ex:['shrugs','farmer']},
+  {id:'delts',     name:'Shoulders',  short:'Delts',   view:'both',  ex:['press','lateral']},
+  {id:'chest',     name:'Chest',      view:'front', ex:['bench','pushup','flyes']},
+  {id:'biceps',    name:'Biceps',     view:'front', ex:['curls','hammer','chinup']},
+  {id:'forearms',  name:'Forearms',   view:'both',  ex:['wristcurl','grip']},
+  {id:'abs',       name:'Abs',        view:'front', ex:['crunch','legraise']},
+  {id:'obliques',  name:'Obliques',   view:'front', ex:['sidebend','woodchop']},
+  {id:'quads',     name:'Quads',      view:'front', ex:['squat','lunge','jumpsquat']},
+  {id:'calves',    name:'Calves',     view:'both',  ex:['calfraise','jumprope']},
+  {id:'upperback', name:'Upper Back', short:'Upr Back', view:'back',  ex:['revfly','facepull']},
+  {id:'lats',      name:'Lats',       view:'back',  ex:['pullup','pulldown']},
+  {id:'triceps',   name:'Triceps',    view:'back',  ex:['ohext','dips']},
+  {id:'lowerback', name:'Lower Back', short:'Low Back', view:'back',  ex:['deadlift','superman']},
+  {id:'glutes',    name:'Glutes',     view:'back',  ex:['hipthrust','sumo']},
+  {id:'hamstrings',name:'Hamstrings', short:'Hams',    view:'back',  ex:['legcurl','rdl']},
+];
+const MUS={}; MUSCLES.forEach(mu=>MUS[mu.id]=mu);
+const MOVE_UNLOCK=[0,8,20];
 
 // one-time upgrades. cat 'm_<part>' doubles that group; specials affect global.
 const UPGRADES = [
@@ -356,9 +470,55 @@ const UPGRADES = [
   {id:'roids',   emoji:'💊', name:'Pharmacist Friend',      cost:1.2e7, desc:'×3 steroid items & roid bulk',      req:s=>s.owned.steroids>=1,   reqtxt:'Buy Steroids'},
   {id:'global',  emoji:'🧬', name:'Elite Genetics',         cost:6.0e7, desc:'×1.5 to EVERYTHING',               req:s=>s.lifetime>=1e8,       reqtxt:'Earn 100M lifetime'},
   {id:'golden',  emoji:'🧲', name:'Protein Magnet',         cost:1.5e8, desc:'Golden shakes 2× more often & bigger',req:s=>s.goldenClicked>=1,  reqtxt:'Click a golden shake'},
+  // reps that scale with idle income
+  {id:'rep1', emoji:'⚡', name:'Explosive Reps',   cost:5e4,  desc:'Each rep also earns 1% of your gains/sec', req:s=>s.clicks>=1000,  reqtxt:'Do 1,000 reps'},
+  {id:'rep2', emoji:'⚡', name:'Plyometric Power', cost:5e6,  desc:'Each rep earns another 1% of gains/sec',   req:s=>s.clicks>=5000,  reqtxt:'Do 5,000 reps'},
+  {id:'rep3', emoji:'⚡', name:'Fast-Twitch Fury', cost:5e9,  desc:'Each rep earns another 2% of gains/sec',   req:s=>s.clicks>=25000, reqtxt:'Do 25,000 reps'},
+  {id:'clickPower2',emoji:'🧠',name:'Mind-Muscle Mastery',cost:5e7, desc:'×2 gains per rep (again)', req:s=>s.clicks>=5000, reqtxt:'Do 5,000 reps'},
+  {id:'autoPower2', emoji:'🔥',name:'Beast Mode: Unleashed',cost:2e9, desc:'×2 all idle income (again)', req:s=>perSecRaw()>=1e6, reqtxt:'Reach 1M gains/sec'},
+  {id:'roids2', emoji:'⚗️', name:'Bro Science Lab',  cost:3e9,  desc:'×3 steroid items (again)',     req:s=>s.owned.lab>=1,     reqtxt:'Buy a Supplement Lab'},
+  {id:'global2',emoji:'🦍', name:'Freak Genetics',   cost:5e10, desc:'×2 to EVERYTHING',            req:s=>s.lifetime>=1e11,   reqtxt:'Earn 100B lifetime'},
+  {id:'global3',emoji:'👽', name:'Alien DNA',        cost:5e13, desc:'×2 to EVERYTHING (again)',    req:s=>s.lifetime>=1e14,   reqtxt:'Earn 100T lifetime'},
+  {id:'golden2',emoji:'⏳', name:'Golden Hour',      cost:1e9,  desc:'Shake frenzies last twice as long', req:s=>s.goldenClicked>=10, reqtxt:'Click 10 golden shakes'},
+  {id:'golden3',emoji:'💰', name:'Shake Jackpot',    cost:1e11, desc:'Golden-shake windfalls ×3',   req:s=>s.goldenClicked>=25,  reqtxt:'Click 25 golden shakes'},
+  {id:'sym1',   emoji:'⚖', name:'Aesthetic Focus',  cost:2e7,  desc:'Symmetry bonus cap 15% → 30%', req:s=>musStats().avg>=10,  reqtxt:'Average muscle Lv 10'},
+  {id:'weak1',  emoji:'🎯', name:'Weak-Point Specialist',cost:5e8,desc:'Weak-point reps ×3 instead of ×2', req:s=>musStats().avg>=15, reqtxt:'Average muscle Lv 15'},
+  {id:'sleep1', emoji:'😴', name:'Sleep Gains',      cost:1e6,  desc:'Offline earnings 50% → 75%',  req:s=>s.playtime>=3600,   reqtxt:'Play for 1 hour'},
+  {id:'sleep2', emoji:'🛌', name:'Growth-Hormone Naps',cost:1e10,desc:'Offline earnings 75% → 100%', req:s=>s.playtime>=5*3600, reqtxt:'Play for 5 hours'},
 ];
+// two specialisation upgrades per muscle: ×2 to items that train it AND ×2 to taps on it
+const MUS_UP_NAMES={traps:['Neckless Wonder','Trap God'], delts:['Cannonball Delts','3D Delts'], chest:['Pec Deck Devotee','Shelf Chest'],
+  biceps:['Sleeve Splitters','Gun Show'], forearms:['Popeye Protocol','Grip of Steel'], abs:['Core Blimey','Washboard Wizard'],
+  obliques:['Love-Handle Eviction','Side-Plank Sorcery'], quads:['Quadzilla','Teardrop Supreme'], calves:['Cow Mode','Diamond Calves'],
+  upperback:['Rhomboid Rhapsody','Christmas-Tree Back'], lats:['Lat Wings','Batwing Spread'], triceps:['Horseshoe Hammers','Tricep Tyrant'],
+  lowerback:['Erector Set','Spinal Steel'], glutes:['Peach Perfect','Glute Gravity'], hamstrings:['Hammy Time','Hamstring Harmony']};
+MUSCLES.forEach(mu=>{ const cheap=Math.min(...ITEMS.filter(i=>i.mus.indexOf(mu.id)>=0).map(i=>i.base));
+  [[10,1000],[30,3e5]].forEach(([lv,mult],t)=>UPGRADES.push({id:'mu_'+mu.id+'_'+(t+1), emoji:t?'🌟':'💫', name:MUS_UP_NAMES[mu.id][t], cost:cheap*mult,
+    desc:'×2 '+mu.name.toLowerCase()+' items & ×2 '+mu.name.toLowerCase()+' reps', req:s=>musStats().lvl[mu.id]>=lv, reqtxt:mu.name+' Lv '+lv, mus:mu.id})); });
+const UP_BY_ID={}; UPGRADES.forEach(u=>UP_BY_ID[u.id]=u);
+
+// trophy perks: bought with spent trophies (passive trophy bonus still counts every trophy ever earned)
+const PERKS=[
+  {id:'clicker', emoji:'👆', name:'Rep Rocket',        costs:[1,2,4,8,16], desc:l=>'+'+(l*10)+'% gains per rep'},
+  {id:'investor',emoji:'📈', name:'Passive Pump',      costs:[1,2,4,8,16], desc:l=>'+'+(l*10)+'% idle income'},
+  {id:'headstart',emoji:'💰',name:'Signing Bonus',     costs:[2,6,15],     desc:l=>'Start each run with '+fmt([0,1e3,1e5,1e7][l])+' gains'},
+  {id:'starter', emoji:'🎒', name:'Starter Kit',       costs:[4],          desc:l=>'Start runs with 10 Push-Ups, 10 Bands & 5 Shakes'},
+  {id:'memory',  emoji:'🧠', name:'Muscle Memory+',    costs:[2,5,12],     desc:l=>'Keep '+(25+l*15)+'% of muscle training on stage'},
+  {id:'keepgroup',emoji:'🔒',name:'Tenure',            costs:[10],         desc:l=>'Keep the 7 muscle-group upgrades through prestige'},
+  {id:'bargain', emoji:'🏷️', name:'Gym Discount',      costs:[3,8,20],     desc:l=>'Items '+(l*4)+'% cheaper'},
+  {id:'learner', emoji:'📚', name:'Quick Learner',     costs:[3,10],       desc:l=>'Muscle XP per rep ×'+(l+1)},
+  {id:'spotter', emoji:'🤝', name:'Auto-Spotter',      costs:[4,10,25],    desc:l=>[0,1,2,4][l]+' free rep'+(l>1?'s':'')+'/sec on your selected muscle'},
+  {id:'offline', emoji:'🌙', name:'Deep Sleep',        costs:[2,5,12],     desc:l=>'Offline cap '+[3,6,12,24][l]+'h'},
+  {id:'golden',  emoji:'🥤', name:'Shake Magnet',      costs:[3,8,20],     desc:l=>'Golden shakes '+(l*20)+'% more often'},
+  {id:'frenzy',  emoji:'🔥', name:'Frenzy Fiend',      costs:[4,12],       desc:l=>'Frenzies last +'+(l*30)+'%'},
+  {id:'quests',  emoji:'🎯', name:'Quest Hunter',      costs:[2,6],        desc:l=>'Quest rewards +'+(l*50)+'%'},
+  {id:'stage',   emoji:'🎤', name:'Stage Presence',    costs:[30],         desc:l=>'Each trophy gives +'+(3+l)+'% (instead of 3%)'},
+];
+const PERK_BY_ID={}; PERKS.forEach(p=>PERK_BY_ID[p.id]=p);
+function perk(id){ return (state.perks&&state.perks[id])||0; }
 
 const RANKS = ['Noodle Arms','Newbie','Gym Curious','Regular','Gym Rat','Getting Swole','Jacked','Absolute Unit','Mass Monster','Greek God'];
+const RANK_AT = [0,1e3,2e4,5e5,1e7,2e8,5e9,2e11,1e13,1e15]; // this-run gains needed for each rank
 
 const ACHS = [
   {id:'g1',  emoji:'🌱', name:'First Gains',      desc:'Earn 1,000 lifetime gains',   bonus:.01, check:s=>s.lifetime>=1e3},
@@ -378,9 +538,9 @@ const ACHS = [
   {id:'b4',  emoji:'🔟', name:'Collector',        desc:'Own 10 of one item',          bonus:.02, check:s=>maxOwned()>=10},
   {id:'b5',  emoji:'5️⃣0️⃣',name:'Obsessed',        desc:'Own 50 of one item',          bonus:.03, check:s=>maxOwned()>=50},
   {id:'roid',emoji:'💉', name:'Better Living...',  desc:'Buy your first Steroids',     bonus:.03, check:s=>s.owned.steroids>=1},
-  {id:'lop1',emoji:'🐔', name:'Chicken Legs',     desc:'Big arms, tiny legs',         bonus:.02, check:s=>{const r=partRaw();return r.arms>=12 && r.legs<=r.arms*0.2;}},
-  {id:'lop2',emoji:'🦏', name:'Leg Day Only',     desc:'Tree-trunk legs, twig arms',  bonus:.02, check:s=>{const r=partRaw();return r.legs>=12 && r.arms<=r.legs*0.2;}},
-  {id:'lop3',emoji:'🪞', name:'All Show No Go',    desc:'Huge upper body, skipped legs',bonus:.02,check:s=>{const r=partRaw();return (r.arms+r.pecs)>=20 && r.legs<=(r.arms+r.pecs)*0.15;}},
+  {id:'lop1',emoji:'🐔', name:'Chicken Legs',     desc:'Big arms, tiny legs',         bonus:.02, check:s=>{const a=grpLvl(['biceps','triceps']),l=grpLvl(['quads','hamstrings','calves']);return a>=12 && l<=a*0.25;}},
+  {id:'lop2',emoji:'🦏', name:'Leg Day Only',     desc:'Tree-trunk legs, twig arms',  bonus:.02, check:s=>{const a=grpLvl(['biceps','triceps']),l=grpLvl(['quads','hamstrings','calves']);return l>=12 && a<=l*0.25;}},
+  {id:'lop3',emoji:'🪞', name:'Skipped Back Day', desc:'Big chest & arms, no back',   bonus:.02, check:s=>{const f=grpLvl(['chest','biceps']),b=grpLvl(['lats','upperback','lowerback']);return f>=15 && b<=f*0.25;}},
   {id:'r1',  emoji:'🐀', name:'Gym Rat',          desc:'Reach the Gym Rat rank',      bonus:.02, check:s=>rankIndex()>=4},
   {id:'r2',  emoji:'😤', name:'Jacked',           desc:'Reach the Jacked rank',       bonus:.03, check:s=>rankIndex()>=6},
   {id:'r3',  emoji:'🗿', name:'Greek God',        desc:'Reach the Greek God rank',    bonus:.05, check:s=>rankIndex()>=9},
@@ -391,13 +551,19 @@ const ACHS = [
   {id:'p3',  emoji:'🏆', name:'Trophy Shelf',     desc:'Hold 10 trophies',            bonus:.05, check:s=>s.trophies>=10},
   {id:'gold',emoji:'✨', name:'Golden Gulp',      desc:'Click a golden shake',        bonus:.03, check:s=>s.goldenClicked>=1},
   {id:'up1', emoji:'⭐', name:'Tier Climber',     desc:'Buy an upgrade',              bonus:.02, check:s=>Object.keys(s.upgrades).length>=1},
-  {id:'up2', emoji:'🌟', name:'Fully Equipped',   desc:'Own every upgrade',           bonus:.10, check:s=>Object.keys(s.upgrades).length>=UPGRADES.length},
+  {id:'up2', emoji:'🌟', name:'Fully Equipped',   desc:'Own every upgrade',           bonus:.10, check:s=>UPGRADES.every(u=>s.upgrades[u.id])},
 ];
 
 //////////////////// STATE ////////////////////
 const SAVE_KEY='swoleclicker';
-const SAVE_VER=4; // v4: daily quests (v3: cosmetics, daily login, ad cooldowns, onboarding flag)
-function freshRun(s){ s.gains=0; s.total=0; ITEMS.forEach(i=>s.owned[i.id]=0); s.upgrades={}; } // cosmetics/daily/trophies persist through prestige
+const SAVE_VER=6; // v6: trophy perks (v5: per-muscle training + view (v4: daily quests; v3: cosmetics, daily login, ad cooldowns, onboarding flag)
+// cosmetics/daily/trophies persist through prestige; muscle memory keeps 25% of tap training
+function freshRun(s){
+  const keep={}; if(perk('keepgroup')) Object.keys(s.upgrades).forEach(k=>{ if(/^m_/.test(k)) keep[k]=true; });
+  s.gains=[0,1e3,1e5,1e7][perk('headstart')]; s.total=0; ITEMS.forEach(i=>s.owned[i.id]=0); s.upgrades=keep;
+  if(perk('starter')){ s.owned.pushup=10; s.owned.bands=10; s.owned.shake=5; }
+  const mem=0.25+perk('memory')*0.15;
+  MUSCLES.forEach(mu=>s.muscles[mu.id]=Math.floor((s.muscles[mu.id]||0)*mem)); musDirty=true; }
 function defaultCos(){ return { body:'male', skin:0, hair:'short', hairColor:0, eq:{} }; } // eq: equipped accessory ids
 function defaultState(){
   const s={ v:SAVE_VER, gains:0, total:0, lifetime:0, clicks:0, owned:{}, upgrades:{},
@@ -410,8 +576,17 @@ function defaultState(){
     adFrenzyAt:0,           // ms timestamp of last rewarded-frenzy (5-min cooldown)
     adWindfallAt:0,         // ms timestamp of last rewarded-windfall (2-min cooldown)
     seenIntro:false,        // first-60s onboarding shown
-    quests:null };          // daily quests: {date, startLifetime, list:[{id,kind,icon,label,target,reward,progress,claimed}]}
+    quests:null,            // daily quests: {date, startLifetime, list:[{id,kind,icon,label,target,reward,progress,claimed}]}
+    // --- v5 additions ---
+    muscles:{},             // tap-training points per muscle id
+    view:'front',           // which side of the lifter is showing
+    selMuscle:'chest',      // muscle trained by DO A REP / Space
+    exRot:{},               // per-muscle rotation index through unlocked moves
+    // --- v6 additions ---
+    perks:{},               // trophy perk levels {perkId: level}
+    trophiesSpent:0 };      // trophies spent on perks (passive bonus still uses state.trophies)
   ITEMS.forEach(i=>s.owned[i.id]=0);
+  MUSCLES.forEach(mu=>s.muscles[mu.id]=0);
   return s;
 }
 let state=defaultState();
@@ -435,6 +610,12 @@ function migrate(raw){
   s.cosBought=raw.cosBought||{};
   s.daily=Object.assign({last:'',streak:0}, raw.daily||{});
   s.quests=raw.quests||null; // re-seeded for the current day by ensureQuests()
+  s.muscles=Object.assign({}, defaultState().muscles, raw.muscles||{});
+  if((raw.v||0)<5){ const per=Math.floor((raw.clicks||0)/MUSCLES.length); MUSCLES.forEach(mu=>s.muscles[mu.id]=per); } // spread old reps over every muscle
+  if(s.view!=='back') s.view='front';
+  if(!MUS[s.selMuscle]) s.selMuscle='chest';
+  s.exRot=raw.exRot||{};
+  s.perks=raw.perks||{}; s.trophiesSpent=raw.trophiesSpent||0;
   s.v=SAVE_VER;
   return s;
 }
@@ -463,10 +644,46 @@ function totalOwned(){ return ITEMS.reduce((s,i)=>s+state.owned[i.id],0); }
 function maxOwned(){ let m=0; ITEMS.forEach(i=>{ if(state.owned[i.id]>m) m=state.owned[i.id]; }); return m; }
 
 function catMult(part){ return state.upgrades['m_'+part]?2:1; }
-function roidMult(){ return state.upgrades.roids?3:1; }
-function clickMult(){ return (state.upgrades.clickPower?2:1)*(state.upgrades.global?1.5:1); }
-function autoMult(){ return (state.upgrades.autoPower?2:1)*(state.upgrades.global?1.5:1); }
-function prestigeMult(){ return 1 + state.trophies*0.03; }
+
+// ---- muscles: level = f(tap training + items that train it); cached until something changes ----
+const TRAIN_K=12;
+let musDirty=true, MS=null;
+function lvlFromPts(p){ return Math.floor(Math.sqrt(p/3)); }
+function ptsForLvl(L){ return 3*L*L; }
+function musStats(){
+  if(!musDirty && MS && MS.st===state) return MS;
+  const pts={}; MUSCLES.forEach(mu=>pts[mu.id]=state.muscles[mu.id]||0);
+  ITEMS.forEach(i=>{ const o=state.owned[i.id]; if(!o||!i.mus.length) return; const v=o*i.amt*catMult(i.part)*TRAIN_K/i.mus.length; i.mus.forEach(id=>pts[id]+=v); });
+  const lvl={}; let sum=0,min=1e9,max=0;
+  MUSCLES.forEach(mu=>{ const L=lvlFromPts(pts[mu.id]); lvl[mu.id]=L; sum+=L; if(L<min)min=L; if(L>max)max=L; });
+  const avg=sum/MUSCLES.length, sym=(min+1)/(avg+1);
+  MS={st:state,pts,lvl,avg,min,max,sym,symBonus:avg>=3?(state.upgrades.sym1?0.3:0.15)*sym*sym:0,weakOn:max-min>=2};
+  musDirty=false; return MS;
+}
+function grpLvl(ids){ const S=musStats(); return ids.reduce((a,id)=>a+S.lvl[id],0)/ids.length; }
+function isWeak(id){ const S=musStats(); return S.weakOn && S.lvl[id]===S.min; }
+function itemMusMult(i){ const S=musStats(); if(i.mus.length){ let a=0; i.mus.forEach(id=>a+=S.lvl[id]); return 1+0.01*a/i.mus.length; } return 1+0.005*S.avg; }
+function symMult(){ return 1+musStats().symBonus; }
+function weakMult(){ return state.upgrades.weak1?3:2; }
+function repGain(id){ return perClick()*(1+0.03*musStats().lvl[id])*musUpMult(id)*(isWeak(id)?weakMult():1); }
+function roidMult(){ return (state.upgrades.roids?3:1)*(state.upgrades.roids2?3:1); }
+function eliteMult(){ const u=state.upgrades; return (u.global?1.5:1)*(u.global2?2:1)*(u.global3?2:1); }
+function clickMult(){ return (state.upgrades.clickPower?2:1)*(state.upgrades.clickPower2?2:1)*(1+0.1*perk('clicker'))*eliteMult(); }
+function autoMult(){ return (state.upgrades.autoPower?2:1)*(state.upgrades.autoPower2?2:1)*(1+0.1*perk('investor'))*eliteMult(); }
+function prestigeMult(){ return 1 + state.trophies*(0.03+0.01*perk('stage')); }
+function trophiesFree(){ return Math.max(0,state.trophies-(state.trophiesSpent||0)); }
+function milestonesHit(i){ const o=state.owned[i.id]; let n=0; MILESTONES.forEach(m=>{ if(o>=m) n++; }); return n; }
+function nextMilestone(i){ const o=state.owned[i.id]; return MILESTONES.find(m=>o<m)||null; }
+function musUpMult(id){ return (state.upgrades['mu_'+id+'_1']?2:1)*(state.upgrades['mu_'+id+'_2']?2:1); }
+// everything that multiplies one copy of an item
+function itemMult(i){
+  let m=catMult(i.part)*itemMusMult(i)*Math.pow(MS_MULT,milestonesHit(i));
+  if(i.mus.length){ let g=1; i.mus.forEach(id=>g*=musUpMult(id)); m*=Math.pow(g,1/i.mus.length); }
+  if(i.part==='roids') m*=roidMult();
+  return m;
+}
+function repPct(){ const u=state.upgrades; return (u.rep1?0.01:0)+(u.rep2?0.01:0)+(u.rep3?0.02:0); }
+function revealed(i){ return state.owned[i.id]>0 || state.lifetime>=i.base*0.5 || state.gains>=i.base*0.5; }
 let achBonus=0;
 function recomputeAchBonus(){ achBonus=0; ACHS.forEach(a=>{ if(state.achievements[a.id]) achBonus+=a.bonus; }); }
 function achMult(){ return 1+achBonus; }
@@ -476,13 +693,13 @@ function globalMult(){ return prestigeMult()*achMult()*frenzyMult(); }
 
 function perClick(){
   let b=1;
-  ITEMS.forEach(i=>{ if(i.type==='click') b+=i.power*state.owned[i.id]*catMult(i.part); });
-  return b*clickMult()*globalMult();
+  ITEMS.forEach(i=>{ if(i.type==='click' && state.owned[i.id]) b+=i.power*state.owned[i.id]*itemMult(i); });
+  return (b*clickMult()*symMult()+perSecRaw()*repPct())*globalMult();
 }
 function perSecRaw(){ // without frenzy, for thresholds/achievements
   let s=0;
-  ITEMS.forEach(i=>{ if(i.type==='auto'){ let m=catMult(i.part); if(i.part==='roids') m*=roidMult(); s+=i.power*state.owned[i.id]*m; }});
-  return s*autoMult()*prestigeMult()*achMult();
+  ITEMS.forEach(i=>{ if(i.type==='auto' && state.owned[i.id]) s+=i.power*state.owned[i.id]*itemMult(i); });
+  return s*autoMult()*prestigeMult()*achMult()*symMult();
 }
 function perSec(){ return perSecRaw()*frenzyMult(); }
 
@@ -491,11 +708,14 @@ function partRaw(){
   ITEMS.forEach(i=>{ let m=catMult(i.part); if(i.part==='roids') m*=roidMult(); r[i.part]+=state.owned[i.id]*i.amt*m; });
   return r;
 }
-function rankIndex(){ const t=Math.min(0.999, Math.min(1.6,Math.log10(state.total+1)/4.2)/1.6); return Math.min(RANKS.length-1, Math.floor(t*RANKS.length)); }
-function rankInfo(){ const t=Math.min(0.999, Math.min(1.6,Math.log10(state.total+1)/4.2)/1.6); const idx=Math.min(RANKS.length-1,Math.floor(t*RANKS.length)); return {name:RANKS[idx], frac:(t*RANKS.length)%1}; }
+function rankIndex(){ let i=0; while(i<RANK_AT.length-1 && state.total>=RANK_AT[i+1]) i++; return i; }
+function rankInfo(){ const i=rankIndex(); if(i>=RANK_AT.length-1) return {name:RANKS[i], frac:1};
+  const lo=Math.log10(RANK_AT[i]+1), hi=Math.log10(RANK_AT[i+1]); return {name:RANKS[i], next:RANKS[i+1], need:RANK_AT[i+1], frac:Math.max(0,Math.min(1,(Math.log10(state.total+1)-lo)/(hi-lo)))}; }
 
-function costOf(item){ return Math.ceil(item.base*Math.pow(1.15,state.owned[item.id])); }
-function costForN(item,n){ let c=0,o=state.owned[item.id]; for(let k=0;k<n;k++) c+=Math.ceil(item.base*Math.pow(1.15,o+k)); return c; }
+function costDisc(){ return 1-0.04*perk('bargain'); }
+function costOf(item){ return Math.ceil(item.base*costDisc()*Math.pow(1.15,state.owned[item.id])); }
+function costForN(item,n){ let c=0,o=state.owned[item.id]; const d=costDisc(); for(let k=0;k<n;k++) c+=Math.ceil(item.base*d*Math.pow(1.15,o+k)); return c; }
+function maxAfford(item){ let n=0,c=0,o=state.owned[item.id]; const d=costDisc(); while(n<1000){ const k=Math.ceil(item.base*d*Math.pow(1.15,o+n)); if(c+k>state.gains) break; c+=k; n++; } return n; }
 
 const UNITS=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc'];
 function fmt(n){
@@ -509,31 +729,47 @@ function fmt(n){
 function fmtTime(sec){ sec=Math.floor(sec); const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60; return (h?h+'h ':'')+(m||h?m+'m ':'')+s+'s'; }
 
 //////////////////// ACTIONS ////////////////////
-function doRep(clientX, clientY){
-  const p=perClick();
+// level-ups → floats, and toasts when a muscle unlocks a new move
+function noteLevels(before, x, y){
+  const S=musStats();
+  MUSCLES.forEach(mu=>{ const b=before[mu.id], a=S.lvl[mu.id]; if(a<=b) return;
+    if(x!==undefined) spawnFloat(mu.name+' Lv '+a+'!', x, (y||0)-26, 'lv');
+    MOVE_UNLOCK.forEach((need,i)=>{ if(i>0 && mu.ex[i] && b<need && a>=need) toast(`🆕 <b>${mu.name}</b> unlocked a new move: <b>${EX[mu.ex[i]].name}</b>!`); });
+  });
+}
+function doRep(clientX, clientY, mid, fromUI){
+  mid = MUS[mid] ? mid : state.selMuscle;
+  if(fromUI) ensureView(mid);
+  const before=Object.assign({}, musStats().lvl), weak=isWeak(mid);
+  const p=repGain(mid);
   state.gains+=p; state.total+=p; state.lifetime+=p; state.clicks++;
+  state.selMuscle=mid; state.muscles[mid]=(state.muscles[mid]||0)+1+perk('learner'); musDirty=true;
   questProgress('reps',1);
-  pump=1; beep(420,0.05);
-  // do the exercise for whatever body part was clicked
-  if(clientX!=null){
-    const rect=cv.getBoundingClientRect();
-    const lx=(clientX-rect.left)*(CW/rect.width), ly=(clientY-rect.top)*(CH/rect.height);
-    setExercise(exForPart(partAtPoint(lx,ly)), 1.6);
-  } else { setExercise(lastEx, 1.6); }
-  spawnFloat('+'+fmt(p), clientX, clientY);
+  pump=1; musPump[mid]=Math.min(1,(musPump[mid]||0)+0.3); musFlash[mid]=1; beep(420,0.05);
+  startMuscleEx(mid, 1.6);
+  spawnFloat('+'+fmt(p)+(weak?' 🎯×'+weakMult():''), clientX, clientY);
+  noteLevels(before, clientX===undefined?null:clientX, clientY);
   spawnParticles();
   if(p>1e6 || frenzy>0) shakeStage();
   if(coachStep===0){ advanceCoach(1); const st=document.querySelector('.tab[data-tab=shop]'); if(st) st.click(); } // onboarding: rep done → point to shop
   afterChange(false);
 }
+// canvas taps only train the muscle actually under the finger; a miss just shows a hint
+let missHintAt=0;
+function repAtCanvas(x,y){ if(stageOn) return; const q=canvasPt(x,y), id=regionAt(q.x,q.y);
+  if(id){ doRep(x,y,id); return; }
+  if(Date.now()-missHintAt>1200){ missHintAt=Date.now(); spawnFloat(turnT>=0?'Turning…':'Tap a muscle!',x,y,'miss'); } }
 function buy(item, want, ev){
-  const n = (ev&&ev.shiftKey)?10:want;
+  const n = (ev&&ev.shiftKey)?10:(want==='max'?Math.max(1,maxAfford(item)):want);
+  const msBefore=milestonesHit(item);
   const firstBuy = state.owned[item.id]===0;
   const firstEver = totalOwned()===0;
-  let bought=0;
+  let bought=0; const before=Object.assign({}, musStats().lvl);
   while(bought<n){ const c=costOf(item); if(state.gains<c) break; state.gains-=c; state.owned[item.id]++; bought++; }
-  if(bought>0){ pump=0.6; beep(300,0.06); questProgress('buyitems',bought);
-    if(firstBuy){ setExercise(exForPart(item.part),2.8); toast(`🆕 New move unlocked: <b>${item.name}</b>!`); }
+  if(bought>0){ pump=0.6; beep(300,0.06); questProgress('buyitems',bought); musDirty=true; noteLevels(before);
+    if(firstBuy){ if(item.mus.length){ startMuscleEx(item.mus[0],2.8); ensureView(item.mus[0]); } else { curMus=null; setExercise(item.part==='roids'?'flex':'chug',2.8); }
+      toast(`🆕 New gear: <b>${item.name}</b>!`); }
+    if(milestonesHit(item)>msBefore){ toast(`🏅 <b>${item.name}</b> milestone: ${state.owned[item.id]} owned — output ×${MS_MULT}!`); beep(760,0.12); }
     if(firstEver){ const r=$('stage').getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2); if(coachStep===1) advanceCoach(2); } // celebrate first-ever purchase
     afterChange(true);
   }
@@ -545,9 +781,11 @@ function buyUpgrade(u){
   afterChange(true);
 }
 
-function projectedTrophies(){ return Math.floor(Math.pow(state.lifetime/1e6,0.5)); }
-function doPrestige(){
-  const gain=projectedTrophies()-state.trophies;
+// trophies scale with the cube root of lifetime gains: 1B → 2, 100B → 10, 100T → 100
+function projectedTrophies(){ return Math.floor(Math.cbrt(state.lifetime/1e8)); }
+function trophyNeed(n){ return Math.pow(n,3)*1e8; }  // lifetime needed to have n trophies
+function doPrestige(bonus){
+  const gain=projectedTrophies()-state.trophies+(bonus||0);
   if(gain<=0) return;
   state.trophies+=gain; state.prestiges++;
   freshRun(state);
@@ -558,10 +796,12 @@ function doPrestige(){
 }
 
 function afterChange(doSave){
+  musDirty=true;
   checkAchievements();
   if(activeTab==='shop') renderShop();
   if(activeTab==='upgrades') renderUpgrades();
-  updateUI();
+  if(activeTab==='stage') renderStage();
+  updateUI(); updateMusChips();
   if(doSave) save();
 }
 
@@ -583,33 +823,133 @@ let buyAmt=1, activeTab='shop';
 
 function renderShop(){
   const el=$('shop'); el.innerHTML='';
+  let teased={click:false,auto:false};
   ITEMS.forEach(item=>{
-    const n=buyAmt, cost=costForN(item,n), owned=state.owned[item.id], afford=state.gains>=cost;
-    const eff = item.type==='click' ? `+${fmt(item.power*catMult(item.part))}/rep` : `+${fmt(item.power*catMult(item.part)*(item.part==='roids'?roidMult():1))}/sec`;
+    const owned=state.owned[item.id];
+    if(!revealed(item)){ // one mystery silhouette per type, the rest stay hidden
+      if(teased[item.type]) return; teased[item.type]=true;
+      const row=document.createElement('div'); row.className='item locked mystery';
+      row.innerHTML=`<div class="emoji">❔</div><div class="body"><div class="name">???</div>
+        <div class="desc">${item.type==='click'?'New rep upgrade':'New idle gear'} — earn ${fmt(item.base*0.5)} to reveal</div></div>
+        <div class="right"><div class="cost">💪 ${fmt(item.base)}</div></div>`;
+      el.appendChild(row); return;
+    }
+    const n=buyAmt==='max'?Math.max(1,maxAfford(item)):buyAmt, cost=costForN(item,n), afford=state.gains>=cost;
+    const each=item.power*itemMult(item)*(item.type==='click'?clickMult():autoMult());
+    const eff = item.type==='click' ? `+${fmt(each)}/rep` : `+${fmt(each)}/sec`;
+    const trains = item.mus.length ? item.mus.map(id=>MUS[id].name).join(', ') : (item.part==='roids'?'whole body (roids)':'whole body (mass)');
+    const nm=nextMilestone(item), prevM=MILESTONES[milestonesHit(item)-1]||0;
+    const pips=MILESTONES.map(m=>`<i class="${owned>=m?'on':''}"></i>`).join('');
     const row=document.createElement('div');
     row.className='item'+(afford?' afford':' locked');
     row.innerHTML=`<div class="emoji">${item.emoji}</div>
-      <div class="body"><div class="name">${item.name}</div>
-      <div class="desc">${eff} · <span style="color:#6b7a99">${item.part}</span></div></div>
+      <div class="body"><div class="name">${item.name} <span class="info" title="Details">ⓘ</span></div>
+      <div class="desc">${eff} · <span style="color:#6b7a99">${trains}</span></div>
+      <div class="pips" title="${nm?'Next milestone: '+nm+' owned (×'+MS_MULT+')':'All milestones!'}">${pips}<span>${nm?owned+'/'+nm:'MAX'}</span></div></div>
       <div class="right"><div class="cost">💪 ${fmt(cost)}${n>1?' ×'+n:''}</div><div class="owned">owned ${owned}</div></div>`;
-    row.addEventListener('click',ev=>buy(item,n,ev));
+    row.addEventListener('click',ev=>{ if(ev.target.classList.contains('info')){ ev.stopPropagation(); itemInfo(item); return; } buy(item,buyAmt,ev); });
     el.appendChild(row);
   });
 }
+function itemInfo(item){
+  const owned=state.owned[item.id], each=item.power*itemMult(item)*(item.type==='click'?clickMult():autoMult())*(item.type==='auto'?prestigeMult()*achMult()*symMult():symMult());
+  const total=each*owned, all=item.type==='click'?Math.max(1e-9,perClick()):Math.max(1e-9,perSecRaw());
+  const nm=nextMilestone(item);
+  modal(item.emoji+' '+item.name,
+    `<div class="sub" style="font-style:italic;color:#c9d1e4">“${FLAVOR[item.id]||''}”</div>
+     <div class="statrow"><span>Trains</span><span>${item.mus.length?item.mus.map(id=>MUS[id].name).join(', '):'whole body'}</span></div>
+     <div class="statrow"><span>Owned</span><span>${owned}</span></div>
+     <div class="statrow"><span>Each makes</span><span>${fmt(each)}/${item.type==='click'?'rep':'sec'}</span></div>
+     <div class="statrow"><span>All of them</span><span>${fmt(total)}/${item.type==='click'?'rep':'sec'} (${Math.round(total/all*100)}% of ${item.type==='click'?'rep':'idle'} income)</span></div>
+     <div class="statrow"><span>Milestones</span><span>${milestonesHit(item)}/${MILESTONES.length} (×${+Math.pow(MS_MULT,milestonesHit(item)).toFixed(2)})</span></div>
+     <div class="statrow"><span>Next milestone</span><span>${nm?nm+' owned → ×'+MS_MULT:'all done!'}</span></div>`,
+    [{label:'Close',cls:'btnno'}]);
+}
 
+let showOwnedUps=false;
+function upRow(u,state_){
+  const row=document.createElement('div');
+  row.className='item'+(state_==='bought'?' bought':(state_==='ready'&&state.gains>=u.cost?' afford':' locked'));
+  row.innerHTML=`<div class="emoji">${u.emoji}</div>
+    <div class="body"><div class="name">${u.name}${state_==='bought'?' ✓':''}</div>
+    <div class="desc">${u.desc}</div>${state_==='locked'?`<div class="tag">🔒 ${u.reqtxt}</div>`:''}</div>
+    <div class="right">${state_==='bought'?'<div class="owned">owned</div>':`<div class="cost">💪 ${fmt(u.cost)}</div>`}</div>`;
+  if(state_==='ready') row.addEventListener('click',()=>buyUpgrade(u));
+  return row;
+}
 function renderUpgrades(){
   const el=$('upgrades'); el.innerHTML='';
-  UPGRADES.forEach(u=>{
-    const bought=!!state.upgrades[u.id], unlocked=u.req(state), afford=state.gains>=u.cost;
-    const row=document.createElement('div');
-    row.className='item'+(bought?' bought':(unlocked&&afford?' afford':' locked'));
-    row.innerHTML=`<div class="emoji">${u.emoji}</div>
-      <div class="body"><div class="name">${u.name}${bought?' ✓':''}</div>
-      <div class="desc">${u.desc}</div>${!unlocked?`<div class="tag">🔒 ${u.reqtxt}</div>`:''}</div>
-      <div class="right">${bought?'<div class="owned">owned</div>':`<div class="cost">💪 ${fmt(u.cost)}</div>`}</div>`;
-    if(!bought) row.addEventListener('click',()=>buyUpgrade(u));
+  const bought=UPGRADES.filter(u=>state.upgrades[u.id]);
+  const ready=UPGRADES.filter(u=>!state.upgrades[u.id]&&u.req(state)).sort((a,b)=>a.cost-b.cost);
+  const locked=UPGRADES.filter(u=>!state.upgrades[u.id]&&!u.req(state)).sort((a,b)=>a.cost-b.cost);
+  const h=(t)=>{ const d=document.createElement('div'); d.className='lockh'; d.style.margin='4px 0 6px'; d.textContent=t; el.appendChild(d); };
+  h(`Available (${ready.length})`); if(!ready.length){ const d=document.createElement('div'); d.className='sub'; d.style.marginBottom='8px'; d.textContent='Nothing ready yet — keep training!'; el.appendChild(d); }
+  ready.forEach(u=>el.appendChild(upRow(u,'ready')));
+  if(locked.length){ h(`Coming up`); locked.slice(0,4).forEach(u=>el.appendChild(upRow(u,'locked')));
+    if(locked.length>4){ const d=document.createElement('div'); d.className='sub'; d.style.margin='0 0 10px'; d.textContent=`+ ${locked.length-4} more to discover`; el.appendChild(d); } }
+  const tg=document.createElement('button'); tg.className='mini'; tg.style.margin='6px 0 8px';
+  tg.textContent=(showOwnedUps?'▾ ':'▸ ')+`Owned (${bought.length} / ${UPGRADES.length})`; tg.onclick=()=>{ showOwnedUps=!showOwnedUps; renderUpgrades(); }; el.appendChild(tg);
+  if(showOwnedUps) bought.forEach(u=>el.appendChild(upRow(u,'bought')));
+}
+function updateUpBadge(){ const tab=document.querySelector('.tab[data-tab=upgrades]'); if(!tab) return;
+  const n=UPGRADES.filter(u=>!state.upgrades[u.id]&&u.req(state)&&state.gains>=u.cost).length;
+  tab.innerHTML='⭐ Upgrades'+(n?' <span class="qcount">'+n+'</span>':''); }
+
+//////////////////// STAGE: prestige + trophy perks ////////////////////
+function renderStage(){
+  const el=$('stagepanel'); if(!el) return;
+  const proj=projectedTrophies()-state.trophies, next=Math.max(projectedTrophies(),state.trophies)+1;
+  el.innerHTML=`<div class="stagehead">
+      <div><div class="big">🏆 ${state.trophies}</div><div class="sub">trophies earned · ×${prestigeMult().toFixed(2)} all gains</div></div>
+      <div style="text-align:right"><div class="big" style="color:var(--good)">${trophiesFree()}</div><div class="sub">available to spend</div></div></div>
+    <div class="sub" style="margin:8px 0">Hitting the stage resets this run (gains, items, upgrades) for trophies, which come from <b style="color:#fff">lifetime</b> gains.
+      ${proj>0?`You've earned <b style="color:#fff">+${proj}</b> so far — trophy #${next} needs ${fmt(trophyNeed(next))} lifetime.`:`Trophy #${next} needs ${fmt(trophyNeed(next))} lifetime (you have ${fmt(state.lifetime)}).`}</div>`;
+  const btn=document.createElement('button'); btn.className='bigbtn'; btn.id='prestigebtn'; btn.disabled=proj<=0;
+  btn.textContent = proj>0 ? `🎤 Hit the Stage — +${proj} 🏆` : `🎤 Next trophy at ${fmt(trophyNeed(next))} lifetime`;
+  btn.onclick=confirmPrestige; el.appendChild(btn);
+  const h=document.createElement('div'); h.className='lockh'; h.style.marginTop='16px'; h.textContent='Trophy Perks — permanent'; el.appendChild(h);
+  PERKS.forEach(p=>{
+    const lv=perk(p.id), max=p.costs.length, c=lv<max?p.costs[lv]:null, can=c!=null&&trophiesFree()>=c;
+    const row=document.createElement('div'); row.className='item'+(lv>=max?' bought':(can?' afford':' locked'));
+    row.innerHTML=`<div class="emoji">${p.emoji}</div><div class="body"><div class="name">${p.name} <span class="sub">Lv ${lv}/${max}</span></div>
+      <div class="desc">${[lv?'Now: '+p.desc(lv):'',lv<max?'Next: '+p.desc(lv+1):''].filter(Boolean).join(' · ')}</div></div>
+      <div class="right">${lv>=max?'<div class="owned">MAX</div>':`<div class="cost">🏆 ${c}</div>`}</div>`;
+    if(can) row.onclick=()=>{ state.trophiesSpent=(state.trophiesSpent||0)+c; state.perks[p.id]=lv+1; beep(620,0.1); toast(`${p.emoji} <b>${p.name}</b> → Lv ${lv+1}`); musDirty=true; afterChange(true); renderStage(); };
     el.appendChild(row);
   });
+}
+function confirmPrestige(){
+  const proj=projectedTrophies()-state.trophies; if(proj<=0) return;
+  modal('🎤 Hit the Stage?',
+    `<div class="sub">Compete in a bodybuilding show: <b style="color:#fff">reset this run</b> (gains, items & upgrades) in exchange for permanent trophies.</div>
+     <div style="font-size:24px;margin-top:12px;color:#b06bff">+${proj} 🏆 → ×${(1+(state.trophies+proj)*(0.03+0.01*perk('stage'))).toFixed(2)} forever</div>
+     <div class="sub" style="margin-top:6px">Kept: awards, trophies, perks, cosmetics and ${25+perk('memory')*15}% of your muscle training. Score 9+ from the judges for a bonus trophy!</div>`,
+    [{label:'Hit the stage', cls:'btnyes', fn:stageShow}, {label:'Not yet', cls:'btnno'}]);
+}
+// the posing routine: lifter cycles poses under a spotlight while three judges score him
+let stageOn=false;
+function judgeScores(){
+  const S=musStats(), mass=Math.min(10,1+S.avg/4), sym=Math.min(10,1+S.sym*9), cond=Math.min(10,1+(S.lvl.abs+S.lvl.obliques+S.lvl.calves)/12);
+  const j=(base)=>Math.max(1,Math.min(10,Math.round(base+(Math.random()*2-1))));
+  return [{n:'Big Ron',k:'Mass',v:j(mass)},{n:'Ms. Flex',k:'Symmetry',v:j(sym)},{n:'The Commissioner',k:'Conditioning',v:j(cond)}];
+}
+function stageShow(){
+  if(stageOn) return; stageOn=true; gameplay(false);
+  const st=$('stage'); st.classList.add('onstage'); window.scrollTo(0,0);
+  const ov=document.createElement('div'); ov.id='stageov';
+  ov.innerHTML=`<div class="stitle">🎤 MR. SWOLEYMPIA</div><div class="judges"></div><div class="sresult"></div>`;
+  st.appendChild(ov);
+  const scores=judgeScores(), jd=ov.querySelector('.judges');
+  scores.forEach(s=>{ const d=document.createElement('div'); d.className='judge'; d.innerHTML=`<div class="jn">${s.n}</div><div class="jk">${s.k}</div><div class="jv">?</div>`; jd.appendChild(d); });
+  curEx='idle'; exEnergy=0; idleIdx=0; idleClock=-1.2;
+  const steps=[[1300,()=>{ idleIdx=1; idleClock=-9; }],[1300,()=>{ idleIdx=2; idleClock=-9; }],[1300,()=>{ startTurn(); idleIdx=0; idleClock=-9; }],
+    [1300,()=>{ idleIdx=2; idleClock=-9; }],[900,()=>{ startTurn(); idleIdx=3; idleClock=-9; }]];
+  scores.forEach((s,i)=>steps.push([700,()=>{ const v=jd.children[i].querySelector('.jv'); v.textContent=s.v; v.classList.add('show'); beep(500+s.v*40,0.1); }]));
+  const avg=scores.reduce((a,s)=>a+s.v,0)/3, bonus=avg>=9?1:0, gain=projectedTrophies()-state.trophies+bonus;
+  steps.push([900,()=>{ ov.querySelector('.sresult').innerHTML=`<div class="sgain">+${gain} 🏆</div>${bonus?'<div class="sub" style="color:var(--gold)">Judges loved it — bonus trophy!</div>':''}<button class="bigbtn" id="stagedone">Back to the gym 💪</button>`;
+    confettiBurst(window.innerWidth/2, window.innerHeight/3); beep(880,0.25);
+    $('stagedone').onclick=()=>{ ov.remove(); st.classList.remove('onstage'); stageOn=false; if(state.view!=='front') startTurn(); doPrestige(bonus); gameplay(true); }; }]);
+  let tt=0; steps.forEach(([d,fn])=>{ tt+=d; setTimeout(fn,tt); });
 }
 
 function renderAch(){
@@ -636,38 +976,36 @@ function renderStats(){
     ['Gains / sec', fmt(perSec())],
     ['Gains / rep', fmt(perClick())],
     ['Total reps', fmt(state.clicks)],
+    ['Symmetry ✨', Math.round(musStats().sym*100)+'%'+(musStats().symBonus>0?' (+'+Math.round(musStats().symBonus*100)+'% gains)':'')],
+    ['Strongest muscle', (()=>{ const S=musStats(); const b=MUSCLES.reduce((a,mu)=>S.lvl[mu.id]>S.lvl[a.id]?mu:a); return b.name+' (Lv '+S.lvl[b.id]+')'; })()],
     ['Items owned', fmt(totalOwned())],
     ['Upgrades owned', Object.keys(state.upgrades).length+' / '+UPGRADES.length],
     ['Awards', Object.keys(state.achievements).length+' / '+ACHS.length],
-    ['Trophies 🏆', state.trophies+' (×'+prestigeMult().toFixed(2)+')'],
+    ['Trophies 🏆', state.trophies+' (×'+prestigeMult().toFixed(2)+') · '+trophiesFree()+' unspent'],
     ['Prestiges', state.prestiges],
     ['Daily streak 🔥', state.daily.streak+' day'+(state.daily.streak===1?'':'s')],
     ['Playtime', fmtTime(state.playtime)],
   ];
   el.innerHTML=rows.map(r=>`<div class="statrow"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
-  const proj=projectedTrophies()-state.trophies;
-  const btn=$('prestigebtn');
-  btn.disabled=proj<=0;
-  btn.textContent = proj>0 ? `🏆 Hit the Stage — +${proj} 🏆` : `🏆 Need ${fmt(Math.pow(state.trophies+1,2)*1e6)} lifetime for next 🏆`;
 }
 
-function renderAll(){ renderShop(); renderUpgrades(); renderAch(); renderQuests(); renderLocker(); renderStats(); updateUI(); updateQuestBadge(); }
+function renderAll(){ musDirty=true; updateTurnBtn(); renderShop(); renderUpgrades(); renderStage(); updateUpBadge(); renderAch(); renderQuests(); renderLocker(); renderStats(); updateUI(); updateQuestBadge(); updateMusChips(); }
 
 function updateUI(){
   $('gains').textContent=fmt(state.gains);
   $('rate').textContent='+'+fmt(perSec())+'/sec';
-  $('perclick').textContent=fmt(perClick());
+  $('perclick').textContent=fmt(repGain(state.selMuscle)); $('selmus').textContent=MUS[state.selMuscle].name;
   const r=rankInfo();
-  $('rank').textContent=r.name;
+  $('rank').textContent=r.name; $('rank').title=r.next?`Next: ${r.next} at ${fmt(r.need)} gains this run`:'Top rank!';
   $('rankfill').style.width=(r.frac*100).toFixed(0)+'%';
   $('trophyBadge').textContent='🏆 '+state.trophies;
   $('multBadge').textContent='×'+(prestigeMult()*achMult()).toFixed(2)+(frenzy>0?' 🔥7×':'');
   $('repbtn').classList.toggle('frenzy', frenzy>0);
 }
 
-function spawnFloat(txt,x,y){
+function spawnFloat(txt,x,y,cls){
   const wrap=$('floatwrap'), rect=wrap.getBoundingClientRect();
-  const el=document.createElement('div'); el.className='float'; el.textContent=txt;
+  const el=document.createElement('div'); el.className='float'+(cls?' '+cls:''); el.textContent=txt;
   let px,py;
   if(x==null){ px=rect.width*(0.35+Math.random()*0.3); py=rect.height*0.42; }
   else { px=x-rect.left; py=y-rect.top; }
@@ -722,7 +1060,8 @@ function beep(freq,dur){
 
 //////////////////// GOLDEN SHAKE ////////////////////
 let goldTimer=45, goldEl=$('golden'), goldActive=false, goldAnim=null;
-function scheduleGold(){ const f=state.upgrades.golden?0.5:1; goldTimer=(60+Math.random()*70)*f; }
+function scheduleGold(){ const f=(state.upgrades.golden?0.5:1)/(1+0.2*perk('golden')); goldTimer=(60+Math.random()*70)*f; }
+function frenzyLen(base){ return base*(1+0.3*perk('frenzy'))*(state.upgrades.golden2?2:1); }
 function spawnGold(){
   if(goldActive) return; goldActive=true;
   const startTop=80+Math.random()*(window.innerHeight-260);
@@ -740,8 +1079,8 @@ goldEl.addEventListener('click',()=>{
   cancelAnimationFrame(goldAnim); goldEl.style.display='none'; goldActive=false;
   state.goldenClicked++; questProgress('golden',1);
   const big=state.upgrades.golden;
-  if(Math.random()<0.6){ frenzy=big?22:15; toast(`✨ <b>FRENZY!</b> 7× gains for ${frenzy|0}s!`); }
-  else { const lump=Math.max(perClick()*200, perSecRaw()*(big?1200:600)); state.gains+=lump; state.total+=lump; state.lifetime+=lump;
+  if(Math.random()<0.6){ frenzy=frenzyLen(big?22:15); toast(`✨ <b>FRENZY!</b> 7× gains for ${frenzy|0}s!`); }
+  else { const lump=Math.max(perClick()*200, perSecRaw()*(big?1200:600))*(state.upgrades.golden3?3:1); state.gains+=lump; state.total+=lump; state.lifetime+=lump;
     toast(`✨ <b>+${fmt(lump)}</b> protein windfall!`); spawnFloat('+'+fmt(lump)); }
   beep(880,0.15); shakeStage(); afterChange(true);
 });
@@ -781,21 +1120,22 @@ function ax_crown(J,m){ const hx=J.head.x,hy=J.head.y-m.headR+2; ctx.fillStyle='
 const ACCESSORIES=[
   {id:'sunglasses',name:'Sunglasses',emoji:'🕶️',free:true,draw:ax_sunglasses},
   {id:'mustache', name:'Mustache', emoji:'👨', free:true,draw:ax_mustache},
+  {id:'tank',     name:'Tank Top', emoji:'🎽', free:true,draw:null},
   {id:'unibrow',  name:'Unibrow',  emoji:'🤨', buy:5e3,  draw:ax_unibrow},
   {id:'cigar',    name:'Cigar',    emoji:'🚬', buy:2.5e4,draw:ax_cigar},
   {id:'goldchain',name:'Gold Chain',emoji:'📿',trophies:1,draw:ax_goldchain},
-  {id:'backcap',  name:'Backwards Cap',emoji:'🧢',ach:'r1',draw:ax_backcap},
-  {id:'mulletwig',name:'Mullet Wig',emoji:'💇', buy:1e5,  draw:ax_mulletwig},
+  {id:'backcap',back:true,  name:'Backwards Cap',emoji:'🧢',ach:'r1',draw:ax_backcap},
+  {id:'mulletwig',back:true,name:'Mullet Wig',emoji:'💇', buy:1e5,  draw:ax_mulletwig},
   {id:'monocle',  name:'Monocle',  emoji:'🧐', buy:5e5,  draw:ax_monocle},
-  {id:'partyhat', name:'Party Hat',emoji:'🎉', ach:'p1', draw:ax_partyhat},
+  {id:'partyhat',back:true, name:'Party Hat',emoji:'🎉', ach:'p1', draw:ax_partyhat},
   {id:'faketan',  name:'Fake Tan', emoji:'✨', ach:'roid',tan:true,draw:null},
-  {id:'crown',    name:'Crown',    emoji:'👑', ach:'r3', draw:ax_crown},
+  {id:'crown',back:true,    name:'Crown',    emoji:'👑', ach:'r3', draw:ax_crown},
 ];
 const ACC_BY_ID={}; ACCESSORIES.forEach(a=>ACC_BY_ID[a.id]=a);
 function cosUnlocked(a){ if(!a) return false; if(a.free) return true; if(a.ach) return !!state.achievements[a.ach]; if(a.trophies) return state.trophies>=a.trophies; if(a.buy) return !!state.cosBought[a.id]; return true; }
 function cosLockText(a){ if(a.ach){ const ac=ACHS.find(x=>x.id===a.ach); return '🔒 '+(ac?ac.name:a.ach); } if(a.trophies) return '🔒 '+a.trophies+' 🏆'; if(a.buy) return '💪 '+fmt(a.buy); return ''; }
 function drawHair(J,m){ const h=HAIR_BY_ID[(state.cos&&state.cos.hair)||'short']; if(!h||!h.draw) return; const c=HAIRCOL[(state.cos&&state.cos.hairColor)||0]||HAIRCOL[0]; ctx.save(); h.draw(J,m,c); ctx.restore(); }
-function drawAccessories(J,m){ const eq=(state.cos&&state.cos.eq)||{}; ACCESSORIES.forEach(a=>{ if(eq[a.id]&&a.draw&&cosUnlocked(a)){ ctx.save(); a.draw(J,m); ctx.restore(); } }); }
+function drawAccessories(J,m,mode){ const eq=(state.cos&&state.cos.eq)||{}; ACCESSORIES.forEach(a=>{ if(eq[a.id]&&a.draw&&cosUnlocked(a)&&(mode!=='back'||a.back)){ ctx.save(); a.draw(J,m); ctx.restore(); } }); }
 
 //////////////////// ADS — platform-aware (CrazyGames / GameDistribution / dev) ////////////////////
 /*
@@ -962,7 +1302,7 @@ function questProgress(kind, amt){
 }
 function claimQuest(i, doubled){
   const q=state.quests&&state.quests.list[i]; if(!q||q.claimed||!questDone(q)) return;
-  const reward=Math.ceil(q.reward*(doubled?2:1));
+  const reward=Math.ceil(q.reward*(doubled?2:1)*(1+0.5*perk('quests')));
   q.claimed=true; state.gains+=reward; state.total+=reward; state.lifetime+=reward;
   toast('🎯 Quest complete — <b>+'+fmt(reward)+'</b>'+(doubled?' (2×!)':''));
   beep(680,0.12); afterChange(true); renderQuests(); updateQuestBadge();
@@ -977,7 +1317,7 @@ function renderQuests(){
     const cur=questCurrent(q), done=cur>=q.target, pct=Math.min(100,cur/q.target*100);
     const row=document.createElement('div'); row.className='qrow';
     row.innerHTML=`<div class="qhead"><span class="qi">${q.icon}</span><span class="qname">${q.label}</span>
-      <span class="qrew">${q.claimed?'✓ claimed':'🎁 '+fmt(q.reward)}</span></div>
+      <span class="qrew">${q.claimed?'✓ claimed':'🎁 '+fmt(q.reward*(1+0.5*perk('quests')))}</span></div>
       <div class="qbar"><i style="width:${pct}%"></i></div>
       <div class="qfoot"><span class="sub">${fmt(cur)} / ${fmt(q.target)}</span><span class="qbtns"></span></div>`;
     const btns=row.querySelector('.qbtns');
@@ -995,7 +1335,7 @@ function renderQuests(){
 let coachStep=-1;
 function startCoach(){ if(state.seenIntro || state.clicks>0 || totalOwned()>0){ state.seenIntro=true; return; } coachStep=0; showCoach(); }
 function showCoach(){ const c=$('coach');
-  if(coachStep===0) positionCoach(c,$('repbtn'),'👆 Tap <b>DO A REP</b> (or the dude) to train!');
+  if(coachStep===0) positionCoach(c,$('repbtn'),'👆 Tap <b>any muscle</b> on the lifter (or DO A REP) to train it!');
   else if(coachStep===1) positionCoach(c,$('panel-shop'),'🛒 Now buy your <b>first item</b> in the Shop to grow!');
   else { endCoach(); return; }
   c.style.display='block';
@@ -1056,6 +1396,24 @@ function openShare(){
 }
 // Hook for a future hosted leaderboard:  function submitScore(){ fetch(LEADERBOARD_URL,{method:'POST',body:JSON.stringify({lifetime:state.lifetime,trophies:state.trophies})}); }
 
+//////////////////// MUSCLE CHIPS ////////////////////
+function buildMusGrid(){
+  const g=$('musgrid'); g.innerHTML='';
+  MUSCLES.forEach(mu=>{ const d=document.createElement('div'); d.className='mchip'; d.title=mu.name+(mu.view==='back'?' (back)':'');
+    d.innerHTML='<div class="mn"></div><div class="ml"></div><div class="mb"><i></i></div>';
+    bindTap(d,()=>doRep(undefined,undefined,mu.id,true)); g.appendChild(d); mu.el=d; });
+}
+function updateMusChips(){
+  const S=musStats();
+  MUSCLES.forEach(mu=>{ if(!mu.el) return; const L=S.lvl[mu.id], lo=ptsForLvl(L), hi=ptsForLvl(L+1), w=isWeak(mu.id);
+    mu.el.children[0].textContent=mu.short||mu.name;
+    mu.el.children[1].textContent='Lv '+L+(mu.view==='back'?' · back':'');
+    mu.el.children[2].firstChild.style.width=Math.min(100,(S.pts[mu.id]-lo)/(hi-lo)*100).toFixed(0)+'%';
+    mu.el.classList.toggle('sel',state.selMuscle===mu.id); mu.el.classList.toggle('weak',w); });
+  $('symtxt').textContent = S.symBonus>0 ? `✨ Symmetry ${Math.round(S.sym*100)}% · +${Math.round(S.symBonus*100)}% gains` : '✨ Train evenly for a symmetry bonus'+(S.weakOn?' · 🎯 = weak point ×'+weakMult():'');
+}
+function updateTurnBtn(){ const b=$('turnbtn'); if(b) b.textContent=state.view==='front'?'🔄 See back':'🔄 See front'; }
+
 //////////////////// LOCKER ROOM (customization UI) ////////////////////
 function locSection(title,node){ const s=document.createElement('div'); s.className='locksec'; const h=document.createElement('div'); h.className='lockh'; h.textContent=title; s.appendChild(h); s.appendChild(node); return s; }
 function swatchRow(cols,sel,cb){ const w=document.createElement('div'); w.className='swatches'; cols.forEach((col,i)=>{ const sw=document.createElement('div'); sw.className='swatch'+(sel===i?' sel':''); sw.style.background=col; sw.onclick=()=>cb(i); w.appendChild(sw); }); return w; }
@@ -1082,60 +1440,111 @@ function renderLocker(){
   el.appendChild(locSection('Accessories', grid));
 }
 
-//////////////////// CANVAS: the dude ////////////////////
+//////////////////// CANVAS: the lifter ////////////////////
 const cv=$('c'), ctx=cv.getContext('2d');
 const CW=480, CH=520, DPR=Math.min(2, window.devicePixelRatio||1);
 cv.width=CW*DPR; cv.height=CH*DPR; ctx.scale(DPR,DPR);
+const hitCtx=document.createElement('canvas').getContext('2d'); // identity transform → Path2D hit tests in logical coords
 let pump=0, t=0;
+const musPump={}, musFlash={};   // per-muscle temporary swell + highlight flash (0..1)
+let hoverMus=null, regions=[];   // regions: [{id, p:Path2D}] built from the last drawn pose, in hit-priority order
+let turnT=-1;                    // -1 idle, else 0..1 progress of the turn-around spin
+const UA=56, FA=48;              // upper-arm / forearm length used by the IK helper
+const SY=196;                    // standing shoulder height
 
-function limb(ax,ay,bx,by,wA,wMid,wB){
+// tapered limb outline (bulges in the middle) — shared by drawing and tap zones so they match exactly
+function limbShape(p,ax,ay,bx,by,wA,wMid,wB){
   const dx=bx-ax, dy=by-ay, len=Math.hypot(dx,dy)||1, nx=-dy/len, ny=dx/len, mx=(ax+bx)/2, my=(ay+by)/2;
-  ctx.beginPath();
-  ctx.moveTo(ax+nx*wA, ay+ny*wA);
-  ctx.quadraticCurveTo(mx+nx*wMid*1.55, my+ny*wMid*1.55, bx+nx*wB, by+ny*wB);
-  ctx.lineTo(bx-nx*wB, by-ny*wB);
-  ctx.quadraticCurveTo(mx-nx*wMid*1.55, my-ny*wMid*1.55, ax-nx*wA, ay-ny*wA);
-  ctx.closePath(); ctx.fill(); ctx.stroke();
+  p.moveTo(ax+nx*wA, ay+ny*wA);
+  p.quadraticCurveTo(mx+nx*wMid*1.55, my+ny*wMid*1.55, bx+nx*wB, by+ny*wB);
+  p.lineTo(bx-nx*wB, by-ny*wB);
+  p.quadraticCurveTo(mx-nx*wMid*1.55, my-ny*wMid*1.55, ax-nx*wA, ay-ny*wA);
+  p.closePath();
 }
+function limb(ax,ay,bx,by,wA,wMid,wB){ ctx.beginPath(); limbShape(ctx,ax,ay,bx,by,wA,wMid,wB); ctx.fill(); ctx.stroke(); }
 function lerp(a,b,t){ return a+(b-a)*t; }
 function sc(raw,k){ return Math.log10(raw+1)/k; }
+function clamp01(x){ return x<0?0:x>1?1:x; }
+function lp(a,b,k){ return {x:lerp(a.x,b.x,k), y:lerp(a.y,b.y,k)}; }
+function rot(p,c,a){ const s=Math.sin(a),co=Math.cos(a),dx=p.x-c.x,dy=p.y-c.y; return {x:c.x+dx*co-dy*s, y:c.y+dx*s+dy*co}; }
+// point along segment a→b at fraction k, pushed sideways by off (along the segment's left normal)
+function segPt(a,b,k,off){ const dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy)||1; return {x:a.x+dx*k-dy/L*off, y:a.y+dy*k+dx/L*off}; }
+// two-bone IK: joint (elbow/knee) for a limb from a to b, bending toward the pref direction
+function ik(a,b,l1,l2,pref){
+  const dx=b.x-a.x, dy=b.y-a.y, d=Math.hypot(dx,dy)||1, dd=Math.min(d,l1+l2-0.5);
+  const x=(l1*l1-l2*l2+dd*dd)/(2*dd), h=Math.sqrt(Math.max(0,l1*l1-x*x)), ux=dx/d, uy=dy/d;
+  const s=((-uy)*pref.x+ux*pref.y)>=0?1:-1;
+  return {x:a.x+ux*x-uy*h*s, y:a.y+uy*x+ux*h*s};
+}
+// capsule outline a→b (radius w1 at a, w2 at b) — works on a ctx or a Path2D
+function capPath(p,a,b,w1,w2){
+  const dx=b.x-a.x, dy=b.y-a.y, L=Math.hypot(dx,dy)||1, nx=-dy/L, ny=dx/L, ang=Math.atan2(dy,dx);
+  p.moveTo(a.x+nx*w1,a.y+ny*w1); p.lineTo(b.x+nx*w2,b.y+ny*w2);
+  p.arc(b.x,b.y,w2,ang+Math.PI/2,ang-Math.PI/2,true);
+  p.lineTo(a.x-nx*w1,a.y-ny*w1);
+  p.arc(a.x,a.y,w1,ang-Math.PI/2,ang+Math.PI/2,true);
+  p.closePath();
+}
+function circPath(p,c,r){ p.moveTo(c.x+r,c.y); p.arc(c.x,c.y,r,0,Math.PI*2); p.closePath(); }
 
 const CXC=CW/2, GROUND=452;
 
-// ---------- animation state ----------
-let curEx='idle', exEnergy=0, exClock=0, lastEx='curls';
-// which exercise each body part performs
-const EXMAP={arms:'curls',pecs:'bench',back:'pullup',delts:'press',abs:'crunch',legs:'squat',mass:'chug',roids:'flex'};
-const EXSPEED={curls:7,press:6,squat:5,bench:5.5,pullup:5,crunch:5,chug:3,flex:9};
-function exForPart(p){ return EXMAP[p]||'curls'; }
-function setExercise(ex,energy){ if(ex!==curEx){ curEx=ex; exClock=0; } exEnergy=Math.max(exEnergy,energy); lastEx=ex; }
-// map a canvas-logical point to the nearest body part
-function partAtPoint(lx,ly){
-  const cx=CXC;
-  const A=[['delts',cx,170],['pecs',cx,215],['abs',cx,265],['legs',cx,385],['arms',cx-74,205],['arms',cx+74,205]];
-  let best='pecs',bd=1e9; A.forEach(a=>{const d=(lx-a[1])**2+(ly-a[2])**2; if(d<bd){bd=d;best=a[0];}}); return best;
+// ---------- torso frame: (u along shoulders→hips, v across −1..1) so details & hit zones follow any pose ----------
+function torsoFrame(J,m,opts){
+  const S=lp(J.sL,J.sR,.5), H=lp(J.hipL,J.hipR,.5);
+  let ax=H.x-S.x, ay=H.y-S.y; const L=Math.hypot(ax,ay)||1; ax/=L; ay/=L;
+  const cap=opts.torso==='capsule';
+  return { S,H,L,ax,ay,nx:ay,ny:-ax,cap,
+    sw:cap?opts.capW:Math.hypot(J.sR.x-J.sL.x,J.sR.y-J.sL.y)/2*0.86,
+    hw:cap?opts.capW*0.85:Math.hypot(J.hipR.x-J.hipL.x,J.hipR.y-J.hipL.y)/2+5,
+    flare:cap?0:m.latFlare };
+}
+function tHW(F,u){ return lerp(F.sw,F.hw,u)+F.flare*Math.exp(-(((u-0.3)/0.17)**2)); }
+function tPt(F,u,v){ const w=tHW(F,u); return {x:F.S.x+F.ax*F.L*u+F.nx*w*v, y:F.S.y+F.ay*F.L*u+F.ny*w*v}; }
+function torsoPath(F,p,u0=0,u1=1,v0=-1,v1=1){
+  const N=8;
+  for(let i=0;i<=N;i++){ const q=tPt(F,lerp(u0,u1,i/N),v1); i?p.lineTo(q.x,q.y):p.moveTo(q.x,q.y); }
+  for(let i=N;i>=0;i--){ const q=tPt(F,lerp(u0,u1,i/N),v0); p.lineTo(q.x,q.y); }
+  p.closePath();
+}
+// traps: a slope from the neck out to each shoulder (grows taller with trap size)
+function trapGeom(J,m,F){
+  const S=F.S, dx=J.head.x-S.x, dy=J.head.y-S.y, L=Math.hypot(dx,dy)||1, ux=dx/L, uy=dy/L, px=-uy, py=ux;
+  const nw=5+m.trapW*0.45, nb={x:S.x+ux*L*0.42, y:S.y+uy*L*0.42};
+  const nL={x:nb.x-px*nw,y:nb.y-py*nw}, nR={x:nb.x+px*nw,y:nb.y+py*nw};
+  const shL=tPt(F,0.02,-0.97), shR=tPt(F,0.02,0.97);
+  const cL=lp(nL,shL,.45), cR=lp(nR,shR,.45);
+  cL.x+=ux*m.trapH; cL.y+=uy*m.trapH; cR.x+=ux*m.trapH; cR.y+=uy*m.trapH;
+  return {nL,nR,shL,shR,cL,cR,ux,uy,low:tPt(F,0.1,0)};
+}
+function trapPath(p,G,F){
+  p.moveTo(G.nL.x,G.nL.y); p.quadraticCurveTo(G.cL.x,G.cL.y,G.shL.x,G.shL.y);
+  const a=tPt(F,0.14,-0.55), b=tPt(F,0.14,0.55); p.lineTo(a.x,a.y); p.lineTo(b.x,b.y);
+  p.lineTo(G.shR.x,G.shR.y); p.quadraticCurveTo(G.cR.x,G.cR.y,G.nR.x,G.nR.y); p.closePath();
 }
 
-// ---------- body metrics (muscle sizes from what you bought) ----------
+// ---------- body metrics: every muscle's drawn size comes from its training points ----------
 function metrics(){
-  const r=partRaw(), flex=pump;
+  const r=partRaw(), S=musStats(), flex=pump;
   const overall=Math.min(1.3,sc(r.mass,1.7)), roid=Math.min(1.4,sc(r.roids,1.6));
-  const m={r,flex,overall,roid};
-  m.arms=Math.min(1.5,sc(r.arms,1.6)+overall*0.25+roid*0.4)+flex*0.25;
-  m.pecs=Math.min(1.5,sc(r.pecs,1.6)+overall*0.2+roid*0.3);
-  m.back=Math.min(1.5,sc(r.back,1.6)+roid*0.3);
-  m.delts=Math.min(1.5,sc(r.delts,1.6)+roid*0.35);
-  m.absm=Math.min(1.4,sc(r.abs,1.5));
-  m.legs=Math.min(1.5,sc(r.legs,1.6)+overall*0.25+roid*0.3);
+  const m={overall,roid,flex,mz:{}};
+  const bonus={traps:roid*.5, delts:roid*.35, chest:overall*.2+roid*.3, biceps:overall*.2+roid*.4, triceps:overall*.2+roid*.3,
+    forearms:overall*.15+roid*.2, abs:0, obliques:overall*.05, quads:overall*.25+roid*.3, hamstrings:overall*.2+roid*.2,
+    glutes:overall*.25+roid*.2, calves:overall*.1+roid*.15, lats:overall*.1+roid*.3, upperback:overall*.1+roid*.3, lowerback:overall*.1+roid*.2};
+  MUSCLES.forEach(mu=>{ m.mz[mu.id]=Math.min(1.65, Math.log10(S.pts[mu.id]+1)/2.6 + bonus[mu.id]) + (musPump[mu.id]||0)*0.25; });
+  const z=m.mz;
+  m.arms=(z.biceps+z.triceps)/2; m.legs=(z.quads+z.hamstrings)/2; m.delts=z.delts; m.pecs=z.chest;
   m.ri=rankIndex(); m.headR=22;
-  m.shoulderW=24+m.delts*34+m.back*18+overall*8;
-  m.waistW=19+overall*7; m.trapW=7+m.delts*7+roid*16;
-  m.bicep=7+m.arms*20; m.fore=5+m.arms*11;
-  m.thigh=8+m.legs*18+overall*4; m.calf=6+m.legs*10;
-  m.pecSize=6+m.pecs*11; m.pecX=8+m.pecs*9;
-  // body type (cosmetic): female = narrower shoulders/waist, wider hips, rounder chest
+  m.shoulderW=26+z.delts*16+z.lats*10+z.upperback*6+overall*8;
+  m.waistW=19+overall*7+z.obliques*2;
+  m.latFlare=z.lats*15+z.upperback*3;
+  m.trapW=7+z.traps*11+roid*8; m.trapH=3+z.traps*13+roid*4;
+  m.deltR=7+z.delts*7.5;
+  m.armMid=6+z.biceps*5.5+z.triceps*4+flex*3; m.fore=5+z.forearms*8;
+  m.thigh=8+z.quads*8+z.hamstrings*4+overall*3; m.calf=6+z.calves*9;
+  // body type (cosmetic): female = narrower shoulders/waist, wider hips
   m.female=(state.cos&&state.cos.body)==='female';
-  if(m.female){ m.shoulderW*=0.86; m.waistW*=0.82; }
+  if(m.female){ m.shoulderW*=0.86; m.waistW*=0.82; m.latFlare*=0.8; }
   m.hipMul=m.female?1.7:1.0;
   // skin: chosen base tone (+ optional fake-tan), roid red tint layered ON TOP
   let b=hexToRgb(SKINS[(state.cos&&state.cos.skin)||0]||SKINS[0]);
@@ -1143,6 +1552,7 @@ function metrics(){
   const k=Math.min(1,roid/1.2);
   m.skin = roid>0.05 ? rgbStr(lerp(b.r,255,k),lerp(b.g,150,k),lerp(b.b,140,k)) : rgbStr(b.r,b.g,b.b);
   m.skinLine = rgbStr(b.r*0.72,b.g*0.68,b.b*0.66);
+  m.def = (a)=>'rgba('+((b.r*0.42)|0)+','+((b.g*0.3)|0)+','+((b.b*0.22)|0)+','+Math.max(0,Math.min(0.7,a)).toFixed(3)+')';
   return m;
 }
 
@@ -1155,13 +1565,20 @@ function drawBarH(xc,y,halfW){
   [-1,1].forEach(d=>{ const px=xc+d*(halfW-3); ctx.beginPath(); ctx.ellipse(px,y,5,16,0,0,7); ctx.fill(); ctx.stroke(); });
   ctx.restore();
 }
-function drawDumbbell(x,y){
-  ctx.save();
+function drawDumbbell(x,y,vert,s){
+  ctx.save(); ctx.translate(x,y); if(vert) ctx.rotate(Math.PI/2); if(s) ctx.scale(s,s);
   ctx.strokeStyle='#cdd2dc'; ctx.lineWidth=4; ctx.lineCap='round';
-  ctx.beginPath(); ctx.moveTo(x-11,y); ctx.lineTo(x+11,y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-11,0); ctx.lineTo(11,0); ctx.stroke();
   ctx.fillStyle='#23272f'; ctx.strokeStyle='#4a5163'; ctx.lineWidth=2;
-  [-1,1].forEach(d=>{ ctx.beginPath(); ctx.ellipse(x+d*12,y,5,9,0,0,7); ctx.fill(); ctx.stroke(); });
+  [-1,1].forEach(d=>{ ctx.beginPath(); ctx.ellipse(d*12,0,5,9,0,0,7); ctx.fill(); ctx.stroke(); });
   ctx.restore();
+}
+function drawDumbbellV(x,y,s){ drawDumbbell(x,y,true,s); }
+function drawPlate(x,y,r){ // barbell seen end-on (side views)
+  ctx.save(); ctx.fillStyle='#23272f'; ctx.strokeStyle='#4a5163'; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x,y,r*0.62,0,7); ctx.stroke();
+  ctx.fillStyle='#cdd2dc'; ctx.beginPath(); ctx.arc(x,y,4,0,7); ctx.fill(); ctx.restore();
 }
 function drawShake(x,y){
   ctx.save();
@@ -1180,245 +1597,687 @@ function drawBench(centerX,topY){
   ctx.fillRect(centerX+38,topY+14,8,GROUND-topY-14);
   ctx.restore();
 }
+function drawLowBench(x0,x1,topY){
+  ctx.save(); ctx.fillStyle='#414a5e'; ctx.strokeStyle='#2a3040'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.rect(x0,topY,x1-x0,14); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#2a3040'; ctx.fillRect(x0+8,topY+14,8,GROUND-topY-14); ctx.fillRect(x1-16,topY+14,8,GROUND-topY-14);
+  ctx.restore();
+}
 function drawPullupBar(barY){
   ctx.save();
   ctx.fillStyle='#414a5e';
-  ctx.fillRect(CXC-82,44,8,barY-44); ctx.fillRect(CXC+74,44,8,barY-44);
+  ctx.fillRect(CXC-92,30,8,GROUND-30); ctx.fillRect(CXC+84,30,8,GROUND-30);
   ctx.strokeStyle='#cdd2dc'; ctx.lineWidth=6; ctx.lineCap='round';
-  ctx.beginPath(); ctx.moveTo(CXC-84,barY); ctx.lineTo(CXC+84,barY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(CXC-94,barY); ctx.lineTo(CXC+94,barY); ctx.stroke();
   ctx.restore();
 }
+function drawCableStack(x){
+  ctx.save(); ctx.fillStyle='#414a5e'; ctx.fillRect(x-6,30,12,GROUND-30);
+  ctx.fillStyle='#23272f'; ctx.strokeStyle='#4a5163'; ctx.lineWidth=1.5;
+  for(let i=0;i<5;i++){ ctx.beginPath(); ctx.rect(x-11,GROUND-60+i*11,22,9); ctx.fill(); ctx.stroke(); }
+  ctx.fillStyle='#cdd2dc'; ctx.beginPath(); ctx.arc(x,40,6,0,7); ctx.fill(); ctx.restore();
+}
+function cableLine(x1,y1,x2,y2){ ctx.save(); ctx.strokeStyle='#9aa3b5'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.restore(); }
+function drawHandle(x,y){ ctx.save(); ctx.fillStyle='#23272f'; ctx.fillRect(x-9,y-3,18,6); ctx.restore(); }
+function drawGripper(x,y,sq){
+  const sp=3+9*(1-sq); ctx.save(); ctx.strokeStyle='#c43c3c'; ctx.lineWidth=3.5; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(x-2,y+3); ctx.lineTo(x-sp,y+24); ctx.moveTo(x+2,y+3); ctx.lineTo(x+sp,y+24); ctx.stroke();
+  ctx.strokeStyle='#cdd2dc'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,4,0,7); ctx.stroke(); ctx.restore();
+}
+function drawKettlebell(x,y){
+  ctx.save(); ctx.fillStyle='#23272f'; ctx.strokeStyle='#4a5163'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(x,y+8,14,0,7); ctx.fill(); ctx.stroke();
+  ctx.lineWidth=4; ctx.strokeStyle='#23272f'; ctx.beginPath(); ctx.arc(x,y-2,9,Math.PI,2*Math.PI); ctx.stroke(); ctx.restore();
+}
+function drawDipBars(xl,xr,y){
+  ctx.save(); ctx.fillStyle='#414a5e'; ctx.fillRect(xl-12,y,8,GROUND-y); ctx.fillRect(xr+4,y,8,GROUND-y);
+  ctx.strokeStyle='#cdd2dc'; ctx.lineWidth=6; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(xl-14,y); ctx.lineTo(xl+6,y); ctx.moveTo(xr-6,y); ctx.lineTo(xr+14,y); ctx.stroke(); ctx.restore();
+}
 
-// ---------- shared body parts ----------
-function drawFoot(k,f,m){
-  const dir=Math.sign(f.x-k.x)||1;
+// ---------- body part drawing ----------
+function drawFoot(k,f,m,tip){
+  const dir=Math.sign(f.x-k.x)||(f.x<CXC?-1:1);
+  ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2; ctx.beginPath();
+  if(tip) ctx.ellipse(f.x+dir*5,f.y+tip*0.6+2,11,4.5,dir*Math.min(1,tip/16)*0.9,0,7);
+  else ctx.ellipse(f.x+dir*4,f.y+2,12,5,0,0,7);
+  ctx.fill(); ctx.stroke();
+}
+function shortsColor(m){ return m.ri>=4?'#3a64d8':'#39414f'; }
+function drawShorts(J,m,back){
+  ctx.save(); ctx.fillStyle=shortsColor(m); ctx.strokeStyle='rgba(0,0,0,.28)'; ctx.lineWidth=1.5;
+  const cx=(J.hipL.x+J.hipR.x)/2, hy=(J.hipL.y+J.hipR.y)/2;
+  [[J.hipL,J.kL],[J.hipR,J.kR]].forEach(([h,k])=>{ ctx.beginPath(); capPath(ctx,{x:lerp(h.x,cx,.25),y:h.y-4},lp(h,k,.42),m.thigh+3,m.thigh*0.95+2); ctx.fill(); });
+  ctx.beginPath(); ctx.moveTo(J.hipL.x-4,J.hipL.y-14); ctx.lineTo(J.hipR.x+4,J.hipR.y-14); ctx.lineTo(J.hipR.x+2,hy+10); ctx.lineTo(J.hipL.x-2,hy+10); ctx.closePath(); ctx.fill();
+  if(back){ // glutes push the shorts out
+    const g=m.mz.glutes, r=10+g*8, y=hy+6;
+    [J.hipL,J.hipR].forEach(h=>{ ctx.beginPath(); ctx.ellipse(lerp(h.x,cx,.45),y,r*1.05,r,0,0,7); ctx.fill(); });
+    ctx.strokeStyle='rgba(0,0,0,.35)'; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.moveTo(cx,y-r*0.9); ctx.lineTo(cx,y+r*0.95); ctx.stroke();
+    [J.hipL,J.hipR].forEach(h=>{ const gx=lerp(h.x,cx,.45); ctx.beginPath(); ctx.arc(gx,y,r,0.25*Math.PI,0.75*Math.PI); ctx.stroke(); });
+  } else { ctx.beginPath(); ctx.moveTo(cx,hy-2); ctx.lineTo(cx,hy+14); ctx.stroke(); }
+  ctx.fillStyle='rgba(255,255,255,.18)'; ctx.fillRect(J.hipL.x-4,J.hipL.y-14,J.hipR.x-J.hipL.x+8,4);
+  ctx.restore();
+}
+function drawSideShorts(J,m,F){
+  ctx.save(); ctx.fillStyle=shortsColor(m); ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.lineWidth=1.5;
+  const k=lp(J.kL,J.kR,.5), e=lp(F.H,k,.42);
+  ctx.beginPath(); capPath(ctx,lp(F.S,F.H,.86),e,F.hw+1,m.thigh+1); ctx.fill(); ctx.stroke(); ctx.restore();
+}
+function legDetails(J,m,back){
+  const z=m.mz;
+  [[J.hipL,J.kL,J.fL],[J.hipR,J.kR,J.fR]].forEach(([h,k,f])=>{
+    const inn=(h.x<CXC?-1:1), w=m.thigh;
+    ctx.lineWidth=1.6;
+    if(!back){ // quads: outer sweep + teardrop above the inner knee
+      ctx.strokeStyle=m.def(0.15+z.quads*0.35);
+      const a=segPt(h,k,.5,0), b=segPt(h,k,.9,inn*w*0.25), c=segPt(h,k,.55,-inn*w*0.55);
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.quadraticCurveTo(c.x,c.y,b.x,b.y); ctx.stroke();
+      if(z.quads>0.35){ const td=segPt(h,k,.8,inn*w*0.45); ctx.beginPath(); ctx.ellipse(td.x,td.y,3+z.quads*3.5,5+z.quads*5,Math.atan2(k.y-h.y,k.x-h.x)-Math.PI/2,0,7); ctx.stroke(); }
+      if(z.quads>1){ ctx.strokeStyle=m.def((z.quads-1)*0.6); for(let i=0;i<3;i++){ const p1=segPt(h,k,.35+i*.12,-inn*w*0.2), p2=segPt(h,k,.45+i*.12,inn*w*0.1); ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke(); } }
+    } else { // hamstrings: split down the back of the thigh
+      ctx.strokeStyle=m.def(0.15+z.hamstrings*0.35);
+      const a=segPt(h,k,.35,0), b=segPt(h,k,.92,0), c=segPt(h,k,.62,inn*w*0.25);
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.quadraticCurveTo(c.x,c.y,b.x,b.y); ctx.stroke();
+    }
+    // calves: diamond (much stronger from behind)
+    const cz=z.calves, cw=m.calf;
+    ctx.strokeStyle=m.def((back?0.25:0.1)+cz*0.35);
+    [-1,1].forEach(s=>{ const p0=segPt(k,f,.08,s*cw*0.55), p1=segPt(k,f,.3,s*cw*(0.9+cz*0.2)), p2=segPt(k,f,.6,0);
+      ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.quadraticCurveTo(p1.x,p1.y,p2.x,p2.y); ctx.stroke(); });
+  });
+}
+function frontDetails(J,m,F){
+  const z=m.mz, tank=!m.female && state.cos&&state.cos.eq&&state.cos.eq.tank;
+  ctx.save(); ctx.lineCap='round';
+  if(tank){ ctx.fillStyle='#2f3a52'; ctx.beginPath(); torsoPath(F,ctx,0.06,1,-0.82,0.82); ctx.fill(); }
+  // pecs
+  const c=z.chest, low=0.24+c*0.07;
+  if(m.female){
+    ctx.fillStyle='#d94f7a'; ctx.beginPath(); torsoPath(F,ctx,0.06,0.31,-0.97,0.97); ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.lineWidth=1.5;
+    [-1,1].forEach(s=>{ const p=tPt(F,0.2,s*0.42); ctx.beginPath(); ctx.arc(p.x,p.y-2,8+c*7,0.1*Math.PI,0.9*Math.PI); ctx.stroke(); });
+  } else {
+    [-1,1].forEach(s=>{
+      const a=tPt(F,0.03,s*0.04), b=tPt(F,0.05,s*0.86), d=tPt(F,low*0.85,s*0.97), e=tPt(F,low+0.03,s*0.5), g=tPt(F,low*0.95,s*0.04);
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.quadraticCurveTo(d.x,d.y,e.x,e.y); ctx.quadraticCurveTo(lerp(e.x,g.x,.6),e.y,g.x,g.y); ctx.closePath();
+      ctx.fillStyle='rgba(0,0,0,'+(0.02+c*0.025).toFixed(3)+')'; ctx.fill();
+      ctx.strokeStyle=m.def(0.2+c*0.35); ctx.lineWidth=1.6+c*0.8;
+      ctx.beginPath(); ctx.moveTo(d.x,d.y); ctx.quadraticCurveTo(lerp(d.x,e.x,.5),e.y+2,e.x,e.y); ctx.quadraticCurveTo(lerp(e.x,g.x,.6),e.y,g.x,g.y); ctx.stroke();
+      if(c>1){ ctx.strokeStyle=m.def((c-1)*0.7); ctx.lineWidth=1;
+        for(let i=0;i<3;i++){ const q1=tPt(F,0.06+i*0.04,s*0.15), q2=tPt(F,low*0.7+i*0.03,s*(0.75-i*0.08)); ctx.beginPath(); ctx.moveTo(q1.x,q1.y); ctx.lineTo(q2.x,q2.y); ctx.stroke(); } }
+    });
+  }
+  // abs: centre line + rows (8-pack once they're big)
+  const ab=z.abs, aA=Math.min(0.08,ab*0.3)+ab*0.42;
+  ctx.strokeStyle=m.def(aA); ctx.lineWidth=1.5+ab*0.6;
+  const top=m.female?0.36:low+0.08, bot=0.93;
+  let p1=tPt(F,top,0), p2=tPt(F,bot,0); ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+  const rows=ab>1.05?4:3, aw=0.32+ab*0.08;
+  for(let i=1;i<=rows;i++){ const u=top+(bot-top)*(i/(rows+1.2)); const l=tPt(F,u,-aw), r=tPt(F,u,aw), mid=tPt(F,u+0.025,0);
+    ctx.beginPath(); ctx.moveTo(l.x,l.y); ctx.quadraticCurveTo(mid.x,mid.y,r.x,r.y); ctx.stroke(); }
+  if(ab>0.3){ [-1,1].forEach(s=>{ const a=tPt(F,top,s*aw*1.1), b=tPt(F,bot-0.02,s*aw*0.95); ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); }); }
+  // obliques: V-lines + serratus "fingers"
+  const ob=z.obliques; ctx.strokeStyle=m.def(0.1+ob*0.4); ctx.lineWidth=1.5;
+  [-1,1].forEach(s=>{ const a=tPt(F,0.48,s*0.72), b=tPt(F,0.76,s*0.78), c2=tPt(F,0.99,s*0.25);
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.quadraticCurveTo(b.x,b.y,c2.x,c2.y); ctx.stroke();
+    if(ob>0.5 && !m.female){ for(let i=0;i<3;i++){ const q1=tPt(F,0.3+i*0.055,s*0.82), q2=tPt(F,0.33+i*0.055,s*0.62); ctx.beginPath(); ctx.moveTo(q1.x,q1.y); ctx.lineTo(q2.x,q2.y); ctx.stroke(); } }
+  });
+  const bb=tPt(F,0.86,0); ctx.fillStyle=m.def(0.5); ctx.beginPath(); ctx.arc(bb.x,bb.y,1.6,0,7); ctx.fill();
+  ctx.restore();
+}
+function backDetails(J,m,F){
+  const z=m.mz, tank=!m.female && state.cos&&state.cos.eq&&state.cos.eq.tank;
+  ctx.save(); ctx.lineCap='round';
+  if(tank){ ctx.fillStyle='#2f3a52'; ctx.beginPath(); torsoPath(F,ctx,0.04,1,-0.8,0.8); ctx.fill(); }
+  if(m.female){ ctx.fillStyle='#d94f7a'; ctx.beginPath(); torsoPath(F,ctx,0.18,0.28,-0.98,0.98); ctx.fill(); }
+  // spine + lower-back erectors
+  const lb=z.lowerback;
+  ctx.strokeStyle=m.def(0.2+lb*0.2); ctx.lineWidth=1.6;
+  let a=tPt(F,0.04,0), b=tPt(F,0.97,0); ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+  ctx.strokeStyle=m.def(0.1+lb*0.45); ctx.lineWidth=1.5+lb;
+  [-1,1].forEach(s=>{ const p0=tPt(F,0.5,s*0.1), p1=tPt(F,0.75,s*(0.2+lb*0.08)), p2=tPt(F,0.98,s*0.12);
+    ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.quadraticCurveTo(p1.x,p1.y,p2.x,p2.y); ctx.stroke(); });
+  // upper back: shoulder blades + teres
+  const ub=z.upperback; ctx.strokeStyle=m.def(0.12+ub*0.45); ctx.lineWidth=1.5+ub*0.6;
+  [-1,1].forEach(s=>{ const p0=tPt(F,0.07,s*0.22), p1=tPt(F,0.24,s*0.7), p2=tPt(F,0.38,s*0.28);
+    ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.quadraticCurveTo(p1.x,p1.y,p2.x,p2.y); ctx.stroke();
+    if(ub>0.4){ const q0=tPt(F,0.16,s*0.86), q1=tPt(F,0.27,s*0.5); ctx.beginPath(); ctx.moveTo(q0.x,q0.y); ctx.lineTo(q1.x,q1.y); ctx.stroke(); }
+    if(ub>1){ ctx.strokeStyle=m.def((ub-1)*0.6); ctx.lineWidth=1; for(let i=0;i<3;i++){ const r0=tPt(F,0.1+i*0.05,s*0.35), r1=tPt(F,0.14+i*0.05,s*0.6); ctx.beginPath(); ctx.moveTo(r0.x,r0.y); ctx.lineTo(r1.x,r1.y); ctx.stroke(); } ctx.strokeStyle=m.def(0.12+ub*0.45); ctx.lineWidth=1.5+ub*0.6; }
+  });
+  // lats: the "wings"
+  const la=z.lats; ctx.strokeStyle=m.def(0.12+la*0.45); ctx.lineWidth=1.5+la*0.6;
+  [-1,1].forEach(s=>{ const p0=tPt(F,0.12,s*0.96), p1=tPt(F,0.48,s*0.9), p2=tPt(F,0.76,s*0.28);
+    ctx.beginPath(); ctx.moveTo(p0.x,p0.y); ctx.quadraticCurveTo(p1.x,p1.y,p2.x,p2.y); ctx.stroke(); });
+  ctx.restore();
+}
+function drawTraps(J,m,F,back){
+  const G=trapGeom(J,m,F);
   ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2;
-  ctx.beginPath(); ctx.ellipse(f.x+dir*4,f.y+2,12,5,0,0,7); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); trapPath(ctx,G,F); ctx.fill(); ctx.stroke();
+  // neck
+  const nb=lp(F.S,J.head,.25), nw=5+m.trapW*0.45;
+  limb(nb.x,nb.y,J.head.x,J.head.y,nw,nw*0.95,nw*0.85);
+  const tz=m.mz.traps; ctx.save(); ctx.lineCap='round'; ctx.lineWidth=1.5;
+  if(back){ // trap diamond down the upper back
+    ctx.strokeStyle=m.def(0.12+tz*0.45); const lo=tPt(F,0.42,0);
+    ctx.beginPath(); ctx.moveTo(G.nL.x,G.nL.y); ctx.quadraticCurveTo(tPt(F,0.12,-0.55).x,tPt(F,0.12,-0.55).y,lo.x,lo.y); ctx.quadraticCurveTo(tPt(F,0.12,0.55).x,tPt(F,0.12,0.55).y,G.nR.x,G.nR.y); ctx.stroke();
+  } else { // collarbones
+    ctx.strokeStyle=m.def(0.25); [-1,1].forEach(s=>{ const a=tPt(F,0.03,s*0.08), b=tPt(F,0.0,s*0.8); ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.quadraticCurveTo(lerp(a.x,b.x,.5),a.y+3,b.x,b.y); ctx.stroke(); });
+  }
+  ctx.restore();
 }
-function drawShorts(J,m){
-  ctx.save(); ctx.fillStyle=m.ri>=4?'#3a64d8':'#39414f';
-  ctx.beginPath();
-  ctx.moveTo(J.hipL.x-3,J.hipL.y-14); ctx.lineTo(J.hipR.x+3,J.hipR.y-14);
-  ctx.lineTo(J.kR.x+m.calf*0.4,lerp(J.hipR.y,J.kR.y,0.45));
-  ctx.lineTo((J.hipL.x+J.hipR.x)/2,J.hipL.y+16);
-  ctx.lineTo(J.kL.x-m.calf*0.4,lerp(J.hipL.y,J.kL.y,0.45));
-  ctx.closePath(); ctx.fill(); ctx.restore();
+function drawArm(s,e,h,m,back){
+  const z=m.mz;
+  ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2;
+  limb(s.x,s.y,e.x,e.y,9,m.armMid,m.fore);
+  limb(e.x,e.y,h.x,h.y,m.fore,m.fore*0.92,6);
+  ctx.beginPath(); ctx.arc(h.x,h.y,6+z.forearms*2.5,0,7); ctx.fill(); ctx.stroke();
+  // which side of the upper arm the forearm folds toward (= biceps side)
+  const dx=e.x-s.x, dy=e.y-s.y, side=((-dy)*(h.x-e.x)+dx*(h.y-e.y))>=0?1:-1, w=m.armMid;
+  ctx.save(); ctx.lineCap='round'; ctx.lineWidth=1.5;
+  if(!back){
+    ctx.strokeStyle=m.def(0.12+z.biceps*0.45);
+    const a=segPt(s,e,.28,-side*w*0.35), b=segPt(s,e,.55,-side*w*0.05), c=segPt(s,e,.85,-side*w*0.3);
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.quadraticCurveTo(b.x,b.y,c.x,c.y); ctx.stroke();
+  } else { // triceps horseshoe
+    ctx.strokeStyle=m.def(0.12+z.triceps*0.5); ctx.lineWidth=1.5+z.triceps*0.5;
+    const a=segPt(s,e,.3,w*0.45), b=segPt(s,e,.78,0), c=segPt(s,e,.3,-w*0.45);
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.quadraticCurveTo(segPt(s,e,.72,w*0.35).x,segPt(s,e,.72,w*0.35).y,b.x,b.y); ctx.quadraticCurveTo(segPt(s,e,.72,-w*0.35).x,segPt(s,e,.72,-w*0.35).y,c.x,c.y); ctx.stroke();
+  }
+  // forearm split
+  ctx.strokeStyle=m.def(0.1+z.forearms*0.4); ctx.lineWidth=1.4;
+  let a=segPt(e,h,.12,m.fore*0.4), b=segPt(e,h,.7,-m.fore*0.15); ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+  // veins on big arms
+  const vA=Math.max(z.biceps,z.forearms)-1.05+m.roid*0.3;
+  if(vA>0){ ctx.strokeStyle='rgba(110,70,150,'+Math.min(0.55,vA*0.8).toFixed(3)+')'; ctx.lineWidth=1.3;
+    const v0=segPt(s,e,.35,side*w*0.2), v1=segPt(s,e,.65,side*w*0.45), v2=segPt(e,h,.15,side*m.fore*0.3), v3=segPt(e,h,.7,0);
+    ctx.beginPath(); ctx.moveTo(v0.x,v0.y); ctx.quadraticCurveTo(v1.x,v1.y,e.x,e.y); ctx.quadraticCurveTo(v2.x,v2.y,v3.x,v3.y); ctx.stroke(); }
+  ctx.restore();
 }
-function drawTankPecsAbs(J,m){
-  const sL=J.sL,sR=J.sR, scx=(sL.x+sR.x)/2, scy=(sL.y+sR.y)/2;
-  const hcx=(J.hipL.x+J.hipR.x)/2, hcy=(J.hipL.y+J.hipR.y)/2, h=hcy-scy;
-  if(m.ri>=2){ ctx.save(); ctx.fillStyle=m.ri>=7?'#e0b020':'#2f3a52';
-    ctx.beginPath();
-    ctx.moveTo(sL.x+3,sL.y+2);
-    ctx.quadraticCurveTo(sL.x,scy+h*0.35,J.hipL.x+1,J.hipL.y-2);
-    ctx.lineTo(J.hipR.x-1,J.hipR.y-2);
-    ctx.quadraticCurveTo(sR.x,scy+h*0.35,sR.x-3,sR.y+2);
-    ctx.lineTo(scx+m.shoulderW*0.42,sL.y+2);
-    ctx.quadraticCurveTo(scx,scy+h*0.22,scx-m.shoulderW*0.42,sR.y+2);
-    ctx.closePath(); ctx.fill(); ctx.restore(); }
-  ctx.save(); ctx.strokeStyle='rgba(120,80,50,.55)'; ctx.lineWidth=2;
-  const py=scy+h*(m.female?0.26:0.22);
-  const pr=m.female?(9+m.pecs*9):m.pecSize, prx=m.female?(11+m.pecs*7):m.pecX, pry=m.female?0.95:0.8;
-  ctx.beginPath(); ctx.ellipse(scx-prx,py,pr,pr*pry,0,0,7); ctx.stroke();
-  ctx.beginPath(); ctx.ellipse(scx+prx,py,pr,pr*pry,0,0,7); ctx.stroke(); ctx.restore();
-  if(m.absm>0.12){ ctx.save(); ctx.strokeStyle='rgba(120,80,50,.6)'; ctx.lineWidth=1.6; ctx.globalAlpha=Math.min(1,m.absm);
-    const aT=scy+h*0.45, aB=hcy-8, aw=8+m.overall*4;
-    ctx.beginPath(); ctx.moveTo(scx,aT); ctx.lineTo(scx,aB); ctx.stroke();
-    for(let i=0;i<3;i++){ const yy=aT+(aB-aT)*((i+1)/3.4); ctx.beginPath(); ctx.moveTo(scx-aw,yy); ctx.lineTo(scx+aw,yy); ctx.stroke(); }
-    ctx.restore(); }
+function drawDelt(s,m,back){
+  const r=m.deltR, z=m.mz.delts;
+  ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2;
+  ctx.beginPath(); ctx.arc(s.x,s.y+2,r,0,7); ctx.fill(); ctx.stroke();
+  ctx.save(); ctx.strokeStyle=m.def(0.1+z*0.4); ctx.lineWidth=1.3;
+  ctx.beginPath(); ctx.arc(s.x,s.y+2,r*0.62,(back?1.15:0.15)*Math.PI,(back?1.85:0.85)*Math.PI); ctx.stroke();
+  if(z>1){ ctx.strokeStyle=m.def((z-1)*0.7); for(let i=-1;i<=1;i++){ ctx.beginPath(); ctx.moveTo(s.x+i*r*0.35,s.y-r*0.55); ctx.lineTo(s.x+i*r*0.45,s.y+r*0.7); ctx.stroke(); } }
+  ctx.restore();
+}
+function drawHairBack(J,m){
+  const id=(state.cos&&state.cos.hair)||'short'; if(id==='bald') return;
+  const c=HAIRCOL[(state.cos&&state.cos.hairColor)||0]||HAIRCOL[0], hx=J.head.x, hy=J.head.y, r=m.headR;
+  ctx.save(); ctx.fillStyle=c;
+  if(id==='mohawk'){ ctx.fillRect(hx-4,hy-r+1,8,r*1.5); HAIR_BY_ID.mohawk.draw(J,m,c); ctx.restore(); return; }
+  if(id==='afro'){ HAIR_BY_ID.afro.draw(J,m,c); ctx.beginPath(); ctx.arc(hx,hy,r+1,0,7); ctx.fill(); ctx.restore(); return; }
+  ctx.beginPath(); ctx.arc(hx,hy,r+(id==='long'?2:0.5),Math.PI*0.9,Math.PI*2.1); ctx.closePath(); ctx.fill();
+  if(id==='long'){ ctx.beginPath(); ctx.moveTo(hx-r-2,hy); ctx.quadraticCurveTo(hx-r-4,hy+r+14,hx,hy+r+18); ctx.quadraticCurveTo(hx+r+4,hy+r+14,hx+r+2,hy); ctx.fill(); }
+  if(id==='manbun'){ ctx.beginPath(); ctx.arc(hx,hy-r-2,6.5,0,7); ctx.fill(); }
+  ctx.restore();
 }
 
 // ---------- the figure, drawn from a skeleton ----------
 function drawBody(J,m,opts){
-  const front=opts.front!==false;
-  ctx.lineJoin='round'; ctx.lineCap='round';
-  ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2;
-  // legs (behind)
-  limb(J.hipL.x,J.hipL.y,J.kL.x,J.kL.y,m.thigh,m.thigh*1.15,m.calf);
-  limb(J.kL.x,J.kL.y,J.fL.x,J.fL.y,m.calf,m.calf*1.05,4);
-  limb(J.hipR.x,J.hipR.y,J.kR.x,J.kR.y,m.thigh,m.thigh*1.15,m.calf);
-  limb(J.kR.x,J.kR.y,J.fR.x,J.fR.y,m.calf,m.calf*1.05,4);
-  drawFoot(J.kL,J.fL,m); drawFoot(J.kR,J.fR,m);
-  if(opts.shorts!==false) drawShorts(J,m);
+  const back=opts.view==='back', side=opts.torso==='capsule';
+  const skin=()=>{ ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2; };
+  ctx.lineJoin='round'; ctx.lineCap='round'; skin();
+  // legs
+  [[J.hipL,J.kL,J.fL],[J.hipR,J.kR,J.fR]].forEach(([h,k,f])=>{ skin(); limb(h.x,h.y,k.x,k.y,m.thigh,m.thigh*0.95,m.calf*0.9); limb(k.x,k.y,f.x,f.y,m.calf*0.9,m.calf*0.95,4); });
+  drawFoot(J.kL,J.fL,m,opts.tiptoe); drawFoot(J.kR,J.fR,m,opts.tiptoe);
+  if(!side) legDetails(J,m,back);
+  const F=torsoFrame(J,m,opts);
+  if(opts.shorts!==false){ if(side) drawSideShorts(J,m,F); else drawShorts(J,m,back); }
   // torso
-  const scx=(J.sL.x+J.sR.x)/2,scy=(J.sL.y+J.sR.y)/2,hcx=(J.hipL.x+J.hipR.x)/2,hcy=(J.hipL.y+J.hipR.y)/2;
-  ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2;
-  if(opts.torso==='capsule'){
-    const w=opts.capW||m.shoulderW*0.5; limb(scx,scy,hcx,hcy,w,w*0.95,w*0.82);
-  } else {
-    ctx.beginPath();
-    ctx.moveTo(J.sL.x,J.sL.y);
-    ctx.quadraticCurveTo(J.sL.x-4,(J.sL.y+J.hipL.y)/2,J.hipL.x,J.hipL.y);
-    ctx.quadraticCurveTo(hcx,hcy+9,J.hipR.x,J.hipR.y);
-    ctx.quadraticCurveTo(J.sR.x+4,(J.sR.y+J.hipR.y)/2,J.sR.x,J.sR.y);
-    ctx.quadraticCurveTo(scx,scy-6,J.sL.x,J.sL.y);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-  }
-  if(front && opts.torso!=='capsule') drawTankPecsAbs(J,m);
-  // neck / traps (grows with delts + roids)
-  ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2;
-  limb(scx,scy,J.head.x,J.head.y+m.headR*0.5,m.trapW*0.6,m.trapW*0.9,m.trapW*0.7);
-  // arms (in front)
-  function arm(s,e,h){
-    limb(s.x,s.y,e.x,e.y,8,m.bicep,m.fore);
-    limb(e.x,e.y,h.x,h.y,m.fore,m.fore*0.9,6);
-    ctx.beginPath(); ctx.arc(h.x,h.y,6+m.arms*2,0,7); ctx.fill(); ctx.stroke();
-    if(m.roid>0.6){ ctx.save(); ctx.strokeStyle='rgba(90,40,40,.5)'; ctx.lineWidth=1.4; ctx.globalAlpha=Math.min(1,(m.roid-0.6)/0.6);
-      const mx=(s.x+e.x)/2,my=(s.y+e.y)/2,d=Math.sign(e.x-s.x)||1;
-      ctx.beginPath(); ctx.moveTo(mx-4*d,my-m.bicep*0.4); ctx.quadraticCurveTo(mx+2*d,my,mx-2*d,my+m.bicep*0.4); ctx.stroke(); ctx.restore(); }
-  }
-  arm(J.sL,J.eL,J.hL); arm(J.sR,J.eR,J.hR);
+  skin(); ctx.beginPath(); if(side) capPath(ctx,F.S,F.H,F.sw,F.hw); else torsoPath(F,ctx); ctx.fill(); ctx.stroke();
+  if(!side){ if(back) backDetails(J,m,F); else frontDetails(J,m,F); }
+  // neck + traps
+  skin();
+  if(side) limb(F.S.x,F.S.y,J.head.x,J.head.y,m.trapW*0.6,m.trapW*0.9,m.trapW*0.7);
+  else drawTraps(J,m,F,back);
+  // arms, then delt caps over the top
+  drawArm(J.sL,J.eL,J.hL,m,back); drawArm(J.sR,J.eR,J.hR,m,back);
+  drawDelt(J.sL,m,back); drawDelt(J.sR,m,back);
   // head
-  ctx.fillStyle=m.skin; ctx.strokeStyle=m.skinLine; ctx.lineWidth=2.2;
-  ctx.beginPath(); ctx.arc(J.head.x,J.head.y,m.headR,0,7); ctx.fill(); ctx.stroke();
-  drawHair(J,m); // chosen hair on the scalp (under the rank headband)
+  skin(); ctx.beginPath(); ctx.arc(J.head.x,J.head.y,m.headR,0,7); ctx.fill(); ctx.stroke();
+  if(back&&!side) drawHairBack(J,m); else drawHair(J,m);
   if(m.ri>=4){ ctx.fillStyle=m.ri>=9?'#ffd24a':'#d83a3a';
     ctx.fillRect(J.head.x-m.headR,J.head.y-m.headR*0.55,m.headR*2,7);
-    ctx.beginPath(); ctx.moveTo(J.head.x+m.headR-2,J.head.y-m.headR*0.4); ctx.lineTo(J.head.x+m.headR+10,J.head.y-2); ctx.lineTo(J.head.x+m.headR+3,J.head.y-m.headR*0.1); ctx.closePath(); ctx.fill(); }
-  // face
-  ctx.fillStyle='#3a2a1c';
-  ctx.beginPath(); ctx.arc(J.head.x-7,J.head.y-2,2.3,0,7); ctx.fill();
-  ctx.beginPath(); ctx.arc(J.head.x+7,J.head.y-2,2.3,0,7); ctx.fill();
-  if(opts.active){ ctx.beginPath(); ctx.ellipse(J.head.x,J.head.y+7,3.5,3,0,0,7); ctx.fill(); }
-  else { ctx.strokeStyle='#3a2a1c'; ctx.lineWidth=2; ctx.beginPath();
-    if(m.overall+m.arms>1.2) ctx.arc(J.head.x,J.head.y+4,6,0.15*Math.PI,0.85*Math.PI);
-    else { ctx.moveTo(J.head.x-5,J.head.y+8); ctx.lineTo(J.head.x+5,J.head.y+8); }
-    ctx.stroke(); }
-  if(opts.active||m.flex>0.1){ ctx.fillStyle='rgba(120,200,255,.9)'; ctx.beginPath(); ctx.arc(J.head.x+m.headR-2,J.head.y-6,2.5+m.flex*2,0,7); ctx.fill(); }
-  drawAccessories(J,m); // equipped silly accessories (glasses, mustache, hats, chain…)
+    const bk=back&&!side, tx=bk?J.head.x:J.head.x+m.headR-2;
+    ctx.beginPath(); ctx.moveTo(tx,J.head.y-m.headR*0.4); ctx.lineTo(tx+(bk?5:12),J.head.y+(bk?13:-2)); ctx.lineTo(tx+(bk?-5:5),J.head.y+(bk?13:-m.headR*0.1)); ctx.closePath(); ctx.fill(); }
+  if(!back||side){
+    ctx.fillStyle='#3a2a1c';
+    if(side){ const dir=Math.sign(J.head.x-F.S.x)||1;
+      ctx.beginPath(); ctx.arc(J.head.x+dir*9,J.head.y-3,2.3,0,7); ctx.fill();
+      ctx.strokeStyle='#3a2a1c'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(J.head.x+dir*8,J.head.y+8); ctx.lineTo(J.head.x+dir*15,J.head.y+7); ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.arc(J.head.x-7,J.head.y-2,2.3,0,7); ctx.fill();
+      ctx.beginPath(); ctx.arc(J.head.x+7,J.head.y-2,2.3,0,7); ctx.fill();
+      if(opts.active){ ctx.beginPath(); ctx.ellipse(J.head.x,J.head.y+7,3.5,3,0,0,7); ctx.fill(); }
+      else { ctx.strokeStyle='#3a2a1c'; ctx.lineWidth=2; ctx.beginPath();
+        if(m.overall+m.arms>0.9) ctx.arc(J.head.x,J.head.y+4,6,0.15*Math.PI,0.85*Math.PI);
+        else { ctx.moveTo(J.head.x-5,J.head.y+8); ctx.lineTo(J.head.x+5,J.head.y+8); }
+        ctx.stroke(); }
+    }
+    if(opts.active||m.flex>0.1){ ctx.fillStyle='rgba(120,200,255,.9)'; ctx.beginPath(); ctx.arc(J.head.x+m.headR-2,J.head.y-6,2.5+m.flex*2,0,7); ctx.fill(); }
+  }
+  drawAccessories(J,m,back||side?'back':'front');
+  return F;
 }
+
+// ---------- clickable muscle regions (rebuilt every frame from the drawn pose) ----------
+// Tap zones use the exact drawn shapes, listed topmost-first (reverse draw order) so whatever
+// you can see under your finger is what gets trained. id:null = the head, which blocks taps.
+function buildRegions(J,m,opts,F){
+  const back=opts.view==='back', side=F.cap, R=[];
+  const add=(id,fn)=>{ const p=new Path2D(); fn(p); R.push({id,p}); };
+  const L=(p,a,b,w1,w2,w3)=>limbShape(p,a.x,a.y,b.x,b.y,w1,w2,w3);
+  add(null,p=>circPath(p,J.head,m.headR+1));
+  add('delts',p=>{ circPath(p,{x:J.sR.x,y:J.sR.y+2},m.deltR+1); circPath(p,{x:J.sL.x,y:J.sL.y+2},m.deltR+1); });
+  ['R','L'].forEach(s=>{ const S=J['s'+s], E=J['e'+s], H=J['h'+s];
+    add('forearms',p=>{ circPath(p,H,7+m.mz.forearms*2.5); L(p,E,H,m.fore,m.fore*0.92,6); });
+    add(back?'triceps':'biceps',p=>L(p,S,E,9,m.armMid,m.fore)); });
+  if(side) add('traps',p=>L(p,F.S,J.head,m.trapW*0.6,m.trapW*0.9,m.trapW*0.7));
+  else add('traps',p=>{ trapPath(p,trapGeom(J,m,F),F); const nb=lp(F.S,J.head,.25), nw=5+m.trapW*0.45; L(p,nb,J.head,nw,nw*0.95,nw*0.85); });
+  if(side){ // capsule torso: split into an upper and lower capsule that match the drawn outline
+    const mid=lp(F.S,F.H,0.4), mw=lerp(F.sw,F.hw,0.4);
+    add(back?'upperback':'chest',p=>capPath(p,F.S,mid,F.sw,mw));
+    add(back?'lowerback':'abs',p=>capPath(p,mid,F.H,mw,F.hw));
+  } else if(back){
+    add('upperback',p=>torsoPath(F,p,0,0.36,-1,1));
+    add('lats',p=>{ torsoPath(F,p,0.36,0.8,-1,-0.36); torsoPath(F,p,0.36,0.8,0.36,1); });
+    add('lowerback',p=>torsoPath(F,p,0.36,1,-1,1));
+  } else {
+    add('chest',p=>torsoPath(F,p,0,0.4,-1,1));
+    add('abs',p=>torsoPath(F,p,0.4,1,-0.5,0.5));
+    add('obliques',p=>{ torsoPath(F,p,0.4,1,-1,-0.5); torsoPath(F,p,0.4,1,0.5,1); });
+  }
+  // shorts sit over the hips/upper thighs (glutes from behind, quads from the front)
+  const cxh=(J.hipL.x+J.hipR.x)/2, hy=(J.hipL.y+J.hipR.y)/2;
+  if(side) add(back?'glutes':'quads',p=>capPath(p,lp(F.S,F.H,.86),lp(F.H,lp(J.kL,J.kR,.5),.42),F.hw+1,m.thigh+1));
+  else add(back?'glutes':'quads',p=>{
+    [[J.hipL,J.kL],[J.hipR,J.kR]].forEach(([h,k])=>capPath(p,{x:lerp(h.x,cxh,.25),y:h.y-4},lp(h,k,.42),m.thigh+3,m.thigh*0.95+2));
+    p.moveTo(J.hipL.x-4,J.hipL.y-14); p.lineTo(J.hipR.x+4,J.hipR.y-14); p.lineTo(J.hipR.x+2,hy+10); p.lineTo(J.hipL.x-2,hy+10); p.closePath();
+    if(back){ const r=10+m.mz.glutes*8; [J.hipL,J.hipR].forEach(h=>{ const gx=lerp(h.x,cxh,.45); p.moveTo(gx+r*1.05,hy+6); p.ellipse(gx,hy+6,r*1.05,r,0,0,Math.PI*2); }); }
+  });
+  add('calves',p=>[[J.kR,J.fR],[J.kL,J.fL]].forEach(([k,f])=>{ L(p,k,f,m.calf*0.9,m.calf*0.95,4); p.moveTo(f.x+17,f.y+2); p.ellipse(f.x,f.y+2,17,7,0,0,Math.PI*2); }));
+  add(back?'hamstrings':'quads',p=>[[J.hipR,J.kR],[J.hipL,J.kL]].forEach(([h,k])=>L(p,h,k,m.thigh,m.thigh*0.95,m.calf*0.9)));
+  return R;
+}
+function canvasPt(x,y){ const r=cv.getBoundingClientRect(); return {x:(x-r.left)*(CW/r.width), y:(y-r.top)*(CH/r.height)}; }
+function regionAt(x,y){ if(turnT>=0) return null; for(const r of regions) if(hitCtx.isPointInPath(r.p,x,y)) return r.id; return null; } // head hit → null too
+
+// ---------- animation state ----------
+let curEx='idle', curMus=null, exEnergy=0, exClock=0;
+let idleIdx=0, idleClock=0, poseKey='', poseFrom=null, blendT=1, lastJ=null;
+const JK=['head','sL','sR','hipL','hipR','kL','kR','fL','fR','eL','eR','hL','hR'];
+function setExercise(ex,energy){ if(ex!==curEx){ curEx=ex; exClock=0; } exEnergy=Math.max(exEnergy,energy); }
+function unlockedMoves(mid){ const L=musStats().lvl[mid]; return MUS[mid].ex.filter((e,i)=>L>=MOVE_UNLOCK[i]); }
+// each new set on a muscle rotates through the moves it has unlocked
+function startMuscleEx(mid,energy){
+  const mv=unlockedMoves(mid); let ex=curEx;
+  if(curMus!==mid || curEx==='idle' || mv.indexOf(curEx)<0){
+    const r=((state.exRot[mid]!=null?state.exRot[mid]:-1)+1)%mv.length; state.exRot[mid]=r; ex=mv[r];
+  }
+  curMus=mid; setExercise(ex,energy);
+}
+function startTurn(){ if(turnT<0) turnT=0; }
+function ensureView(mid){ const v=MUS[mid].view; if(v!=='both' && v!==state.view) startTurn(); }
 
 function baseUpright(m,breathe){
-  const cx=CXC, sy=196, hy=300, ky=372, fy=452, st=14+m.legs*5+m.overall*3;
+  const cx=CXC, st=14+m.legs*5+m.overall*3, hw=m.waistW*0.8*m.hipMul+m.mz.glutes*4;
   return {
     head:{x:cx,y:166-breathe},
-    sL:{x:cx-m.shoulderW,y:sy}, sR:{x:cx+m.shoulderW,y:sy},
-    hipL:{x:cx-m.waistW*0.8*m.hipMul,y:hy}, hipR:{x:cx+m.waistW*0.8*m.hipMul,y:hy},
-    kL:{x:cx-st,y:ky}, kR:{x:cx+st,y:ky}, fL:{x:cx-st-3,y:fy}, fR:{x:cx+st+3,y:fy}
+    sL:{x:cx-m.shoulderW,y:SY}, sR:{x:cx+m.shoulderW,y:SY},
+    hipL:{x:cx-hw,y:300}, hipR:{x:cx+hw,y:300},
+    kL:{x:cx-st,y:372}, kR:{x:cx+st,y:372}, fL:{x:cx-st-3,y:452}, fR:{x:cx+st+3,y:452}
   };
 }
+function armsDown(J){ J.hL={x:J.sL.x-4,y:J.sL.y+100}; J.hR={x:J.sR.x+4,y:J.sR.y+100};
+  J.eL=lp(J.sL,J.hL,.5); J.eL.x-=5; J.eR=lp(J.sR,J.hR,.5); J.eR.x+=5; }
+function handsOnHips(J,m){ J.hL={x:J.hipL.x-6,y:J.hipL.y-26}; J.hR={x:J.hipR.x+6,y:J.hipR.y-26};
+  J.eL={x:J.sL.x-22-m.mz.lats*8,y:(J.sL.y+J.hL.y)/2-4}; J.eR={x:J.sR.x+22+m.mz.lats*8,y:(J.sR.y+J.hR.y)/2-4}; }
+function shiftY(J,names,dy){ names.forEach(n=>{ if(J[n]) J[n].y+=dy; }); }
+const UPPER=['head','sL','sR','hipL','hipR'];
+function hangPose(J,m,ph,o,grip){ const cx=CXC, barY=104, r=ph*40;
+  J.head={x:cx,y:barY+40-r};
+  J.sL={x:cx-m.shoulderW*0.75,y:barY+70-r}; J.sR={x:cx+m.shoulderW*0.75,y:barY+70-r};
+  J.hipL={x:cx-m.waistW*0.75,y:barY+174-r}; J.hipR={x:cx+m.waistW*0.75,y:barY+174-r};
+  J.kL={x:cx-14,y:barY+246-r}; J.kR={x:cx+14,y:barY+246-r};
+  J.fL={x:cx-18,y:barY+322-r}; J.fR={x:cx+18,y:barY+322-r};
+  J.hL={x:cx-grip,y:barY}; J.hR={x:cx+grip,y:barY};
+  J.eL=ik(J.sL,J.hL,UA,FA,{x:-1,y:0}); J.eR=ik(J.sR,J.hR,UA,FA,{x:1,y:0});
+  o.back=()=>drawPullupBar(barY);
+}
+// side-view hip hinge (deadlift / RDL). ph 0 = bottom, 1 = lockout
+function hinge(J,m,o,ph,hipB,aB){ const cx=CXC; o.opts.torso='capsule'; o.opts.capW=15+m.mz.lowerback*5+m.mz.lats*4+m.overall*4;
+  const a=lerp(aB,0.02,ph), hip={x:lerp(hipB.x,cx-2,ph),y:lerp(hipB.y,300,ph)};
+  J.fL={x:cx+4,y:GROUND}; J.fR={x:cx+12,y:GROUND};
+  J.hipL={x:hip.x,y:hip.y-3}; J.hipR={x:hip.x,y:hip.y+3};
+  J.kL=ik(hip,J.fL,74,80,{x:1,y:0}); J.kR=ik(hip,J.fR,74,80,{x:1,y:0});
+  const ux=Math.sin(a), uy=-Math.cos(a), sh={x:hip.x+ux*104,y:hip.y+uy*104};
+  J.sL={x:sh.x-2,y:sh.y}; J.sR={x:sh.x+2,y:sh.y+2};
+  J.head={x:sh.x+ux*30+4,y:sh.y+uy*30};
+  J.hL={x:sh.x-2,y:sh.y+100}; J.hR={x:sh.x+4,y:sh.y+100};
+  J.eL=lp(J.sL,J.hL,.5); J.eR=lp(J.sR,J.hR,.5);
+}
 
-function drawDude(){
-  ctx.clearRect(0,0,CW,CH);
-  const m=metrics(), cx=CXC;
-  ctx.fillStyle='rgba(0,0,0,.28)';
-  ctx.beginPath(); ctx.ellipse(cx,GROUND+8,70+(m.overall+m.legs)*22,16,0,0,7); ctx.fill();
-
-  const breathe=Math.sin(t*2)*1.2;
-  const active = curEx!=='idle' && exEnergy>0;
-  const sp=EXSPEED[curEx]||6;
-  const ph=active ? (1-Math.cos(exClock*sp))/2 : 0; // rep cycle 0..1..0
-  let J=baseUpright(m,breathe);
-  let opts={front:true,torso:'taper',shorts:true,active};
-  let back=null, frontD=null;
-  const sy=196;
-
-  if(!active){
-    const lift=10+m.arms*5+m.delts*4+m.flex*6;
-    J.eL={x:J.sL.x-(16+m.arms*9),y:sy-lift}; J.hL={x:cx-(m.headR+6),y:J.head.y+2};
-    J.eR={x:J.sR.x+(16+m.arms*9),y:sy-lift}; J.hR={x:cx+(m.headR+6),y:J.head.y+2};
-  } else if(curEx==='curls'){               // arms — alternating dumbbell curls
-    const eY=sy+46;
-    J.eL={x:cx-(m.waistW+8),y:eY}; J.eR={x:cx+(m.waistW+8),y:eY};
-    const cL=ph, cR=1-ph;
-    J.hL={x:lerp(J.eL.x,cx-12,cL),y:lerp(eY+34,eY-28,cL)};
-    J.hR={x:lerp(J.eR.x,cx+12,cR),y:lerp(eY+34,eY-28,cR)};
-    frontD=()=>{ drawDumbbell(J.hL.x,J.hL.y); drawDumbbell(J.hR.x,J.hR.y); };
-  } else if(curEx==='press'){               // delts — overhead barbell press
-    const upY=lerp(sy-2,J.head.y-50,ph);
-    J.hL={x:cx-24,y:upY}; J.hR={x:cx+24,y:upY};
-    J.eL={x:cx-(30+(1-ph)*12),y:(sy+upY)/2+6}; J.eR={x:cx+(30+(1-ph)*12),y:(sy+upY)/2+6};
-    frontD=()=>drawBarH(cx,upY,44);
-  } else if(curEx==='squat'){               // legs — barbell squat
-    const drop=ph*48;
+// ---------- every exercise: pose(J, m, ph 0..1..0, o {opts, back(), front()}, rep#) ----------
+const EX={
+  // traps
+  shrugs:{name:'Barbell Shrugs',sp:6,pose(J,m,ph,o){ const cx=CXC, up=ph*14;
+    J.sL.y-=up; J.sR.y-=up; J.head.y-=up*0.3;
+    J.hL={x:cx-(m.waistW+14),y:J.hipL.y-6-up}; J.hR={x:cx+(m.waistW+14),y:J.hipR.y-6-up};
+    J.eL=ik(J.sL,J.hL,UA,FA,{x:-1,y:0}); J.eR=ik(J.sR,J.hR,UA,FA,{x:1,y:0});
+    o.front=()=>drawBarH(cx,J.hL.y,m.waistW+46); }},
+  farmer:{name:"Farmer's Walk",sp:5,pose(J,m,ph,o,k){ const lift=ph, s=k%2?'R':'L', d=s==='L'?1:-1;
+    shiftY(J,UPPER,Math.sin(exClock*10)*2);
+    J['k'+s].y-=lift*30; J['k'+s].x+=d*lift*4; J['f'+s]={x:J['f'+s].x+d*lift*6,y:J['f'+s].y-lift*40};
+    armsDown(J); J.hL.x-=6; J.hR.x+=6;
+    o.front=()=>{ drawDumbbellV(J.hL.x,J.hL.y+6,1.3); drawDumbbellV(J.hR.x,J.hR.y+6,1.3); }; }},
+  // shoulders
+  press:{name:'Overhead Press',sp:6,pose(J,m,ph,o){ const cx=CXC, upY=lerp(SY-2,J.head.y-60,ph);
+    J.hL={x:cx-28,y:upY}; J.hR={x:cx+28,y:upY};
+    J.eL=ik(J.sL,J.hL,UA,FA,{x:-1,y:0.4}); J.eR=ik(J.sR,J.hR,UA,FA,{x:1,y:0.4});
+    o.front=()=>drawBarH(cx,upY,50); }},
+  lateral:{name:'Lateral Raises',sp:5,pose(J,m,ph,o){ const a=lerp(0.12,1.45,ph);
+    [['L',-1],['R',1]].forEach(([s,d])=>{ const S=J['s'+s]; J['h'+s]={x:S.x+d*Math.sin(a)*100,y:S.y+Math.cos(a)*100}; J['e'+s]={x:S.x+d*Math.sin(a)*54,y:S.y+Math.cos(a)*54-6}; });
+    o.front=()=>{ drawDumbbellV(J.hL.x,J.hL.y); drawDumbbellV(J.hR.x,J.hR.y); }; }},
+  // chest
+  bench:{name:'Bench Press',sp:5.5,side:true,pose(J,m,ph,o){ const cx=CXC; o.opts.torso='capsule'; o.opts.capW=15+m.mz.chest*8+m.overall*4;
+    const benchY=318, bodyY=benchY-12-o.opts.capW*0.6;
+    J.hipL={x:cx-58,y:bodyY+2}; J.hipR={x:cx-58,y:bodyY+8};
+    J.sL={x:cx+44,y:bodyY-2}; J.sR={x:cx+44,y:bodyY+6};
+    J.head={x:cx+78,y:bodyY+2};
+    J.kL={x:cx-124,y:bodyY+14}; J.kR={x:cx-118,y:bodyY+20};
+    J.fL={x:cx-130,y:GROUND}; J.fR={x:cx-122,y:GROUND};
+    const barY=bodyY-(26+ph*58);
+    J.hL={x:cx+36,y:barY}; J.hR={x:cx+42,y:barY};
+    J.eL=ik(J.sL,J.hL,UA,FA,{x:1,y:0}); J.eR=ik(J.sR,J.hR,UA,FA,{x:1,y:0});
+    o.back=()=>{ drawBench(cx+22,benchY); ctx.save(); ctx.fillStyle='#414a5e'; ctx.fillRect(cx+20,benchY-150,7,150); ctx.fillRect(cx+20,benchY-150,26,6); ctx.restore(); };
+    o.front=()=>drawPlate(cx+39,barY,24); }},
+  pushup:{name:'Push-Ups',sp:5,side:true,pose(J,m,ph,o){ const cx=CXC, fl=GROUND-4; o.opts.torso='capsule'; o.opts.capW=14+m.mz.chest*7+m.overall*4;
+    const sh={x:cx+50,y:lerp(fl-94,fl-40,ph)}, ft={x:cx-168,y:fl-4};
+    const dx=sh.x-ft.x, dy=sh.y-ft.y, dl=Math.hypot(dx,dy), ux=dx/dl, uy=dy/dl;
+    J.fL={x:ft.x,y:ft.y}; J.fR={x:ft.x+6,y:ft.y+2};
+    J.kL=lp(ft,sh,.27); J.kR={x:J.kL.x+4,y:J.kL.y+2};
+    const hp=lp(ft,sh,.53); J.hipL={x:hp.x,y:hp.y-3}; J.hipR={x:hp.x,y:hp.y+3};
+    J.sL={x:sh.x,y:sh.y-3}; J.sR={x:sh.x,y:sh.y+3};
+    J.head={x:sh.x+ux*30,y:sh.y+uy*30-8};
+    J.hL={x:sh.x+4,y:fl}; J.hR={x:sh.x+10,y:fl};
+    J.eL=ik(J.sL,J.hL,UA,FA,{x:-1,y:-0.4}); J.eR=ik(J.sR,J.hR,UA,FA,{x:-1,y:-0.4}); }},
+  flyes:{name:'Cable Crossovers',sp:4.5,pose(J,m,ph,o){ const cx=CXC;
+    J.hL={x:lerp(J.sL.x-88,cx-12,ph),y:lerp(SY+6,SY+62,ph)}; J.hR={x:lerp(J.sR.x+88,cx+12,ph),y:lerp(SY+6,SY+62,ph)};
+    J.eL=ik(J.sL,J.hL,UA,FA,{x:-0.3,y:-1}); J.eR=ik(J.sR,J.hR,UA,FA,{x:0.3,y:-1});
+    o.back=()=>{ drawCableStack(cx-222); drawCableStack(cx+222); cableLine(cx-222,40,J.hL.x,J.hL.y); cableLine(cx+222,40,J.hR.x,J.hR.y); };
+    o.front=()=>{ drawHandle(J.hL.x,J.hL.y); drawHandle(J.hR.x,J.hR.y); }; }},
+  // biceps
+  curls:{name:'Dumbbell Curls',sp:7,pose(J,m,ph,o){ const cx=CXC, eY=SY+50;
+    J.eL={x:cx-(m.waistW+10),y:eY}; J.eR={x:cx+(m.waistW+10),y:eY};
+    const cL=ph,cR=1-ph;
+    J.hL={x:lerp(J.eL.x-2,cx-14,cL),y:lerp(eY+46,eY-26,cL)}; J.hR={x:lerp(J.eR.x+2,cx+14,cR),y:lerp(eY+46,eY-26,cR)};
+    o.front=()=>{ drawDumbbell(J.hL.x,J.hL.y); drawDumbbell(J.hR.x,J.hR.y); }; }},
+  hammer:{name:'Hammer Curls',sp:6,pose(J,m,ph,o){ const cx=CXC, eY=SY+50;
+    J.eL={x:cx-(m.waistW+12),y:eY}; J.eR={x:cx+(m.waistW+12),y:eY};
+    J.hL={x:lerp(J.eL.x-4,J.eL.x+8,ph),y:lerp(eY+46,eY-30,ph)}; J.hR={x:lerp(J.eR.x+4,J.eR.x-8,ph),y:lerp(eY+46,eY-30,ph)};
+    o.front=()=>{ drawDumbbellV(J.hL.x,J.hL.y); drawDumbbellV(J.hR.x,J.hR.y); }; }},
+  chinup:{name:'Chin-Ups',sp:4.5,pose(J,m,ph,o){ hangPose(J,m,ph,o,16); }},
+  // forearms
+  wristcurl:{name:'Wrist Curls',sp:8,pose(J,m,ph,o){ const cx=CXC, eY=SY+52;
+    J.eL={x:cx-(m.waistW+10),y:eY}; J.eR={x:cx+(m.waistW+10),y:eY};
+    const hy=eY+14-ph*18; J.hL={x:cx-30,y:hy}; J.hR={x:cx+30,y:hy};
+    o.front=()=>drawBarH(cx,hy-ph*4,62); }},
+  grip:{name:'Gripper Crush',sp:9,pose(J,m,ph,o){ const cx=CXC;
+    J.eL={x:cx-(m.waistW+16),y:SY+56}; J.eR={x:cx+(m.waistW+16),y:SY+56};
+    J.hL={x:cx-34,y:SY+24}; J.hR={x:cx+34,y:SY+24};
+    o.front=()=>{ drawGripper(J.hL.x,J.hL.y,ph); drawGripper(J.hR.x,J.hR.y,1-ph); }; }},
+  // abs
+  crunch:{name:'Sit-Ups',sp:5,side:true,pose(J,m,ph,o){ const cx=CXC, fl=GROUND-12; o.opts.torso='capsule'; o.opts.capW=16+m.mz.abs*6+m.overall*4;
+    J.hipL={x:cx-6,y:fl}; J.hipR={x:cx-6,y:fl-8};
+    J.kL={x:cx+30,y:fl-40}; J.kR={x:cx+34,y:fl-44};
+    J.fL={x:cx+58,y:fl}; J.fR={x:cx+62,y:fl};
+    const ang=lerp(0.05,0.9,ph), tl=86;
+    const sxx=cx-6-Math.cos(ang)*tl, syy=fl-Math.sin(ang)*tl;
+    J.sL={x:sxx-2,y:syy-4}; J.sR={x:sxx+2,y:syy+4};
+    J.head={x:sxx-Math.cos(ang)*26,y:syy-Math.sin(ang)*26};
+    J.hL={x:J.head.x-2,y:J.head.y+4}; J.hR={x:J.head.x+6,y:J.head.y+10};
+    J.eL={x:(J.sL.x+J.head.x)/2-10,y:(J.sL.y+J.head.y)/2-4}; J.eR={x:(J.sR.x+J.head.x)/2-6,y:(J.sR.y+J.head.y)/2+4}; }},
+  legraise:{name:'Hanging Leg Raises',sp:4,side:true,pose(J,m,ph,o){ const cx=CXC, barY=84; o.opts.torso='capsule'; o.opts.capW=14+m.mz.abs*6+m.overall*4;
+    J.hL={x:cx+2,y:barY}; J.hR={x:cx+8,y:barY};
+    J.sL={x:cx-2,y:barY+94}; J.sR={x:cx+4,y:barY+98};
+    J.head={x:cx+20,y:barY+66};
+    J.eL=lp(J.sL,J.hL,.5); J.eR=lp(J.sR,J.hR,.5);
+    const hip={x:cx-2,y:barY+198}; J.hipL={x:hip.x-2,y:hip.y}; J.hipR={x:hip.x+3,y:hip.y+3};
+    const b=ph*1.5, ux=Math.sin(b), uy=Math.cos(b);
+    J.kL={x:hip.x+ux*74,y:hip.y+uy*74}; J.kR={x:J.kL.x+4,y:J.kL.y+3};
+    J.fL={x:J.kL.x+ux*80,y:J.kL.y+uy*80}; J.fR={x:J.fL.x+4,y:J.fL.y+3};
+    o.back=()=>drawPullupBar(barY); }},
+  // obliques
+  sidebend:{name:'Side Bends',sp:4,pose(J,m,ph,o){ const H=lp(J.hipL,J.hipR,.5), a=(ph-0.5)*0.5;
+    J.head=rot(J.head,H,a); J.sL=rot(J.sL,H,a); J.sR=rot(J.sR,H,a);
+    J.hL={x:J.sL.x-6,y:J.sL.y+100}; J.eL=lp(J.sL,J.hL,.5); J.eL.x-=4;
+    J.hR={x:J.head.x+10,y:J.head.y-12}; J.eR=ik(J.sR,J.hR,UA,FA,{x:1,y:-1});
+    o.front=()=>drawDumbbellV(J.hL.x,J.hL.y+4,1.2); }},
+  woodchop:{name:'Cable Woodchops',sp:4,pose(J,m,ph,o){ const cx=CXC, sh=lerp(20,-16,ph), drop=ph*12;
+    ['head','sL','sR'].forEach(n=>J[n].x+=sh); shiftY(J,UPPER,drop); J.kL.x-=drop*0.4; J.kR.x+=drop*0.4;
+    const S=lp(J.sL,J.sR,.5), a=(0.5-ph)*0.25; J.sL=rot(J.sL,S,a); J.sR=rot(J.sR,S,a);
+    const h={x:lerp(cx+46,cx-42,ph),y:lerp(SY-56,J.hipL.y+12,ph)};
+    J.hL={x:h.x-6,y:h.y+2}; J.hR={x:h.x+6,y:h.y-2};
+    J.eL=ik(J.sL,J.hL,UA,FA,{x:0,y:1}); J.eR=ik(J.sR,J.hR,UA,FA,{x:0,y:1});
+    o.back=()=>{ drawCableStack(cx+222); cableLine(cx+222,40,h.x,h.y); };
+    o.front=()=>drawHandle(h.x,h.y); }},
+  // quads
+  squat:{name:'Barbell Squats',sp:5,pose(J,m,ph,o){ const cx=CXC, drop=ph*48;
     J.head.y+=drop*0.96; J.sL.y+=drop; J.sR.y+=drop; J.hipL.y+=drop; J.hipR.y+=drop;
     const st=18+m.legs*5+drop*0.45;
     J.kL={x:cx-st,y:372+drop*0.18}; J.kR={x:cx+st,y:372+drop*0.18};
     J.fL={x:cx-st+2,y:452}; J.fR={x:cx+st-2,y:452};
     J.hL={x:J.sL.x-4,y:J.sL.y-6}; J.hR={x:J.sR.x+4,y:J.sR.y-6};
     J.eL={x:J.sL.x+2,y:J.sL.y+24}; J.eR={x:J.sR.x-2,y:J.sR.y+24};
-    back=()=>drawBarH(cx,J.sL.y-6,m.shoulderW+26);
-  } else if(curEx==='pullup'){              // back — pull-ups on a bar
-    const barY=104, rise=ph*24;
-    J.head={x:cx,y:barY+44-rise};
-    J.sL={x:cx-m.shoulderW*0.7,y:barY+70-rise}; J.sR={x:cx+m.shoulderW*0.7,y:barY+70-rise};
-    J.hipL={x:cx-m.waistW*0.7,y:barY+150-rise}; J.hipR={x:cx+m.waistW*0.7,y:barY+150-rise};
-    J.kL={x:cx-16,y:barY+196-rise}; J.kR={x:cx+16,y:barY+196-rise};
-    J.fL={x:cx-22,y:barY+232-rise}; J.fR={x:cx+22,y:barY+232-rise};
-    J.hL={x:cx-24,y:barY}; J.hR={x:cx+24,y:barY};
-    J.eL={x:lerp(J.sL.x,J.hL.x,0.5)-(2+ph*7),y:(J.sL.y+barY)/2}; J.eR={x:lerp(J.sR.x,J.hR.x,0.5)+(2+ph*7),y:(J.sR.y+barY)/2};
-    back=()=>drawPullupBar(barY);
-  } else if(curEx==='bench'){               // pecs — bench press (side view + bench + barbell)
-    opts.torso='capsule'; opts.front=false; opts.shorts=false; opts.capW=15+m.pecs*8+m.overall*4;
-    const benchY=300, bodyY=benchY-14-m.overall*4;
-    J.hipL={x:cx-42,y:bodyY+2}; J.hipR={x:cx-42,y:bodyY+8};
-    J.sL={x:cx+30,y:bodyY-2}; J.sR={x:cx+30,y:bodyY+6};
-    J.head={x:cx+66,y:bodyY+2};
-    J.kL={x:cx-58,y:benchY+44}; J.kR={x:cx-50,y:benchY+46};
-    J.fL={x:cx-52,y:GROUND}; J.fR={x:cx-42,y:GROUND};
-    const barY=bodyY-(24+ph*48);
-    J.hL={x:cx+22,y:barY}; J.hR={x:cx+30,y:barY};
-    J.eL={x:cx+40,y:(bodyY+barY)/2}; J.eR={x:cx+36,y:(bodyY+barY)/2+5};
-    back=()=>drawBench(cx-8,benchY);
-    frontD=()=>drawBarH(cx+26,barY,42);
-  } else if(curEx==='crunch'){              // abs — sit-ups on the floor (side view)
-    opts.torso='capsule'; opts.front=false; opts.shorts=false; opts.capW=16+m.absm*6+m.overall*4;
-    const fl=GROUND-12;
-    J.hipL={x:cx-6,y:fl}; J.hipR={x:cx-6,y:fl-8};
-    J.kL={x:cx+30,y:fl-40}; J.kR={x:cx+34,y:fl-44};
-    J.fL={x:cx+58,y:fl}; J.fR={x:cx+62,y:fl};
-    const ang=lerp(0.05,0.9,ph), tl=70;
-    const sxx=cx-6-Math.cos(ang)*tl, syy=fl-Math.sin(ang)*tl;
-    J.sL={x:sxx-2,y:syy-4}; J.sR={x:sxx+2,y:syy+4};
-    J.head={x:sxx-Math.cos(ang)*22,y:syy-Math.sin(ang)*22};
-    J.hL={x:J.head.x-2,y:J.head.y+4}; J.hR={x:J.head.x+6,y:J.head.y+10};
-    J.eL={x:(J.sL.x+J.head.x)/2-10,y:(J.sL.y+J.head.y)/2}; J.eR={x:(J.sR.x+J.head.x)/2-6,y:(J.sR.y+J.head.y)/2+6};
-  } else if(curEx==='chug'){                // mass — chug a protein shake
-    const eY=sy+44;
-    J.eL={x:cx-(m.waistW+8),y:eY}; J.hL={x:cx-(m.waistW+6),y:sy+86};
-    J.hR={x:lerp(cx+(m.waistW+8),cx+8,ph),y:lerp(sy+82,J.head.y+4,ph)};
-    J.eR={x:cx+(m.waistW+12),y:lerp(eY,J.head.y+28,ph)};
+    o.back=()=>drawBarH(cx,J.sL.y-6,m.shoulderW+28); }},
+  lunge:{name:'Lunges',sp:4,pose(J,m,ph,o,k){ const drop=ph*46, f=k%2?'R':'L', b=f==='L'?'R':'L';
+    shiftY(J,UPPER,drop);
+    J['k'+f].y=lerp(372,J.hipL.y+40,ph); J['k'+f].x+=(f==='L'?-1:1)*ph*6;
+    J['k'+b].y=lerp(372,GROUND-18,ph); J['f'+b].y=lerp(452,GROUND-6,ph);
+    handsOnHips(J,m); }},
+  jumpsquat:{name:'Jump Squats',sp:4,pose(J,m,ph,o){ const cx=CXC, u=(exClock*4/(2*Math.PI))%1;
+    let drop=0, air=0; if(u<0.5) drop=Math.sin(u*2*Math.PI)*44; else air=Math.sin((u-0.5)*2*Math.PI)*60;
+    shiftY(J,UPPER,drop);
+    const st=18+m.legs*5+drop*0.45; J.kL={x:cx-st,y:372+drop*0.2}; J.kR={x:cx+st,y:372+drop*0.2};
+    if(air>0){ J.hL={x:J.sL.x-10,y:J.sL.y-92}; J.hR={x:J.sR.x+10,y:J.sR.y-92}; } else { J.hL={x:cx-16,y:J.sL.y+52}; J.hR={x:cx+16,y:J.sR.y+52}; }
+    J.eL=ik(J.sL,J.hL,UA,FA,{x:-1,y:0.3}); J.eR=ik(J.sR,J.hR,UA,FA,{x:1,y:0.3});
+    shiftY(J,JK,-air); o.air=air; }},
+  // calves
+  calfraise:{name:'Calf Raises',sp:6,pose(J,m,ph,o){ const r=ph*16;
+    shiftY(J,['head','sL','sR','hipL','hipR','kL','kR','fL','fR'],-r); o.opts.tiptoe=r;
+    armsDown(J); o.front=()=>{ drawDumbbellV(J.hL.x,J.hL.y+6); drawDumbbellV(J.hR.x,J.hR.y+6); }; }},
+  jumprope:{name:'Jump Rope',sp:9,pose(J,m,ph,o){ const th=exClock*9, cy=Math.cos(th), hop=Math.max(0,cy)**2*16;
+    J.hL={x:J.hipL.x-26,y:J.hipL.y-14}; J.hR={x:J.hipR.x+26,y:J.hipR.y-14};
+    J.eL={x:J.sL.x-8,y:J.sL.y+54}; J.eR={x:J.sR.x+8,y:J.sR.y+54};
+    shiftY(J,JK,-hop); o.air=hop;
+    const Y=262+212*cy, cyy=(8*Y-2*J.hL.y)/6;
+    const draw=()=>{ ctx.save(); ctx.strokeStyle='#e85d75'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(J.hL.x,J.hL.y);
+      ctx.bezierCurveTo(J.hL.x-34,cyy,J.hR.x+34,cyy,J.hR.x,J.hR.y); ctx.stroke(); ctx.restore(); };
+    if(Math.sin(th)>0) o.front=draw; else o.back=draw; }},
+  // upper back
+  revfly:{name:'Reverse Flyes',sp:5,pose(J,m,ph,o){ J.head.y+=22; J.sL.y+=9; J.sR.y+=9;
+    const a=lerp(0.15,1.4,ph);
+    [['L',-1],['R',1]].forEach(([s,d])=>{ const S=J['s'+s]; J['h'+s]={x:S.x+d*Math.sin(a)*98,y:S.y+Math.cos(a)*90}; J['e'+s]={x:S.x+d*Math.sin(a)*52,y:S.y+Math.cos(a)*48-6}; });
+    o.front=()=>{ drawDumbbellV(J.hL.x,J.hL.y); drawDumbbellV(J.hR.x,J.hR.y); }; }},
+  facepull:{name:'Face Pulls',sp:5,pose(J,m,ph,o){ const cx=CXC;
+    J.eL={x:lerp(J.sL.x+14,J.sL.x-30,ph),y:lerp(SY+28,SY-16,ph)}; J.eR={x:lerp(J.sR.x-14,J.sR.x+30,ph),y:lerp(SY+28,SY-16,ph)};
+    J.hL={x:lerp(cx-14,cx-m.headR-14,ph),y:lerp(SY+6,J.head.y+2,ph)}; J.hR={x:lerp(cx+14,cx+m.headR+14,ph),y:lerp(SY+6,J.head.y+2,ph)};
+    o.back=()=>{ const c=lp(J.hL,J.hR,.5); cableLine(cx,30,c.x,c.y); cableLine(J.hL.x,J.hL.y,J.hR.x,J.hR.y); }; }},
+  // lats
+  pullup:{name:'Wide Pull-Ups',sp:4.5,pose(J,m,ph,o){ hangPose(J,m,ph,o,m.shoulderW*0.75+34); }},
+  pulldown:{name:'Lat Pulldowns',sp:4.5,pose(J,m,ph,o){ const cx=CXC;
+    shiftY(J,UPPER,40);
+    J.kL={x:J.hipL.x-4,y:GROUND-30}; J.kR={x:J.hipR.x+4,y:GROUND-30}; J.fL={x:J.kL.x-2,y:GROUND-6}; J.fR={x:J.kR.x+2,y:GROUND-6};
+    const barY=lerp(J.sL.y-98,J.sL.y-12,ph), gw=m.shoulderW+44;
+    J.hL={x:cx-gw,y:barY}; J.hR={x:cx+gw,y:barY};
+    J.eL=ik(J.sL,J.hL,UA,FA,{x:-1,y:0.6}); J.eR=ik(J.sR,J.hR,UA,FA,{x:1,y:0.6});
+    o.back=()=>cableLine(cx,0,cx,barY); o.front=()=>drawBarH(cx,barY,gw+14); }},
+  // triceps
+  ohext:{name:'Overhead Extensions',sp:5,pose(J,m,ph,o){ const cx=CXC;
+    J.eL={x:cx-24,y:J.head.y-46}; J.eR={x:cx+24,y:J.head.y-46};
+    const hy=lerp(J.head.y+8,J.head.y-100,ph); J.hL={x:cx-7,y:hy}; J.hR={x:cx+7,y:hy};
+    o.front=()=>drawDumbbellV(cx,hy-4,1.2); }},
+  dips:{name:'Dips',sp:4.5,pose(J,m,ph,o){ const cx=CXC, dy=lerp(-36,22,ph);
+    shiftY(J,['head','sL','sR','hipL','hipR','kL','kR','fL','fR'],dy);
+    J.kL={x:cx-12,y:J.hipL.y+70}; J.kR={x:cx+12,y:J.hipR.y+70}; J.fL={x:cx-8,y:J.kL.y+44}; J.fR={x:cx+8,y:J.kR.y+44}; // knees bent back
+    const bx=m.shoulderW+16, by=262; J.hL={x:cx-bx,y:by}; J.hR={x:cx+bx,y:by};
+    J.eL=ik(J.sL,J.hL,UA,FA,{x:-0.4,y:-1}); J.eR=ik(J.sR,J.hR,UA,FA,{x:0.4,y:-1});
+    o.back=()=>drawDipBars(cx-bx,cx+bx,by); }},
+  // lower back
+  deadlift:{name:'Deadlifts',sp:3.6,side:true,pose(J,m,ph,o){ hinge(J,m,o,ph,{x:CXC-40,y:358},1.2); o.front=()=>drawPlate(J.hL.x+2,J.hL.y,26); }},
+  superman:{name:'Supermans',sp:3.5,side:true,pose(J,m,ph,o){ const cx=CXC, fl=GROUND-14; o.opts.torso='capsule'; o.opts.capW=13+m.mz.lowerback*6+m.overall*4;
+    J.hipL={x:cx-20,y:fl-2}; J.hipR={x:cx-20,y:fl+3};
+    J.sL={x:cx+80,y:fl-2-ph*16}; J.sR={x:cx+80,y:fl+3-ph*16};
+    J.head={x:cx+112,y:fl-8-ph*24};
+    J.hL={x:cx+176,y:fl-ph*40}; J.hR={x:cx+170,y:fl+2-ph*36};
+    J.eL=lp(J.sL,J.hL,.5); J.eR=lp(J.sR,J.hR,.5); J.eL.y-=3;
+    J.kL={x:cx-92,y:fl-ph*12}; J.kR={x:cx-90,y:fl+3-ph*10};
+    J.fL={x:cx-170,y:fl-4-ph*34}; J.fR={x:cx-166,y:fl-ph*30}; }},
+  // glutes
+  hipthrust:{name:'Hip Thrusts',sp:4,side:true,pose(J,m,ph,o){ const cx=CXC; o.opts.torso='capsule'; o.opts.capW=14+m.mz.glutes*5+m.overall*4;
+    const sh={x:cx-100,y:358}, hip={x:cx-4,y:lerp(424,352,ph)};
+    J.sL={x:sh.x,y:sh.y-3}; J.sR={x:sh.x,y:sh.y+3};
+    J.head={x:sh.x-26,y:sh.y-14};
+    J.hipL={x:hip.x,y:hip.y-3}; J.hipR={x:hip.x,y:hip.y+3};
+    J.fL={x:cx+62,y:GROUND}; J.fR={x:cx+70,y:GROUND};
+    J.kL=ik(hip,J.fL,74,80,{x:0,y:-1}); J.kR=ik(hip,J.fR,74,80,{x:0,y:-1});
+    J.hL={x:hip.x-2,y:hip.y-20}; J.hR={x:hip.x+4,y:hip.y-20};
+    J.eL=ik(J.sL,J.hL,UA,FA,{x:0,y:-1}); J.eR=ik(J.sR,J.hR,UA,FA,{x:0,y:-1});
+    o.back=()=>drawLowBench(cx-150,cx-62,370); o.front=()=>drawPlate(hip.x,hip.y-24,22); }},
+  sumo:{name:'Sumo Squats',sp:4.5,pose(J,m,ph,o){ const cx=CXC, drop=ph*44;
+    shiftY(J,UPPER,drop);
+    const st=40+m.legs*6+drop*0.5;
+    J.kL={x:cx-st,y:372+drop*0.25}; J.kR={x:cx+st,y:372+drop*0.25};
+    J.fL={x:cx-st-10,y:452}; J.fR={x:cx+st+10,y:452};
+    J.hL={x:cx-7,y:J.sL.y+92}; J.hR={x:cx+7,y:J.sR.y+92};
+    J.eL=ik(J.sL,J.hL,UA,FA,{x:-1,y:0}); J.eR=ik(J.sR,J.hR,UA,FA,{x:1,y:0});
+    o.front=()=>drawKettlebell(cx,J.hL.y+12); }},
+  // hamstrings
+  legcurl:{name:'Standing Leg Curls',sp:5,pose(J,m,ph,o,k){ const s=k%2?'R':'L';
+    J['f'+s]={x:J['k'+s].x+(s==='L'?4:-4),y:lerp(452,J['k'+s].y-58,ph)};
+    handsOnHips(J,m); }},
+  rdl:{name:'Romanian Deadlifts',sp:3.8,side:true,pose(J,m,ph,o){ hinge(J,m,o,ph,{x:CXC-50,y:318},1.3); o.front=()=>drawPlate(J.hL.x+2,J.hL.y,22); }},
+  // whole-body (food / roids items)
+  chug:{name:'Protein Chug',sp:3,pose(J,m,ph,o){ const cx=CXC, eY=SY+44;
+    J.eL={x:cx-(m.waistW+8),y:eY}; J.hL={x:cx-(m.waistW+6),y:SY+90};
+    J.hR={x:lerp(cx+(m.waistW+8),cx+8,ph),y:lerp(SY+86,J.head.y+4,ph)};
+    J.eR={x:cx+(m.waistW+14),y:lerp(eY,J.head.y+28,ph)};
     if(ph>0.5) J.head.x+=ph*3;
-    frontD=()=>drawShake(J.hR.x,J.hR.y);
-  } else if(curEx==='flex'){                // roids — most-muscular pose pulse
-    m.bicep+=(0.5+ph*0.5)*5; m.arms+=ph*0.15;
-    J.eL={x:cx-(m.shoulderW+12),y:sy+26}; J.hL={x:cx-16,y:sy+66};
-    J.eR={x:cx+(m.shoulderW+12),y:sy+26}; J.hR={x:cx+16,y:sy+66};
-  } else {                                  // fallback
-    J.eL={x:J.sL.x-20,y:sy-8}; J.hL={x:cx-(m.headR+6),y:J.head.y+2};
-    J.eR={x:J.sR.x+20,y:sy-8}; J.hR={x:cx+(m.headR+6),y:J.head.y+2};
-  }
+    o.front=()=>drawShake(J.hR.x,J.hR.y); }},
+  flex:{name:'Most Muscular',sp:9,pose(J,m,ph,o){ const cx=CXC; m.armMid+=(0.5+ph*0.5)*5;
+    J.eL={x:cx-(m.shoulderW+12),y:SY+26}; J.hL={x:cx-16,y:SY+66};
+    J.eR={x:cx+(m.shoulderW+12),y:SY+26}; J.hR={x:cx+16,y:SY+66}; }},
+};
 
-  if(back) back();
-  drawBody(J,m,opts);
-  if(frontD) frontD();
+// ---------- idle posing routine ----------
+const IDLE_POSES={
+  dbl:{front:'Front Double Biceps',back:'Back Double Biceps',pose(J,m){ const cx=CXC, lift=10+m.arms*5+m.delts*4+m.flex*6;
+    J.eL={x:J.sL.x-(16+m.arms*9),y:SY-lift}; J.hL={x:cx-(m.headR+8),y:J.head.y+2};
+    J.eR={x:J.sR.x+(16+m.arms*9),y:SY-lift}; J.hR={x:cx+(m.headR+8),y:J.head.y+2}; }},
+  most:{front:'Most Muscular',back:'Rear Crab',pose(J,m){ const cx=CXC; J.sL.y-=4; J.sR.y-=4;
+    J.hL={x:cx-9,y:SY+76}; J.hR={x:cx+9,y:SY+76}; J.eL={x:J.sL.x-14,y:SY+46}; J.eR={x:J.sR.x+14,y:SY+46}; }},
+  lat:{front:'Front Lat Spread',back:'Back Lat Spread',pose(J,m){ handsOnHips(J,m); J.eL.x-=10; J.eR.x+=10; }},
+  abs:{front:'Abs & Thighs',back:'Hands Behind Head',pose(J,m){ const cx=CXC;
+    J.hL={x:cx-10,y:J.head.y-14}; J.hR={x:cx+10,y:J.head.y-14};
+    J.eL={x:J.sL.x-16,y:J.head.y-22}; J.eR={x:J.sR.x+16,y:J.head.y-22};
+    J.kR.x-=6; J.fR.x-=12; }},
+};
+const IDLE_ORDER=['dbl','most','lat','abs'];
+
+function drawPill(text,x,y,align,alpha,col){
+  ctx.save(); ctx.globalAlpha=alpha; ctx.font='bold 13px "Trebuchet MS",sans-serif';
+  const w=ctx.measureText(text).width+18, x0=align==='center'?x-w/2:align==='right'?x-w:x;
+  ctx.fillStyle='rgba(10,13,20,.72)'; ctx.beginPath(); ctx.roundRect?ctx.roundRect(x0,y-12,w,24,12):ctx.rect(x0,y-12,w,24); ctx.fill();
+  ctx.fillStyle=col||'#eef2ff'; ctx.textBaseline='middle'; ctx.fillText(text,x0+9,y+1); ctx.restore();
+}
+
+function drawDude(dt){
+  ctx.clearRect(0,0,CW,CH);
+  const m=metrics(), cx=CXC;
+  // turning: squash horizontally, swap front/back at the midpoint
+  let sx=1;
+  if(turnT>=0){ const before=turnT; turnT+=dt/0.42;
+    if(before<0.5 && turnT>=0.5){ state.view=state.view==='front'?'back':'front'; updateTurnBtn(); }
+    if(turnT>=1) turnT=-1; else sx=Math.max(0.05,Math.abs(Math.cos(turnT*Math.PI))); }
+  const view=state.view;
+  const breathe=Math.sin(t*2)*1.2;
+  const ex=EX[curEx], active=!!ex && exEnergy>0;
+  const ph=active ? (1-Math.cos(exClock*ex.sp))/2 : 0;
+  const rep=active ? Math.floor(exClock*ex.sp/(2*Math.PI)) : 0;
+  let J=baseUpright(m,breathe);
+  const opts={view,torso:'taper',shorts:true,active};
+  const o={opts,back:null,front:null,air:0};
+  let label='';
+  if(active){ ex.pose(J,m,ph,o,rep); label=ex.name.toUpperCase()+(curMus?' · '+MUS[curMus].name:''); }
+  else { idleClock+=dt; if(idleClock>4.5){ idleClock=0; idleIdx=(idleIdx+1)%IDLE_ORDER.length; }
+    const ip=IDLE_POSES[IDLE_ORDER[idleIdx]]; ip.pose(J,m); label=ip[view]; }
+  if(!J.eL||!J.hL) armsDown(J);
+  // smooth blend between poses
+  const key=(active?curEx:'idle'+idleIdx)+view;
+  if(key!==poseKey){ poseKey=key; poseFrom=lastJ; blendT=0; }
+  if(poseFrom && blendT<1){ blendT=Math.min(1,blendT+dt/0.16); const e=blendT*(2-blendT); JK.forEach(n=>{ if(poseFrom[n]) J[n]=lp(poseFrom[n],J[n],e); }); }
+  lastJ={}; JK.forEach(n=>lastJ[n]={x:J[n].x,y:J[n].y});
+
+  ctx.fillStyle='rgba(0,0,0,.28)';
+  const shW=(70+(m.overall+m.legs)*22)*(1-Math.min(0.4,o.air/120));
+  ctx.beginPath(); ctx.ellipse(cx,GROUND+8,shW,16,0,0,7); ctx.fill();
+
+  ctx.save();
+  if(sx!==1){ ctx.translate(cx,0); ctx.scale(sx,1); ctx.translate(-cx,0); }
+  if(o.back) o.back();
+  const F=drawBody(J,m,opts);
+  if(o.front) o.front();
+  regions=buildRegions(J,m,opts,F);
+  // overlays: worked-muscle flash, hover highlight, weak-point pulse
+  const S=musStats(), weakIds=MUSCLES.filter(mu=>isWeak(mu.id)).map(mu=>mu.id);
+  regions.forEach(r=>{
+    if(!r.id) return;
+    const f=musFlash[r.id]||0;
+    if(f>0.02){ ctx.fillStyle='rgba(255,110,90,'+(f*0.32).toFixed(3)+')'; ctx.fill(r.p); }
+    if(r.id===hoverMus){ ctx.fillStyle='rgba(255,204,51,.14)'; ctx.fill(r.p); ctx.strokeStyle='rgba(255,204,51,.75)'; ctx.lineWidth=1.5; ctx.stroke(r.p); }
+    else if(!active && weakIds.length<=3 && weakIds.indexOf(r.id)>=0){ ctx.save(); ctx.setLineDash([5,4]); ctx.strokeStyle='rgba(94,224,122,'+(0.35+0.3*Math.sin(t*4)).toFixed(3)+')'; ctx.lineWidth=1.6; ctx.stroke(r.p); ctx.restore(); }
+  });
+  ctx.restore();
 
   // particles
   ctx.fillStyle='rgba(150,210,255,.85)';
   particles.forEach(p=>{ ctx.globalAlpha=Math.max(0,1-p.t/p.life); ctx.beginPath(); ctx.arc(p.x,p.y,2.2,0,7); ctx.fill(); });
   ctx.globalAlpha=1;
+  // labels
+  if(label) drawPill(label,cx,CH-28,'center',active?Math.min(1,0.4+exEnergy):0.55,active?'#ffcc33':'#c9d1e4');
+  if(hoverMus){ const L=S.lvl[hoverMus]; drawPill(MUS[hoverMus].name+' · Lv '+L+(isWeak(hoverMus)?'  🎯 ×'+weakMult():''),12,24,'left',1,'#ffcc33'); }
+  if(!stageOn) drawPill(view==='front'?'FRONT':'BACK',12,hoverMus?54:24,'left',0.5,'#8b95ab');
 }
 
 //////////////////// LOOP ////////////////////
-let last=performance.now(), saveAcc=0, rafId=null;
+let last=performance.now(), saveAcc=0, rafId=null, spotAcc=0;
 function loop(now){
   const dt=Math.min(0.1,(now-last)/1000); last=now;
   const inc=perSec()*dt;
   if(inc>0){ state.gains+=inc; state.total+=inc; state.lifetime+=inc; }
   t+=dt; state.playtime+=dt;
   pump=Math.max(0,pump-dt*2.2);
+  for(const k in musPump) musPump[k]=Math.max(0,musPump[k]-dt*0.5);
+  for(const k in musFlash) musFlash[k]=Math.max(0,musFlash[k]-dt*2.5);
   if(exEnergy>0){ exEnergy=Math.max(0,exEnergy-dt); exClock+=dt; }
   if(exEnergy<=0 && curEx!=='idle') curEx='idle';
   if(frenzy>0) frenzy=Math.max(0,frenzy-dt);
+  // auto-spotter perk: free reps on the selected muscle
+  const sr=[0,1,2,4][perk('spotter')];
+  if(sr && !stageOn){ spotAcc+=dt*sr; while(spotAcc>=1){ spotAcc-=1; const mid=state.selMuscle, p=repGain(mid); state.gains+=p; state.total+=p; state.lifetime+=p; state.muscles[mid]=(state.muscles[mid]||0)+1; musDirty=true; musFlash[mid]=Math.max(musFlash[mid]||0,0.5); } }
   // particles
   particles.forEach(p=>{ p.t+=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=160*dt; });
   particles=particles.filter(p=>p.t<p.life);
   // golden
   goldTimer-=dt; if(goldTimer<=0 && !goldActive){ spawnGold(); scheduleGold(); }
   // periodic
-  saveAcc+=dt; if(saveAcc>2){ saveAcc=0; checkAchievements(); ensureQuests(); updateUI(); updateAdButtons(); updateQuestBadge();
-    if(activeTab==='stats') renderStats(); if(activeTab==='quests') renderQuests(); }
-  drawDude();
+  saveAcc+=dt; if(saveAcc>2){ saveAcc=0; checkAchievements(); ensureQuests(); updateUI(); updateAdButtons(); updateQuestBadge(); updateUpBadge();
+    if(activeTab==='stats') renderStats(); if(activeTab==='stage') renderStage(); if(activeTab==='shop') renderShop(); if(activeTab==='quests') renderQuests(); updateMusChips(); }
+  drawDude(dt);
   rafId=requestAnimationFrame(loop);
 }
 // Pause the render loop when the tab is hidden; idle income is credited from the
@@ -1427,11 +2286,14 @@ function startLoop(){ if(rafId==null){ last=performance.now(); rafId=requestAnim
 function stopLoop(){ if(rafId!=null){ cancelAnimationFrame(rafId); rafId=null; } }
 
 //////////////////// OFFLINE PROGRESS ////////////////////
+function offlineCapH(){ return [3,6,12,24][perk('offline')]; }
+function offlineEff(){ return state.upgrades.sleep2?1:state.upgrades.sleep1?0.75:0.5; }
 function offlineProgress(){
   const away=(Date.now()-(state.lastSeen||Date.now()))/1000;
   if(away<60) return;
-  const capped=Math.min(away, 3*3600); // 3h cap
-  const earned=perSecRaw()*capped*0.5; // 50% efficiency
+  const capH=offlineCapH(), eff=offlineEff();
+  const capped=Math.min(away, capH*3600);
+  const earned=perSecRaw()*capped*eff;
   if(earned<=0) return;
   state.gains+=earned; state.total+=earned; state.lifetime+=earned;
   // (placement a) rewarded ad to double offline earnings — only offered if ads are available.
@@ -1442,9 +2304,9 @@ function offlineProgress(){
       ()=>{ state.gains+=earned; state.total+=earned; state.lifetime+=earned; toast('📺 Offline earnings doubled! +'+fmt(earned)); afterChange(true); },
       ()=>toast('📺 Ad unavailable — try later')); }});
   modal('💤 While you were gone…',
-    `<div class="sub">You were away for <b style="color:#fff">${fmtTime(away)}</b>${away>10800?' (capped at 3h)':''}.</div>
+    `<div class="sub">You were away for <b style="color:#fff">${fmtTime(away)}</b>${away>capH*3600?' (capped at '+capH+'h)':''}.</div>
      <div style="font-size:26px;margin-top:10px;color:var(--accent)">+${fmt(earned)} gains</div>
-     <div class="sub" style="margin-top:6px">Idle earnings run at 50% rate while the tab is closed.</div>`,
+     <div class="sub" style="margin-top:6px">Idle earnings run at ${Math.round(eff*100)}% rate while the tab is closed.</div>`,
     btns);
 }
 
@@ -1456,9 +2318,14 @@ function bindTap(el, handler){
   el.addEventListener('touchstart', e=>{ e.preventDefault(); touchedAt=Date.now(); const tt=e.changedTouches&&e.changedTouches[0]; handler(tt?tt.clientX:undefined, tt?tt.clientY:undefined); }, {passive:false});
   el.addEventListener('click', e=>{ if(Date.now()-touchedAt<700) return; handler(e.clientX,e.clientY); });
 }
-bindTap(cv,(x,y)=>doRep(x,y));
-bindTap($('repbtn'),()=>doRep());
-document.addEventListener('keydown',e=>{ if(e.code==='Space'&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){ e.preventDefault(); doRep(); }});
+bindTap(cv,(x,y)=>repAtCanvas(x,y));
+bindTap($('repbtn'),()=>doRep(undefined,undefined,state.selMuscle,true));
+cv.addEventListener('mousemove',e=>{ const q=canvasPt(e.clientX,e.clientY); hoverMus=regionAt(q.x,q.y); });
+cv.addEventListener('mouseleave',()=>{ hoverMus=null; });
+$('turnbtn').addEventListener('click',e=>{ e.stopPropagation(); startTurn(); });
+document.addEventListener('keydown',e=>{ if(/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if(e.code==='Space'){ e.preventDefault(); doRep(undefined,undefined,state.selMuscle,true); }
+  else if(e.code==='KeyT'){ startTurn(); } });
 
 document.querySelectorAll('.tab').forEach(tb=>tb.addEventListener('click',()=>{
   activeTab=tb.dataset.tab;
@@ -1466,7 +2333,7 @@ document.querySelectorAll('.tab').forEach(tb=>tb.addEventListener('click',()=>{
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+activeTab));
   if(activeTab==='shop') renderShop(); if(activeTab==='upgrades') renderUpgrades();
   if(activeTab==='ach') renderAch(); if(activeTab==='quests') renderQuests();
-  if(activeTab==='locker') renderLocker(); if(activeTab==='stats') renderStats();
+  if(activeTab==='locker') renderLocker(); if(activeTab==='stats') renderStats(); if(activeTab==='stage') renderStage();
 }));
 
 // rewarded-ad placements (b) frenzy + (c) windfall — cooldowns tracked in save, graceful on fail
@@ -1484,19 +2351,11 @@ $('sharebtn').onclick=openShare;
 let hiddenAt=0;
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){ hiddenAt=Date.now(); stopLoop(); save(); }
-  else { if(hiddenAt){ const away=(Date.now()-hiddenAt)/1000; const g=perSec()*Math.min(away,3*3600); if(g>0){ state.gains+=g; state.total+=g; state.lifetime+=g; } hiddenAt=0; } startLoop(); }
+  else { if(hiddenAt){ const away=(Date.now()-hiddenAt)/1000; const g=perSec()*Math.min(away,offlineCapH()*3600); if(g>0){ state.gains+=g; state.total+=g; state.lifetime+=g; } hiddenAt=0; } startLoop(); }
 });
-$('buy1').addEventListener('click',()=>{ buyAmt=1; $('buy1').classList.add('on'); $('buy10').classList.remove('on'); renderShop(); });
-$('buy10').addEventListener('click',()=>{ buyAmt=10; $('buy10').classList.add('on'); $('buy1').classList.remove('on'); renderShop(); });
+[['buy1',1],['buy10',10],['buy100',100],['buymax','max']].forEach(([id,v])=>$(id).addEventListener('click',()=>{ buyAmt=v;
+  ['buy1','buy10','buy100','buymax'].forEach(b=>$(b).classList.toggle('on',b===id)); renderShop(); }));
 
-$('prestigebtn').addEventListener('click',()=>{
-  const proj=projectedTrophies()-state.trophies; if(proj<=0) return;
-  modal('🏆 Hit the Stage?',
-    `<div class="sub">Compete in a tournament: <b style="color:#fff">reset this run</b> (gains, items & upgrades) in exchange for permanent trophies.</div>
-     <div style="font-size:24px;margin-top:12px;color:#b06bff">+${proj} 🏆 → ×${(1+(state.trophies+proj)*0.03).toFixed(2)} forever</div>
-     <div class="sub" style="margin-top:6px">Awards, trophies & prestige count are kept.</div>`,
-    [{label:'Hit the stage', cls:'btnyes', fn:doPrestige}, {label:'Not yet', cls:'btnno'}]);
-});
 $('soundbtn').addEventListener('click',()=>{ state.sound=!state.sound; $('soundbtn').textContent=state.sound?'🔊 Sound: On':'🔇 Sound: Off'; beep(500,0.08); save(); });
 $('savebtn').addEventListener('click',()=>{ save(); $('savebtn').textContent='✓ Saved'; setTimeout(()=>$('savebtn').textContent='💾 Save',900); });
 $('exportbtn').addEventListener('click',()=>{ save(); const code=btoa(unescape(encodeURIComponent(JSON.stringify(state))));
@@ -1520,6 +2379,7 @@ function boot(){
   load();              // reads CrazyGames cloud save on the portal, else localStorage
   if(PLATFORM==='selfhost'){ const ar=document.getElementById('adrow'); if(ar) ar.style.display='none'; } // no ads on the website build
   recomputeAchBonus();
+  buildMusGrid();
   ensureQuests();      // seed today's daily quests
   $('soundbtn').textContent=state.sound?'🔊 Sound: On':'🔇 Sound: Off';
   scheduleGold();
