@@ -137,7 +137,7 @@
   #modal{background:var(--panel); border:1px solid var(--accent); border-radius:14px; padding:22px; max-width:420px; width:90%}
   #modal h2{margin:0 0 8px; color:var(--accent)}
   #modal .row{display:flex; gap:10px; margin-top:16px}
-  #modal button{flex:1; padding:11px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size:14px}
+  #modal .row button{flex:1; padding:11px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size:14px}
   .btnyes{background:var(--accent); color:#1a1206}
   .btnno{background:var(--panel2); color:var(--ink); border:1px solid var(--line)!important}
   textarea{width:100%; height:90px; background:#0c0f16; color:var(--ink); border:1px solid var(--line); border-radius:8px; font-size:11px; margin-top:8px}
@@ -166,6 +166,26 @@
   .judge .jv.show{color:var(--gold); transform:scale(1.25)}
   .sresult .sgain{font-size:30px; font-weight:bold; color:#b06bff; margin-top:10px}
   #stagedone{background:var(--accent); color:#1a1206; max-width:320px}
+  /* settings */
+  .setbtn{cursor:pointer; color:var(--ink); font-size:13px}
+  .setgrp{font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin:12px 0 4px}
+  .setrow{display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--line); font-size:13px; gap:10px}
+  .setrow input[type=range]{width:130px; accent-color:var(--accent)}
+  #modal{max-height:88vh; overflow:auto}
+  /* stats charts */
+  .chartcard{background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-bottom:10px}
+  .charthead{display:flex; justify-content:space-between; align-items:center; font-weight:bold; font-size:13px; margin-bottom:6px; gap:8px}
+  #histc{display:block; width:100%; height:170px; cursor:crosshair}
+  .bdrow{display:grid; grid-template-columns:minmax(0,1.3fr) 1fr 38px; gap:8px; align-items:center; font-size:12px; padding:3px 0}
+  .bdn{white-space:nowrap; overflow:hidden; text-overflow:ellipsis} .bdv{text-align:right; color:var(--muted)}
+  .bdbar{height:10px; background:#0c0f16; border-radius:4px; overflow:hidden} .bdbar i{display:block; height:100%; background:#ffcc33; border-radius:0 4px 4px 0}
+  /* awards */
+  .achcat{display:flex; justify-content:space-between; font-size:12px; font-weight:bold; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin:12px 0 6px; cursor:pointer}
+  .achcat:first-child{margin-top:0}
+  .abar{height:5px; background:#0c0f16; border-radius:3px; overflow:hidden; margin-top:4px} .abar i{display:block; height:100%; background:linear-gradient(90deg,var(--accent2),var(--accent))}
+  .aprog{font-size:10px; color:var(--muted); margin-top:2px}
+  .ach{opacity:.6} .ach.unlocked{opacity:1}
+  body.reduce .confetti, body.reduce #stage.shake{animation:none}
   /* tabs: two rows of four */
   #tabs{display:grid; grid-template-columns:repeat(4,1fr); gap:6px}
   .tab{white-space:nowrap}
@@ -310,6 +330,7 @@
         <span id="badges">
           <span class="badge" id="trophyBadge">🏆 0</span>
           <span class="badge" id="multBadge">×1.00</span>
+          <button class="badge setbtn" id="setbtn" title="Settings">⚙️</button>
         </span>
       </div>
       <div style="margin-top:8px">
@@ -395,16 +416,20 @@
     </div>
 
     <div class="panel" id="panel-stats">
+      <div class="chartcard">
+        <div class="charthead"><span>Gains per second</span><span><button class="mini on" id="hfine">20 min</button> <button class="mini" id="hlong">4 hours</button></span></div>
+        <canvas id="histc" height="170"></canvas>
+        <div class="sub">Log scale — each gridline is 10× the one below.</div>
+      </div>
+      <div class="chartcard">
+        <div class="charthead"><span>Where your idle income comes from</span></div>
+        <div id="breakdown"></div>
+      </div>
       <div id="stats"></div>
       <div class="toolbar" style="margin-top:14px">
-        <button class="mini" id="soundbtn">🔇 Sound: Off</button>
         <button class="mini" id="sharebtn">📣 Share</button>
-        <button class="mini" id="savebtn">💾 Save</button>
-        <button class="mini" id="exportbtn">⤴ Export</button>
-        <button class="mini" id="importbtn">⤵ Import</button>
-        <button class="mini" id="resetbtn">♻ Reset</button>
+        <button class="mini" id="setbtn2">⚙️ Settings &amp; saves</button>
       </div>
-      <div class="sub" style="margin-top:12px">Your progress is saved automatically. <a href="privacy-policy.html" target="_blank" rel="noopener" style="color:var(--accent)">Privacy Policy</a></div>
     </div>
   </div>
 </div>
@@ -582,43 +607,110 @@ function perk(id){ return (state.perks&&state.perks[id])||0; }
 const RANKS = ['Noodle Arms','Newbie','Gym Curious','Regular','Gym Rat','Getting Swole','Jacked','Absolute Unit','Mass Monster','Greek God'];
 const RANK_AT = [0,1e3,2e4,5e5,1e7,2e8,5e9,2e11,1e13,1e15]; // this-run gains needed for each rank
 
+// Awards: each gives a permanent % bonus. A(...) = threshold award with a progress bar, F(...) = one-off condition.
+const achT=(cat,id,emoji,name,desc,bonus,get,target,secret)=>({cat,id,emoji,name,desc,bonus,secret,check:s=>get(s)>=target,prog:s=>[Math.min(get(s),target),target]});
+const achF=(cat,id,emoji,name,desc,bonus,fn,secret)=>({cat,id,emoji,name,desc,bonus,secret,check:fn});
+const lvlMax=()=>{ const S=musStats(); return Math.max(...MUSCLES.map(mu=>S.lvl[mu.id])); };
+const rankBest=s=>Math.max(rankIndex(),s.bestRank||0);
+const rivalWins=s=>Object.values(s.rivals||{}).reduce((a,r)=>a+(r.wins||0),0);
+const flag=k=>s=>!!(s.flags&&s.flags[k]);
+const ACH_CATS=['Gains','Reps','Gear','Muscles','Ranks','Income','Stage','Upgrades','Events','Rivals','Routine','Secret'];
 const ACHS = [
-  {id:'g1',  emoji:'🌱', name:'First Gains',      desc:'Earn 1,000 lifetime gains',   bonus:.01, check:s=>s.lifetime>=1e3},
-  {id:'g2',  emoji:'📈', name:'Getting Serious',  desc:'Earn 10K lifetime gains',     bonus:.01, check:s=>s.lifetime>=1e4},
-  {id:'g3',  emoji:'💰', name:'Six Figures',      desc:'Earn 100K lifetime gains',    bonus:.02, check:s=>s.lifetime>=1e5},
-  {id:'g4',  emoji:'🤑', name:'Millionaire Muscle',desc:'Earn 1M lifetime gains',     bonus:.02, check:s=>s.lifetime>=1e6},
-  {id:'g5',  emoji:'💎', name:'Ten Million Strong',desc:'Earn 10M lifetime gains',    bonus:.03, check:s=>s.lifetime>=1e7},
-  {id:'g6',  emoji:'🏦', name:'Hundred Mil',      desc:'Earn 100M lifetime gains',    bonus:.03, check:s=>s.lifetime>=1e8},
-  {id:'g7',  emoji:'🚀', name:'Billionaire Beef', desc:'Earn 1B lifetime gains',      bonus:.05, check:s=>s.lifetime>=1e9},
-  {id:'g8',  emoji:'🌌', name:'Trillion Club',    desc:'Earn 1T lifetime gains',      bonus:.05, check:s=>s.lifetime>=1e12},
-  {id:'c1',  emoji:'👆', name:'Warming Up',       desc:'Do 100 reps',                 bonus:.01, check:s=>s.clicks>=100},
-  {id:'c2',  emoji:'💢', name:'Feel the Burn',    desc:'Do 1,000 reps',               bonus:.02, check:s=>s.clicks>=1000},
-  {id:'c3',  emoji:'🔂', name:'Rep Machine',      desc:'Do 10,000 reps',              bonus:.03, check:s=>s.clicks>=10000},
-  {id:'b1',  emoji:'🛒', name:'First Purchase',   desc:'Buy any item',                bonus:.01, check:s=>totalOwned()>=1},
-  {id:'b2',  emoji:'📦', name:'Stocked Up',       desc:'Own 25 items total',          bonus:.02, check:s=>totalOwned()>=25},
-  {id:'b3',  emoji:'🏬', name:'Gym Hoarder',      desc:'Own 100 items total',         bonus:.03, check:s=>totalOwned()>=100},
-  {id:'b4',  emoji:'🔟', name:'Collector',        desc:'Own 10 of one item',          bonus:.02, check:s=>maxOwned()>=10},
-  {id:'b5',  emoji:'5️⃣0️⃣',name:'Obsessed',        desc:'Own 50 of one item',          bonus:.03, check:s=>maxOwned()>=50},
-  {id:'roid',emoji:'💉', name:'Better Living...',  desc:'Buy your first Steroids',     bonus:.03, check:s=>s.owned.steroids>=1},
-  {id:'lop1',emoji:'🐔', name:'Chicken Legs',     desc:'Big arms, tiny legs',         bonus:.02, check:s=>{const a=grpLvl(['biceps','triceps']),l=grpLvl(['quads','hamstrings','calves']);return a>=12 && l<=a*0.25;}},
-  {id:'lop2',emoji:'🦏', name:'Leg Day Only',     desc:'Tree-trunk legs, twig arms',  bonus:.02, check:s=>{const a=grpLvl(['biceps','triceps']),l=grpLvl(['quads','hamstrings','calves']);return l>=12 && a<=l*0.25;}},
-  {id:'lop3',emoji:'🪞', name:'Skipped Back Day', desc:'Big chest & arms, no back',   bonus:.02, check:s=>{const f=grpLvl(['chest','biceps']),b=grpLvl(['lats','upperback','lowerback']);return f>=15 && b<=f*0.25;}},
-  {id:'r1',  emoji:'🐀', name:'Gym Rat',          desc:'Reach the Gym Rat rank',      bonus:.02, check:s=>rankIndex()>=4},
-  {id:'r2',  emoji:'😤', name:'Jacked',           desc:'Reach the Jacked rank',       bonus:.03, check:s=>rankIndex()>=6},
-  {id:'r3',  emoji:'🗿', name:'Greek God',        desc:'Reach the Greek God rank',    bonus:.05, check:s=>rankIndex()>=9},
-  {id:'i1',  emoji:'⏳', name:'Passive Pump',     desc:'Reach 1K gains/sec',          bonus:.02, check:s=>perSecRaw()>=1000},
-  {id:'i2',  emoji:'🌊', name:'Gains Tsunami',    desc:'Reach 1M gains/sec',          bonus:.03, check:s=>perSecRaw()>=1e6},
-  {id:'p1',  emoji:'🎤', name:'Hit the Stage',    desc:'Prestige for the first time', bonus:.05, check:s=>s.prestiges>=1},
-  {id:'p2',  emoji:'👑', name:'Seasoned Competitor',desc:'Prestige 5 times',          bonus:.05, check:s=>s.prestiges>=5},
-  {id:'p3',  emoji:'🏆', name:'Trophy Shelf',     desc:'Hold 10 trophies',            bonus:.05, check:s=>s.trophies>=10},
-  {id:'gold',emoji:'✨', name:'Golden Gulp',      desc:'Click a golden shake',        bonus:.03, check:s=>s.goldenClicked>=1},
-  {id:'up1', emoji:'⭐', name:'Tier Climber',     desc:'Buy an upgrade',              bonus:.02, check:s=>Object.keys(s.upgrades).length>=1},
-  {id:'up2', emoji:'🌟', name:'Fully Equipped',   desc:'Own every upgrade',           bonus:.10, check:s=>UPGRADES.every(u=>s.upgrades[u.id])},
+  achT('Gains','g1','🌱','First Gains','Earn 1,000 lifetime gains',.01,s=>s.lifetime,1e3),
+  achT('Gains','g2','📈','Getting Serious','Earn 10K lifetime gains',.01,s=>s.lifetime,1e4),
+  achT('Gains','g3','💰','Six Figures','Earn 100K lifetime gains',.02,s=>s.lifetime,1e5),
+  achT('Gains','g4','🤑','Millionaire Muscle','Earn 1M lifetime gains',.02,s=>s.lifetime,1e6),
+  achT('Gains','g5','💎','Ten Million Strong','Earn 10M lifetime gains',.03,s=>s.lifetime,1e7),
+  achT('Gains','g6','🏦','Hundred Mil','Earn 100M lifetime gains',.03,s=>s.lifetime,1e8),
+  achT('Gains','g7','🚀','Billionaire Beef','Earn 1B lifetime gains',.05,s=>s.lifetime,1e9),
+  achT('Gains','g8','🌌','Trillion Club','Earn 1T lifetime gains',.05,s=>s.lifetime,1e12),
+  achT('Gains','g9','🪐','Quadrillionaire','Earn 1Qa lifetime gains',.06,s=>s.lifetime,1e15),
+  achT('Gains','run1','📅','Big Season','Earn 1B gains in a single run',.03,s=>s.total,1e9),
+  achT('Reps','c1','👆','Warming Up','Do 100 reps',.01,s=>s.clicks,100),
+  achT('Reps','c2','💢','Feel the Burn','Do 1,000 reps',.02,s=>s.clicks,1000),
+  achT('Reps','c3','🔂','Rep Machine','Do 10,000 reps',.03,s=>s.clicks,1e4),
+  achT('Reps','c4','🦾','Iron Thumb','Do 50,000 reps',.03,s=>s.clicks,5e4),
+  achT('Reps','c5','🩹','Carpal Tunnel','Do 100,000 reps',.04,s=>s.clicks,1e5),
+  achT('Reps','beast1','😤','Beast Unleashed','Go Beast Mode',.02,s=>s.beastCount||0,1),
+  achT('Reps','beast2','🐺','Feral','Go Beast Mode 10 times',.02,s=>s.beastCount||0,10),
+  achT('Reps','beast3','🦖','Apex Predator','Go Beast Mode 100 times',.03,s=>s.beastCount||0,100),
+  achT('Reps','rep1m','💥','Million-Gain Rep','Earn 1M gains from a single rep',.03,s=>s.bestRep||0,1e6),
+  achT('Gear','b1','🛒','First Purchase','Buy any item',.01,s=>totalOwned(),1),
+  achT('Gear','b2','📦','Stocked Up','Own 25 items total',.02,s=>totalOwned(),25),
+  achT('Gear','b3','🏬','Gym Hoarder','Own 100 items total',.03,s=>totalOwned(),100),
+  achT('Gear','b6','🏗️','Equipment Empire','Own 250 items total',.02,s=>totalOwned(),250),
+  achT('Gear','b7','🏭','Warehouse','Own 500 items total',.03,s=>totalOwned(),500),
+  achT('Gear','b8','🌆','Gym Franchise','Own 1,000 items total',.04,s=>totalOwned(),1000),
+  achT('Gear','b4','🔟','Collector','Own 10 of one item',.02,s=>maxOwned(),10),
+  achT('Gear','b5','5️⃣0️⃣','Obsessed','Own 50 of one item',.03,s=>maxOwned(),50),
+  achT('Gear','b9','💯','Triple Digits','Own 100 of one item',.03,s=>maxOwned(),100),
+  achT('Gear','b10','🗼','Tower of Iron','Own 200 of one item',.04,s=>maxOwned(),200),
+  achT('Gear','allitems','🧰','Full Gym','Own at least one of every item',.05,s=>ITEMS.filter(i=>s.owned[i.id]>0).length,ITEMS.length),
+  achF('Gear','roid','💉','Better Living...','Buy your first Steroids',.03,s=>s.owned.steroids>=1),
+  achF('Gear','olympia','🏆','Sandow Winner','Buy a Mr. Olympia Title',.05,s=>s.owned.olympia>=1),
+  achT('Muscles','m1','💪','Specialist','Get any muscle to Lv 10',.02,s=>lvlMax(),10),
+  achT('Muscles','m2','🎯','Signature Muscle','Get any muscle to Lv 25',.03,s=>lvlMax(),25),
+  achT('Muscles','m3','🧬','Freak Body Part','Get any muscle to Lv 50',.04,s=>lvlMax(),50),
+  achT('Muscles','m4','🧍','Well Rounded','Every muscle Lv 10',.03,s=>musStats().min,10),
+  achT('Muscles','m5','🏛️','Complete Package','Every muscle Lv 25',.05,s=>musStats().min,25),
+  achT('Muscles','m6','🗿','Living Statue','Every muscle Lv 50',.06,s=>musStats().min,50),
+  achF('Muscles','sym','⚖','Perfectly Balanced','95% symmetry with average muscle Lv 10+',.03,s=>musStats().avg>=10&&musStats().sym>=0.95),
+  achT('Muscles','weak','🎯','What Weak Points?','Train 100 weak-point reps',.02,s=>s.weakReps||0,100),
+  achT('Muscles','moves','📖','Move Collector','Unlock every exercise (all muscles Lv 20)',.05,s=>musStats().min,20),
+  achF('Muscles','lop1','🐔','Chicken Legs','Big arms, tiny legs',.02,s=>{const a=grpLvl(['biceps','triceps']),l=grpLvl(['quads','hamstrings','calves']);return a>=12 && l<=a*0.25;}),
+  achF('Muscles','lop2','🦏','Leg Day Only','Tree-trunk legs, twig arms',.02,s=>{const a=grpLvl(['biceps','triceps']),l=grpLvl(['quads','hamstrings','calves']);return l>=12 && a<=l*0.25;}),
+  achF('Muscles','lop3','🪞','Skipped Back Day','Big chest & arms, no back',.02,s=>{const f=grpLvl(['chest','biceps']),b=grpLvl(['lats','upperback','lowerback']);return f>=15 && b<=f*0.25;}),
+  achT('Ranks','r0','🐣','Newbie','Reach the Newbie rank',.01,rankBest,1),
+  achT('Ranks','r1','🐀','Gym Rat','Reach the Gym Rat rank',.02,rankBest,4),
+  achT('Ranks','r2','😤','Jacked','Reach the Jacked rank',.03,rankBest,6),
+  achT('Ranks','r4','🦍','Absolute Unit','Reach the Absolute Unit rank',.04,rankBest,7),
+  achT('Ranks','r5','🐘','Mass Monster','Reach the Mass Monster rank',.04,rankBest,8),
+  achT('Ranks','r3','🗿','Greek God','Reach the Greek God rank',.05,rankBest,9),
+  achT('Income','i1','⏳','Passive Pump','Reach 1K gains/sec',.02,s=>perSecRaw(),1e3),
+  achT('Income','i2','🌊','Gains Tsunami','Reach 1M gains/sec',.03,s=>perSecRaw(),1e6),
+  achT('Income','i3','🌋','Gains Volcano','Reach 1B gains/sec',.04,s=>perSecRaw(),1e9),
+  achT('Income','i4','☄️','Gains Singularity','Reach 1T gains/sec',.05,s=>perSecRaw(),1e12),
+  achT('Stage','p1','🎤','Hit the Stage','Prestige for the first time',.05,s=>s.prestiges,1),
+  achT('Stage','p2','👑','Seasoned Competitor','Prestige 5 times',.05,s=>s.prestiges,5),
+  achT('Stage','p4','🎖️','Circuit Veteran','Prestige 15 times',.05,s=>s.prestiges,15),
+  achT('Stage','p3','🏆','Trophy Shelf','Earn 10 trophies',.05,s=>s.trophies,10),
+  achT('Stage','p5','🏅','Trophy Cabinet','Earn 50 trophies',.05,s=>s.trophies,50),
+  achT('Stage','p6','🏰','Trophy Room','Earn 200 trophies',.06,s=>s.trophies,200),
+  achF('Stage','perfect','🔟','Perfect 10s','Get a 10 from all three judges',.04,flag('perfect10')),
+  achF('Stage','perk1','🛍️','Invested','Buy a trophy perk',.02,s=>Object.keys(s.perks||{}).length>0),
+  achF('Stage','perkmax','📈','Maxed Out','Max out any trophy perk',.03,s=>PERKS.some(p=>(s.perks[p.id]||0)>=p.costs.length)),
+  achT('Upgrades','up1','⭐','Tier Climber','Buy an upgrade',.02,s=>Object.keys(s.upgrades).length,1),
+  achT('Upgrades','up3','🌠','Upgrade Addict','Own 25 upgrades at once',.03,s=>Object.keys(s.upgrades).length,25),
+  achT('Upgrades','up5','💫','Min-Maxer','Own 50 upgrades at once',.04,s=>Object.keys(s.upgrades).length,50),
+  achT('Upgrades','up2','🌟','Fully Equipped','Own every upgrade',.10,s=>UPGRADES.filter(u=>s.upgrades[u.id]).length,UPGRADES.length),
+  achT('Events','gold','✨','Golden Gulp','Click a golden shake',.03,s=>s.goldenClicked,1),
+  achT('Events','gold2','🥤','Shake Chaser','Click 10 golden shakes',.02,s=>s.goldenClicked,10),
+  achT('Events','gold3','🧲','Shake Addict','Click 50 golden shakes',.03,s=>s.goldenClicked,50),
+  achT('Events','ev1','📦','Right Place, Right Time','Catch a gym event',.01,s=>s.eventsClicked||0,1),
+  achT('Events','ev2','🌟','Gym Celebrity','Catch 25 gym events',.03,s=>s.eventsClicked||0,25),
+  achF('Events','crush','😍','Smooth Operator','Keep your gym crush watching the whole time',.02,flag('crushFull')),
+  achF('Events','viral','📸','Gone Viral','Finish an influencer photo shoot',.02,flag('viral')),
+  achT('Rivals','rv1','🩸','First Blood','Beat a rival',.02,s=>rivalsBeaten(),1),
+  achT('Rivals','rv4','🚪','Gatekeeper','Beat 4 rivals',.03,s=>rivalsBeaten(),4),
+  achT('Rivals','rv8','👑','Undisputed','Beat all 8 rivals',.08,s=>rivalsBeaten(),8),
+  achF('Rivals','flaw','🎯','Flawless Form','Win Perfect Form without a single miss',.02,flag('flawless')),
+  achT('Rivals','rvw','🔁','Rematch King','Win 10 rival matches',.02,rivalWins,10),
+  achT('Routine','daily7','📆','Creature of Habit','Reach a 7-day login streak',.03,s=>s.daily.streak,7),
+  achT('Routine','q10','🎯','Quest Grinder','Claim 10 daily quests',.02,s=>s.questsDone||0,10),
+  achT('Routine','q50','🗺️','Quest Legend','Claim 50 daily quests',.03,s=>s.questsDone||0,50),
+  achT('Routine','play10','🕙','No Days Off','Play for 10 hours',.03,s=>s.playtime/3600,10),
+  achF('Routine','fashion','👗','Fashion Week','Wear 5 accessories at once',.01,s=>Object.keys(s.cos.eq||{}).filter(k=>s.cos.eq[k]&&cosUnlocked(ACC_BY_ID[k])).length>=5),
+  achT('Secret','brain','🧠','Brain Gains','Tap the lifter on the head 10 times',.01,s=>s.headTaps||0,10,true),
+  achF('Secret','couch','🛋️','Couch Potato','Earn for 10 minutes without a single rep',.01,flag('couch'),true),
+  achF('Secret','turbo','🌪️','Turbo Thumbs','Do 20 reps in 2 seconds',.01,flag('turbo'),true),
+  achF('Secret','night','🌙','Night Shift','Train between 2 and 5 a.m.',.01,flag('night'),true),
+  achF('Secret','undercover','🕵️','Undercover','Go bald with a mustache and sunglasses',.01,s=>s.cos.hair==='bald'&&s.cos.eq.mustache&&s.cos.eq.sunglasses,true),
+  achT('Secret','spin','🌀','You Spin Me Round','Turn around 25 times',.01,s=>s.turns||0,25,true),
 ];
 
 //////////////////// STATE ////////////////////
 const SAVE_KEY='swoleclicker';
-const SAVE_VER=7; // v7: rivals, beast mode, events (v6: trophy perks (v5: per-muscle training + view (v4: daily quests; v3: cosmetics, daily login, ad cooldowns, onboarding flag)
+const SAVE_VER=8; // v8: settings, history, award tracking (v7: rivals, beast mode, events (v6: trophy perks (v5: per-muscle training + view (v4: daily quests; v3: cosmetics, daily login, ad cooldowns, onboarding flag)
 // cosmetics/daily/trophies persist through prestige; muscle memory keeps 25% of tap training
 function freshRun(s){
   const keep={}; if(perk('keepgroup')) Object.keys(s.upgrades).forEach(k=>{ if(/^m_/.test(k)) keep[k]=true; });
@@ -651,7 +743,12 @@ function defaultState(){
     rivals:{},              // {rivalId:{beat, wins, next(ms timestamp of next allowed try)}}
     bestRank:0,             // best rank index ever reached (unlocks rivals; survives prestige)
     title:'',               // displayed title earned from a rival
-    beastCount:0, eventsClicked:0 };
+    beastCount:0, eventsClicked:0,
+    // --- v8 additions ---
+    settings:defaultSettings(),
+    hist:[],                // [timestamp, gains/sec] one per minute (last 4h) for the stats chart
+    flags:{},               // one-off award triggers
+    bestRep:0, weakReps:0, turns:0, questsDone:0, headTaps:0 };
   ITEMS.forEach(i=>s.owned[i.id]=0);
   MUSCLES.forEach(mu=>s.muscles[mu.id]=0);
   return s;
@@ -683,6 +780,7 @@ function migrate(raw){
   if(!MUS[s.selMuscle]) s.selMuscle='chest';
   s.exRot=raw.exRot||{};
   s.perks=raw.perks||{}; s.trophiesSpent=raw.trophiesSpent||0; s.rivals=raw.rivals||{};
+  s.settings=Object.assign(defaultSettings(),raw.settings||{}); s.hist=raw.hist||[]; s.flags=raw.flags||{};
   s.v=SAVE_VER;
   return s;
 }
@@ -789,6 +887,7 @@ function fmt(n){
   if(!isFinite(n)) return n>0?'∞':'0';
   if(n<0) return '0';
   if(n<1000) return (Math.floor(n*10)/10).toString().replace(/\.0$/,'');
+  if(state.settings&&state.settings.numfmt==='sci') return n.toExponential(2).replace('e+','e');
   let i=0, x=n; while(x>=1000 && i<UNITS.length-1){ x/=1000; i++; }
   if(x>=1000) return n.toExponential(2).replace('e+','e'); // beyond the UNITS array → scientific notation
   return (Math.floor(x*100)/100)+UNITS[i];
@@ -800,10 +899,11 @@ function fmtTime(sec){ sec=Math.floor(sec); const h=Math.floor(sec/3600),m=Math.
 function noteLevels(before, x, y){
   const S=musStats();
   MUSCLES.forEach(mu=>{ const b=before[mu.id], a=S.lvl[mu.id]; if(a<=b) return;
-    if(x!==undefined) spawnFloat(mu.name+' Lv '+a+'!', x, (y||0)-26, 'lv');
+    if(x!==undefined){ spawnFloat(mu.name+' Lv '+a+'!', x, (y||0)-26, 'lv'); sfx('level'); }
     MOVE_UNLOCK.forEach((need,i)=>{ if(i>0 && mu.ex[i] && b<need && a>=need) toast(`🆕 <b>${mu.name}</b> unlocked a new move: <b>${EX[mu.ex[i]].name}</b>!`); });
   });
 }
+let repTimes=[];
 function doRep(clientX, clientY, mid, fromUI){
   mid = MUS[mid] ? mid : state.selMuscle;
   if(fromUI) ensureView(mid);
@@ -814,7 +914,9 @@ function doRep(clientX, clientY, mid, fromUI){
   lastRepAt=performance.now(); if(beastT<=0){ pumpMeter=Math.min(1,pumpMeter+pumpFill()); if(pumpMeter>=1) startBeast(); }
   noteRepForEvents();
   questProgress('reps',1);
-  pump=1; musPump[mid]=Math.min(1,(musPump[mid]||0)+0.3); musFlash[mid]=1; beep(420,0.05);
+  pump=1; musPump[mid]=Math.min(1,(musPump[mid]||0)+0.3); musFlash[mid]=1; sfx('rep',mid); haptic(6);
+  if(p>(state.bestRep||0)) state.bestRep=p; if(weak) state.weakReps=(state.weakReps||0)+1;
+  const nowMs=performance.now(); repTimes.push(nowMs); while(repTimes.length&&nowMs-repTimes[0]>2000) repTimes.shift(); if(repTimes.length>=20) state.flags.turbo=true;
   startMuscleEx(mid, 1.6);
   spawnFloat('+'+fmt(p)+(weak?' 🎯×'+weakMult():'')+(em>1?' 🔥×'+em:''), clientX, clientY);
   noteLevels(before, clientX===undefined?null:clientX, clientY);
@@ -827,6 +929,7 @@ function doRep(clientX, clientY, mid, fromUI){
 let missHintAt=0;
 function repAtCanvas(x,y){ if(stageOn||arenaOn) return; const q=canvasPt(x,y), id=regionAt(q.x,q.y);
   if(id){ doRep(x,y,id); return; }
+  if(regions[0]&&regions[0].id===null&&turnT<0&&hitCtx.isPointInPath(regions[0].p,q.x,q.y)){ state.headTaps=(state.headTaps||0)+1; spawnFloat('🧠 Brain gains?',x,y,'miss'); return; }
   if(Date.now()-missHintAt>1200){ missHintAt=Date.now(); spawnFloat(turnT>=0?'Turning…':'Tap a muscle!',x,y,'miss'); } }
 function buy(item, want, ev){
   const n = (ev&&ev.shiftKey)?10:(want==='max'?Math.max(1,maxAfford(item)):want);
@@ -835,17 +938,17 @@ function buy(item, want, ev){
   const firstEver = totalOwned()===0;
   let bought=0; const before=Object.assign({}, musStats().lvl);
   while(bought<n){ const c=costOf(item); if(state.gains<c) break; state.gains-=c; state.owned[item.id]++; bought++; }
-  if(bought>0){ pump=0.6; beep(300,0.06); questProgress('buyitems',bought); musDirty=true; noteLevels(before);
+  if(bought>0){ pump=0.6; sfx('buy'); questProgress('buyitems',bought); musDirty=true; noteLevels(before);
     if(firstBuy){ if(item.mus.length){ startMuscleEx(item.mus[0],2.8); ensureView(item.mus[0]); } else { curMus=null; setExercise(item.part==='roids'?'flex':'chug',2.8); }
       toast(`🆕 New gear: <b>${item.name}</b>!`); }
-    if(milestonesHit(item)>msBefore){ toast(`🏅 <b>${item.name}</b> milestone: ${state.owned[item.id]} owned — output ×${MS_MULT}!`); beep(760,0.12); }
+    if(milestonesHit(item)>msBefore){ toast(`🏅 <b>${item.name}</b> milestone: ${state.owned[item.id]} owned — output ×${MS_MULT}!`); sfx('milestone'); }
     if(firstEver){ const r=$('stage').getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2); if(coachStep===1) advanceCoach(2); } // celebrate first-ever purchase
     afterChange(true);
   }
 }
 function buyUpgrade(u){
   if(state.upgrades[u.id] || !u.req(state) || state.gains<u.cost) return;
-  state.gains-=u.cost; state.upgrades[u.id]=true; beep(560,0.12); questProgress('upgrade',1);
+  state.gains-=u.cost; state.upgrades[u.id]=true; sfx('upgrade'); questProgress('upgrade',1);
   toast(`⭐ <b>${u.name}</b> unlocked!`);
   afterChange(true);
 }
@@ -879,8 +982,8 @@ function checkAchievements(){
   ACHS.forEach(a=>{
     if(!state.achievements[a.id] && a.check(state)){
       state.achievements[a.id]=true; changed=true;
-      toast(`🏅 <b>${a.name}</b> — ${a.desc} (+${(a.bonus*100)|0}% gains)`);
-      beep(640,0.1);
+      toast(`🏅 <b>${a.name}</b> — ${a.desc} (+${Math.round(a.bonus*100)}% gains)`);
+      sfx('award');
     }
   });
   if(changed){ recomputeAchBonus(); if(activeTab==='ach') renderAch(); }
@@ -989,6 +1092,7 @@ function renderStage(){
 }
 function confirmPrestige(){
   const proj=projectedTrophies()-state.trophies; if(proj<=0) return;
+  if(!state.settings.confirmPrestige){ stageShow(); return; }
   modal('🎤 Hit the Stage?',
     `<div class="sub">Compete in a bodybuilding show: <b style="color:#fff">reset this run</b> (gains, items & upgrades) in exchange for permanent trophies.</div>
      <div style="font-size:24px;margin-top:12px;color:#b06bff">+${proj} 🏆 → ×${(1+(state.trophies+proj)*(0.03+0.01*perk('stage'))).toFixed(2)} forever</div>
@@ -1014,6 +1118,7 @@ function stageShow(){
   const steps=[[1300,()=>{ idleIdx=1; idleClock=-9; }],[1300,()=>{ idleIdx=2; idleClock=-9; }],[1300,()=>{ startTurn(); idleIdx=0; idleClock=-9; }],
     [1300,()=>{ idleIdx=2; idleClock=-9; }],[900,()=>{ startTurn(); idleIdx=3; idleClock=-9; }]];
   scores.forEach((s,i)=>steps.push([700,()=>{ const v=jd.children[i].querySelector('.jv'); v.textContent=s.v; v.classList.add('show'); beep(500+s.v*40,0.1); }]));
+  if(scores.every(s=>s.v===10)) state.flags.perfect10=true;
   const avg=scores.reduce((a,s)=>a+s.v,0)/3, bonus=avg>=9?1:0, gain=projectedTrophies()-state.trophies+bonus;
   steps.push([900,()=>{ ov.querySelector('.sresult').innerHTML=`<div class="sgain">+${gain} 🏆</div>${bonus?'<div class="sub" style="color:var(--gold)">Judges loved it — bonus trophy!</div>':''}<button class="bigbtn" id="stagedone">Back to the gym 💪</button>`;
     confettiBurst(window.innerWidth/2, window.innerHeight/3); beep(880,0.25);
@@ -1021,17 +1126,24 @@ function stageShow(){
   let tt=0; steps.forEach(([d,fn])=>{ tt+=d; setTimeout(fn,tt); });
 }
 
+let achOpen={};
 function renderAch(){
   const el=$('ach'); el.innerHTML='';
-  let got=0;
-  ACHS.forEach(a=>{
-    const u=!!state.achievements[a.id]; if(u)got++;
-    const row=document.createElement('div');
-    row.className='ach'+(u?' unlocked':'');
-    row.innerHTML=`<div class="emoji">${u?a.emoji:'❓'}</div>
-      <div><div class="name">${u?a.name:'???'}</div><div class="desc">${a.desc}</div></div>
-      <div class="bonus">+${(a.bonus*100)|0}%</div>`;
-    el.appendChild(row);
+  let got=0; ACHS.forEach(a=>{ if(state.achievements[a.id]) got++; });
+  ACH_CATS.forEach(cat=>{
+    const list=ACHS.filter(a=>a.cat===cat), n=list.filter(a=>state.achievements[a.id]).length;
+    const h=document.createElement('div'); h.className='achcat'; h.innerHTML=`<span>${achOpen[cat]===false?'▸':'▾'} ${cat}</span><span>${n} / ${list.length}</span>`;
+    h.onclick=()=>{ achOpen[cat]=achOpen[cat]===false; renderAch(); }; el.appendChild(h);
+    if(achOpen[cat]===false) return;
+    list.forEach(a=>{
+      const u=!!state.achievements[a.id], hide=a.secret&&!u;
+      const row=document.createElement('div'); row.className='ach'+(u?' unlocked':'');
+      let bar=''; if(!u&&a.prog&&!hide){ const [c,t]=a.prog(state); bar=`<div class="abar"><i style="width:${Math.min(100,c/t*100).toFixed(1)}%"></i></div><div class="aprog">${fmt(c)} / ${fmt(t)}</div>`; }
+      row.innerHTML=`<div class="emoji">${u?a.emoji:hide?'🤫':'❓'}</div>
+        <div style="flex:1;min-width:0"><div class="name">${u?a.name:hide?'Secret award':a.name}</div><div class="desc">${hide?'Keep playing to discover it…':a.desc}</div>${bar}</div>
+        <div class="bonus">+${Math.round(a.bonus*100)}%</div>`;
+      el.appendChild(row);
+    });
   });
   $('achcount').textContent=`${got} / ${ACHS.length} unlocked · +${Math.round(achBonus*100)}% total gains`;
 }
@@ -1074,6 +1186,7 @@ function updateUI(){
 }
 
 function spawnFloat(txt,x,y,cls){
+  if(!cls && state.settings && !state.settings.floats) return;
   const wrap=$('floatwrap'), rect=wrap.getBoundingClientRect();
   const el=document.createElement('div'); el.className='float'+(cls?' '+cls:''); el.textContent=txt;
   let px,py;
@@ -1082,11 +1195,11 @@ function spawnFloat(txt,x,y,cls){
   el.style.left=px+'px'; el.style.top=py+'px';
   wrap.appendChild(el); setTimeout(()=>el.remove(),1000);
 }
-function shakeStage(){ const s=$('stage'); s.classList.remove('shake'); void s.offsetWidth; s.classList.add('shake'); }
+function shakeStage(){ if(reduceMotion()) return; const s=$('stage'); s.classList.remove('shake'); void s.offsetWidth; s.classList.add('shake'); }
 
 //////////////////// PARTICLES (sweat) ////////////////////
 let particles=[];
-function spawnParticles(){
+function spawnParticles(){ if(reduceMotion()) return;
   const n=4+Math.floor(Math.random()*3);
   for(let i=0;i<n;i++) particles.push({x:240+(Math.random()*120-60), y:200+(Math.random()*60-30),
     vx:(Math.random()*2-1)*70, vy:-50-Math.random()*60, life:0.6+Math.random()*0.3, t:0});
@@ -1116,17 +1229,72 @@ function closeModal(){
   else if(!adActive) gameplay(true); // back to active play (unless an ad is mid-flight)
 }
 
-//////////////////// SOUND ////////////////////
-let actx=null;
-function beep(freq,dur){
-  if(!state.sound || muted) return; // muted during ads (portal requirement)
-  try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)();
-    const o=actx.createOscillator(), g=actx.createGain();
-    o.frequency.value=freq; o.type='triangle'; g.gain.value=0.06;
-    o.connect(g); g.connect(actx.destination); o.start();
-    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime+dur); o.stop(actx.currentTime+dur);
-  }catch(e){}
+//////////////////// SOUND: synth SFX + procedural gym music ////////////////////
+let actx=null, master=null, sfxBus=null, musBus=null;
+function audio(){
+  if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)();
+    master=actx.createGain(); master.connect(actx.destination);
+    sfxBus=actx.createGain(); sfxBus.connect(master); musBus=actx.createGain(); musBus.connect(master); applyVolumes();
+  }catch(e){ actx=null; } }
+  return actx;
 }
+function applyVolumes(){ if(!actx) return; const S=state.settings; sfxBus.gain.value=S.sfx?S.sfxVol:0; musBus.gain.value=S.music?S.musicVol*0.55:0; }
+function sfxOn(){ return state.settings.sfx && !muted; }
+// one enveloped oscillator note
+function tone(freq,dur,type,vol,when,slide,bus){
+  const a=audio(); if(!a) return; const t0=a.currentTime+(when||0);
+  const o=a.createOscillator(), g=a.createGain(); o.type=type||'triangle'; o.frequency.setValueAtTime(freq,t0);
+  if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(25,freq*slide),t0+dur);
+  g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(vol||0.08,t0+0.008); g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  o.connect(g); g.connect(bus||sfxBus); o.start(t0); o.stop(t0+dur+0.03);
+}
+let noiseBuf=null;
+function noise(dur,vol,when,hp,bus){
+  const a=audio(); if(!a) return; const t0=a.currentTime+(when||0);
+  if(!noiseBuf){ noiseBuf=a.createBuffer(1,a.sampleRate*0.5,a.sampleRate); const d=noiseBuf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; }
+  const src=a.createBufferSource(), f=a.createBiquadFilter(), g=a.createGain(); src.buffer=noiseBuf; f.type='highpass'; f.frequency.value=hp||1000;
+  g.gain.setValueAtTime(vol||0.06,t0); g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  src.connect(f); f.connect(g); g.connect(bus||sfxBus); src.start(t0); src.stop(t0+dur+0.02);
+}
+function beep(freq,dur){ if(sfxOn()) tone(freq,dur,'triangle',0.06); } // simple blip (kept for small UI sounds)
+const MUS_PITCH={traps:0,delts:2,chest:4,biceps:5,forearms:7,abs:9,obliques:11,quads:12,calves:14,upperback:3,lats:6,triceps:8,lowerback:10,glutes:13,hamstrings:15};
+const SFX={
+  rep:(mid)=>{ const p=180*Math.pow(2,(MUS_PITCH[mid]||0)/24); tone(p,0.09,'sine',0.11,0,0.55); noise(0.04,0.03,0,2500); },
+  buy:()=>{ tone(660,0.06,'square',0.04); tone(990,0.09,'square',0.04,0.06); },
+  upgrade:()=>{ [523,659,784,1047].forEach((f,i)=>tone(f,0.12,'triangle',0.06,i*0.06)); },
+  level:()=>{ tone(784,0.08,'square',0.04); tone(1175,0.14,'square',0.04,0.08); },
+  award:()=>{ [523,659,784].forEach((f,i)=>tone(f,0.16,'triangle',0.06,i*0.09)); tone(1047,0.35,'triangle',0.07,0.27); },
+  beast:()=>{ tone(110,0.5,'sawtooth',0.07,0,0.5); tone(55,0.6,'square',0.05,0.05,0.8); noise(0.3,0.05,0,400); },
+  event:()=>{ tone(880,0.07,'sine',0.07); tone(1320,0.1,'sine',0.06,0.07); },
+  win:()=>{ [523,659,784,1047,1319].forEach((f,i)=>tone(f,0.2,'square',0.045,i*0.1)); },
+  lose:()=>{ [392,330,262].forEach((f,i)=>tone(f,0.25,'triangle',0.06,i*0.16,0.9)); },
+  milestone:()=>{ tone(988,0.08,'triangle',0.06); tone(1319,0.18,'triangle',0.06,0.08); },
+};
+function sfx(name,arg){ if(!sfxOn()) return; try{ SFX[name]&&SFX[name](arg); }catch(e){} }
+function haptic(ms){ if(state.settings.haptics && navigator.vibrate) try{ navigator.vibrate(ms||8); }catch(e){} }
+
+// ---- music: 124bpm 4-bar loop (Am–F–C–G) — kick, snare, hats, bass, arps; Beast Mode adds a lead ----
+const BPM=124, STEP16=60/BPM/4, PROG=[{r:57,min:true},{r:53},{r:48},{r:55}];
+let musTimer=null, musStep=0, musNext=0;
+function mtof(n){ return 440*Math.pow(2,(n-69)/12); }
+function kick(t){ const a=actx, o=a.createOscillator(), g=a.createGain(); o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(42,t+0.14);
+  g.gain.setValueAtTime(0.5,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.18); o.connect(g); g.connect(musBus); o.start(t); o.stop(t+0.2); }
+function playStep(i,t){
+  const bar=Math.floor(i/16)%4, s=i%16, ch=PROG[bar], beast=beastT>0, when=t-actx.currentTime;
+  if(s%4===0) kick(t);
+  if(s===4||s===12){ noise(0.12,0.12,when,1400,musBus); }
+  if(s%2===0||beast) noise(0.03,s%4===2?0.05:0.025,when,7000,musBus);
+  const bassPat=[0,0,12,0,7,0,12,7]; if(s%2===0) tone(mtof(ch.r-12+bassPat[s/2]),STEP16*1.6,'sawtooth',0.07,when,0,musBus);
+  const third=ch.min?3:4, arp=[0,third,7,12,7,third,0,7];
+  if(s%2===1) tone(mtof(ch.r+12+arp[(s-1)/2]),STEP16*1.2,'square',0.022,when,0,musBus);
+  if(beast && (s===0||s===6||s===10)) tone(mtof(ch.r+24+[0,third,7][s%3]),STEP16*3,'square',0.03,when,0,musBus);
+}
+function musicTick(){ if(!actx||!state.settings.music||muted||document.hidden) return;
+  if(musNext<actx.currentTime) musNext=actx.currentTime+0.05;
+  while(musNext<actx.currentTime+0.15){ playStep(musStep,musNext); musNext+=STEP16; musStep=(musStep+1)%64; } }
+function setMusic(on){ state.settings.music=on; applyVolumes(); if(on){ audio(); if(actx&&actx.state==='suspended'&&!muted) actx.resume(); if(!musTimer) musTimer=setInterval(musicTick,40); } else if(musTimer){ clearInterval(musTimer); musTimer=null; } }
+// browsers only allow audio after a user gesture — start music on the first tap if it's enabled
+document.addEventListener('pointerdown',()=>{ if(state.settings&&state.settings.music&&!musTimer) setMusic(true); else if(actx&&actx.state==='suspended'&&!muted) actx.resume(); },{once:false,passive:true});
 
 //////////////////// GOLDEN SHAKE ////////////////////
 let goldTimer=45, goldEl=$('golden'), goldActive=false, goldAnim=null;
@@ -1401,7 +1569,7 @@ function questProgress(kind, amt){
 function claimQuest(i, doubled){
   const q=state.quests&&state.quests.list[i]; if(!q||q.claimed||!questDone(q)) return;
   const reward=Math.ceil(q.reward*(doubled?2:1)*(1+0.5*perk('quests')));
-  q.claimed=true; state.gains+=reward; state.total+=reward; state.lifetime+=reward;
+  q.claimed=true; state.questsDone=(state.questsDone||0)+1; state.gains+=reward; state.total+=reward; state.lifetime+=reward;
   toast('🎯 Quest complete — <b>+'+fmt(reward)+'</b>'+(doubled?' (2×!)':''));
   beep(680,0.12); afterChange(true); renderQuests(); updateQuestBadge();
 }
@@ -1446,7 +1614,7 @@ function positionCoach(c,target,html){ const r=target.getBoundingClientRect();
 }
 function advanceCoach(to){ if(coachStep<0) return; coachStep=to; showCoach(); }
 function endCoach(){ coachStep=-1; const c=$('coach'); if(c) c.style.display='none'; state.seenIntro=true; save(); }
-function confettiBurst(x,y){ const em=['🎉','💪','⭐','🔥','🥤']; for(let i=0;i<16;i++){ const d=document.createElement('div'); d.className='confetti'; d.textContent=em[i%em.length]; d.style.left=(x+(Math.random()*120-60))+'px'; d.style.top=(y+(Math.random()*40-20))+'px'; document.body.appendChild(d); setTimeout(()=>d.remove(),1150); } }
+function confettiBurst(x,y){ if(reduceMotion()) return; const em=['🎉','💪','⭐','🔥','🥤']; for(let i=0;i<16;i++){ const d=document.createElement('div'); d.className='confetti'; d.textContent=em[i%em.length]; d.style.left=(x+(Math.random()*120-60))+'px'; d.style.top=(y+(Math.random()*40-20))+'px'; document.body.appendChild(d); setTimeout(()=>d.remove(),1150); } }
 
 //////////////////// SOCIAL SHARING ////////////////////
 const SHARE_URL=(location.origin&&location.origin!=='null')? location.origin+location.pathname : 'https://your-domain.example/swole-clicker/';
@@ -1502,7 +1670,7 @@ function beastLen(){ return state.upgrades.pre2?15:10; }
 function pumpFill(){ return state.upgrades.pre1?0.075:0.05; }
 function startBeast(){
   beastT=beastLen(); pumpMeter=1; state.beastCount=(state.beastCount||0)+1; questProgress('beast',1);
-  toast(`😤 <b>BEAST MODE!</b> Reps ×${BEAST_MULT} for ${beastT}s`); beep(220,0.3); shakeStage();
+  toast(`😤 <b>BEAST MODE!</b> Reps ×${BEAST_MULT} for ${beastT}s`); sfx('beast'); haptic(60); shakeStage();
   $('stage').classList.add('beast');
 }
 function tickPump(dt){
@@ -1533,7 +1701,7 @@ function spawnEvent(){
   $('stage').appendChild(evtEl); evtLife=9;
 }
 function triggerEvent(ev){
-  state.eventsClicked=(state.eventsClicked||0)+1; questProgress('event',1); beep(760,0.12);
+  state.eventsClicked=(state.eventsClicked||0)+1; questProgress('event',1); sfx('event');
   if(ev.id==='delivery'){ const g=Math.max(perSecRaw()*90+perClick()*60, 200); state.gains+=g; state.total+=g; state.lifetime+=g; toast(`📦 <b>Protein Delivery!</b> +${fmt(g)}`); spawnFloat('+'+fmt(g)); }
   else if(ev.id==='spotter'){ fx.spotter=20; toast('🤝 A <b>spotter</b> shows up — +5 free reps/sec for 20s'); }
   else if(ev.id==='crush'){ fx.crush=25; lastRepAt=performance.now(); toast('😍 Your <b>gym crush</b> is watching — reps ×3. Keep tapping!'); }
@@ -1546,7 +1714,7 @@ function tickEvents(dt){
   if(evtEl){ evtLife-=dt; if(evtLife<=0){ evtEl.remove(); evtEl=null; } }
   else if(!stageOn && !arenaOn){ evtTimer-=dt; if(evtTimer<=0){ spawnEvent(); scheduleEvent(); } }
   if(fx.storm>0) fx.storm=Math.max(0,fx.storm-dt);
-  if(fx.crush>0){ fx.crush=Math.max(0,fx.crush-dt); if(fx.crush>0 && performance.now()-lastRepAt>2500){ fx.crush=0; toast('😍 Your crush got bored and left. Keep tapping next time!'); } }
+  if(fx.crush>0){ fx.crush=Math.max(0,fx.crush-dt); if(fx.crush<=0) state.flags.crushFull=true; if(fx.crush>0 && performance.now()-lastRepAt>2500){ fx.crush=0; toast('😍 Your crush got bored and left. Keep tapping next time!'); } }
   if(fx.photo>0){ fx.photo=Math.max(0,fx.photo-dt); if(fx.photo<=0) toast(`📸 Shoot over — only ${fx.photoN}/20 reps. The influencer left.`); }
   if(fx.spotter>0){ fx.spotter=Math.max(0,fx.spotter-dt); evtSpotAcc+=dt*5; while(evtSpotAcc>=1){ evtSpotAcc-=1; freeRep(); } } else evtSpotAcc=0;
   const box=$('fxbox'); if(!box) return;
@@ -1559,7 +1727,7 @@ function tickEvents(dt){
   const html=chips.map(c=>`<span>${c}</span>`).join(''); if(box.innerHTML!==html) box.innerHTML=html;
 }
 function noteRepForEvents(){
-  if(fx.photo>0){ fx.photoN++; if(fx.photoN>=20){ fx.photo=0; const g=Math.max(perSecRaw()*240+perClick()*150, 500); state.gains+=g; state.total+=g; state.lifetime+=g; toast(`📸 <b>Viral post!</b> +${fmt(g)}`); spawnFloat('+'+fmt(g)); } }
+  if(fx.photo>0){ fx.photoN++; if(fx.photoN>=20){ fx.photo=0; state.flags.viral=true; const g=Math.max(perSecRaw()*240+perClick()*150, 500); state.gains+=g; state.total+=g; state.lifetime+=g; toast(`📸 <b>Viral post!</b> +${fmt(g)}`); spawnFloat('+'+fmt(g)); } }
 }
 // a rep that costs no tap (spotters) — earns gains + XP, no animation spam
 function freeRep(){ const mid=state.selMuscle, p=repGain(mid); state.gains+=p; state.total+=p; state.lifetime+=p; state.muscles[mid]=(state.muscles[mid]||0)+1; musDirty=true; musFlash[mid]=Math.max(musFlash[mid]||0,0.5); }
@@ -1650,7 +1818,7 @@ function startGame(r){
       g.querySelector('.fpips').innerHTML='✅'.repeat(hits)+'⬜'.repeat(need-hits)+'  '+'❌'.repeat(miss); };
     draw();
     A.input=()=>{ if(Math.abs(cur-zx)<=zone/2){ hits++; beep(700,0.06); zx=zone/2+0.05+Math.random()*(0.9-zone); } else { miss++; beep(160,0.12); } draw();
-      if(hits>=need) endGame(true); else if(miss>=maxMiss) endGame(false); };
+      if(hits>=need){ if(!miss) state.flags.flawless=true; endGame(true); } else if(miss>=maxMiss) endGame(false); };
     bindTap($('atap'),()=>A.input&&A.input());
     loopFn(dt=>{ cur=(1-Math.cos(A.t*speed*Math.PI))/2; g.querySelector('.fcur').style.left=(cur*100)+'%'; g.querySelector('.atimer').textContent=`${hits}/${need} good reps`; });
   } else if(r.game==='hold'){
@@ -1701,14 +1869,97 @@ function endGame(won){
     f.innerHTML=`<button class="bigbtn abtn" id="adone">Collect 💪</button>`;
     if(ads.available()){ const b=document.createElement('button'); b.className='adbtn'; b.textContent='📺 Watch: 2× reward'; b.style.marginTop='8px';
       b.onclick=()=>{ b.remove(); ads.showRewarded('rival2x',()=>{ state.gains+=rew; state.total+=rew; state.lifetime+=rew; toast('📺 Rival reward doubled! +'+fmt(rew)); afterChange(true); },()=>toast('📺 Ad unavailable — try later')); }; f.appendChild(b); }
-    confettiBurst(window.innerWidth/2, window.innerHeight/3); beep(880,0.25);
+    confettiBurst(window.innerWidth/2, window.innerHeight/3); sfx('win');
   } else {
-    st.next=Date.now()+30*1000;
+    st.next=Date.now()+30*1000; sfx('lose');
     g.innerHTML=`<div class="alose">😩 ${r.name} wins…</div><div class="sub" style="text-align:center">“${r.game==='pose'?'Sloppy posing, bro.':'Come back when you\'ve trained.'}” — you can try again in 30 seconds.</div>`;
     f.innerHTML=`<button class="bigbtn abtn" id="adone">Walk it off</button>`;
   }
   $('adone').onclick=closeArena;
   afterChange(true);
+}
+
+//////////////////// SETTINGS ////////////////////
+function defaultSettings(){ return {sfx:true, sfxVol:0.6, music:false, musicVol:0.5, numfmt:'short', reduceMotion:false, floats:true, haptics:true, confirmPrestige:true}; }
+function reduceMotion(){ return state.settings&&state.settings.reduceMotion; }
+function openSettings(){
+  const S=state.settings;
+  const tog=(k,label)=>`<div class="setrow"><span>${label}</span><button class="mini ${S[k]?'on':''}" data-k="${k}">${S[k]?'On':'Off'}</button></div>`;
+  const vol=(k,label)=>`<div class="setrow"><span>${label}</span><input type="range" min="0" max="1" step="0.05" value="${S[k]}" data-v="${k}"></div>`;
+  modal('⚙️ Settings',
+    `<div class="setgrp">Sound</div>${tog('sfx','Sound effects')}${vol('sfxVol','Effects volume')}${tog('music','Gym music')}${vol('musicVol','Music volume')}
+     <div class="setgrp">Display</div>
+     <div class="setrow"><span>Number format</span><span><button class="mini ${S.numfmt==='short'?'on':''}" data-nf="short">1.23M</button> <button class="mini ${S.numfmt==='sci'?'on':''}" data-nf="sci">1.23e6</button></span></div>
+     ${tog('floats','Floating numbers')}${tog('reduceMotion','Reduced motion')}${tog('haptics','Vibrate on taps (phones)')}
+     <div class="setgrp">Gameplay</div>${tog('confirmPrestige','Confirm before hitting the stage')}
+     <div class="setgrp">Save</div>
+     <div class="toolbar"><button class="mini" id="savebtn">💾 Save now</button><button class="mini" id="exportbtn">⤴ Export</button><button class="mini" id="importbtn">⤵ Import</button><button class="mini" id="resetbtn">♻ Reset</button></div>
+     <div class="sub" style="margin-top:10px">Progress saves automatically. <a href="privacy-policy.html" target="_blank" rel="noopener" style="color:var(--accent)">Privacy Policy</a></div>`,
+    [{label:'Done', cls:'btnyes'}]);
+  const body=$('modalBody');
+  body.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{ const k=b.dataset.k; S[k]=!S[k]; b.classList.toggle('on',S[k]); b.textContent=S[k]?'On':'Off';
+    if(k==='music') setMusic(S.music); applyVolumes(); if(k==='sfx'&&S.sfx){ audio(); sfx('event'); } if(k==='reduceMotion') document.body.classList.toggle('reduce',S.reduceMotion); save(); });
+  body.querySelectorAll('[data-v]').forEach(r=>r.oninput=()=>{ S[r.dataset.v]=+r.value; audio(); applyVolumes(); save(); });
+  body.querySelectorAll('[data-nf]').forEach(b=>b.onclick=()=>{ S.numfmt=b.dataset.nf; body.querySelectorAll('[data-nf]').forEach(x=>x.classList.toggle('on',x===b)); renderAll(); save(); });
+  const later=fn=>()=>{ closeModal(); setTimeout(fn,0); };
+  $('savebtn').onclick=()=>{ save(); $('savebtn').textContent='✓ Saved'; };
+  $('exportbtn').onclick=later(exportSave); $('importbtn').onclick=later(importSave); $('resetbtn').onclick=later(resetSave);
+}
+function exportSave(){ save(); const code=btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+  modal('⤴ Export Save', `<div class="sub">Copy this code to back up or move your gains:</div><textarea readonly>${code}</textarea>`, [{label:'Done', cls:'btnyes'}]); }
+function importSave(){
+  modal('⤵ Import Save', `<div class="sub">Paste a save code:</div><textarea id="impta"></textarea>`,
+    [{label:'Import', cls:'btnyes', fn:()=>{ try{ const raw=JSON.parse(decodeURIComponent(escape(atob($('impta').value.trim()))));
+        const m=migrate(raw); if(m){ state=m; recomputeAchBonus(); renderAll(); save(); toast('✓ Save imported!'); } }catch(e){ toast('❌ Invalid code'); } }},
+     {label:'Cancel', cls:'btnno'}]); }
+function resetSave(){
+  modal('♻ Full Reset?', `<div class="sub">This wipes <b style="color:#fff">everything</b> — gains, items, awards, trophies. No undo.</div>`,
+    [{label:'Wipe it all', cls:'btnyes', fn:()=>{ state=defaultState(); recomputeAchBonus(); renderAll(); save(); }},
+     {label:'Cancel', cls:'btnno'}]); }
+
+//////////////////// STATS: income history chart + breakdown ////////////////////
+let histFine=[], histAcc=0, histMinAcc=0, histRange='fine', histHover=null;
+function recordHistory(dt){
+  histAcc+=dt; histMinAcc+=dt;
+  if(histAcc>=5){ histAcc=0; histFine.push([Date.now(),perSec()]); if(histFine.length>240) histFine.shift(); }
+  if(histMinAcc>=60){ histMinAcc=0; state.hist.push([Date.now(),perSecRaw()]); if(state.hist.length>240) state.hist.shift(); }
+}
+function drawHistory(){
+  const c=$('histc'); if(!c||!c.offsetWidth) return;
+  const W=c.offsetWidth, H=170, d=Math.min(2,window.devicePixelRatio||1); if(c.width!==W*d){ c.width=W*d; c.height=H*d; }
+  const g=c.getContext('2d'); g.setTransform(d,0,0,d,0,0); g.clearRect(0,0,W,H);
+  const data=(histRange==='fine'?histFine:state.hist).filter(p=>p[1]>0);
+  const L=46, R=8, T=10, B=22, pw=W-L-R, ph=H-T-B;
+  g.font='11px "Trebuchet MS",sans-serif'; g.fillStyle='#8b95ab';
+  if(data.length<2){ g.textAlign='center'; g.fillText(histRange==='fine'?'Collecting data — check back in a minute':'Builds up as you play (one point per minute)',W/2,H/2); return; }
+  const t0=data[0][0], t1=data[data.length-1][0];
+  let lo=Math.floor(Math.log10(Math.min(...data.map(p=>p[1])))), hi=Math.ceil(Math.log10(Math.max(...data.map(p=>p[1]))));
+  if(hi===lo) hi=lo+1;
+  const X=t=>L+(t1===t0?pw:(t-t0)/(t1-t0)*pw), Y=v=>T+ph-(Math.log10(v)-lo)/(hi-lo)*ph;
+  // recessive gridlines at each power of ten
+  const stepE=Math.max(1,Math.ceil((hi-lo)/4));
+  g.strokeStyle='rgba(255,255,255,.07)'; g.lineWidth=1; g.textAlign='right'; g.textBaseline='middle';
+  for(let e=lo;e<=hi;e+=stepE){ const y=Y(Math.pow(10,e)); g.beginPath(); g.moveTo(L,y); g.lineTo(W-R,y); g.stroke(); g.fillText(fmt(Math.pow(10,e)),L-6,y); }
+  g.textAlign='left'; g.textBaseline='alphabetic'; g.fillText(fmtAgo(Date.now()-t0),L,H-6); g.textAlign='right'; g.fillText('now',W-R,H-6);
+  // the series: one 2px line with a faint fill
+  g.beginPath(); data.forEach((p,i)=>{ const x=X(p[0]), y=Y(p[1]); i?g.lineTo(x,y):g.moveTo(x,y); });
+  g.strokeStyle='#ffcc33'; g.lineWidth=2; g.lineJoin='round'; g.stroke();
+  g.lineTo(X(t1),T+ph); g.lineTo(X(t0),T+ph); g.closePath(); g.fillStyle='rgba(255,204,51,.08)'; g.fill();
+  // hover crosshair + tooltip
+  if(histHover!=null){ const mx=Math.max(L,Math.min(W-R,histHover)); let best=data[0]; data.forEach(p=>{ if(Math.abs(X(p[0])-mx)<Math.abs(X(best[0])-mx)) best=p; });
+    const x=X(best[0]), y=Y(best[1]); g.strokeStyle='rgba(255,255,255,.35)'; g.lineWidth=1; g.beginPath(); g.moveTo(x,T); g.lineTo(x,T+ph); g.stroke();
+    g.fillStyle='#ffcc33'; g.beginPath(); g.arc(x,y,4,0,7); g.fill(); g.strokeStyle='#1a1f2b'; g.lineWidth=2; g.stroke();
+    const txt=fmt(best[1])+'/sec · '+fmtAgo(Date.now()-best[0]); g.font='bold 11px "Trebuchet MS",sans-serif'; const tw=g.measureText(txt).width+14, tx=Math.min(W-R-tw,Math.max(L,x-tw/2));
+    g.fillStyle='rgba(10,13,20,.92)'; g.fillRect(tx,T,tw,20); g.fillStyle='#eef2ff'; g.textAlign='left'; g.textBaseline='middle'; g.fillText(txt,tx+7,T+10); }
+}
+function fmtAgo(ms){ const s=ms/1000; return s<60?Math.round(s)+'s ago':s<3600?Math.round(s/60)+'m ago':(s/3600).toFixed(1)+'h ago'; }
+function renderBreakdown(){
+  const el=$('breakdown'); if(!el) return;
+  const k=autoMult()*prestigeMult()*achMult()*symMult(), rows=ITEMS.filter(i=>i.type==='auto'&&state.owned[i.id]).map(i=>({n:i.emoji+' '+i.name, v:i.power*state.owned[i.id]*itemMult(i)*k})).sort((a,b)=>b.v-a.v);
+  const tot=rows.reduce((a,r)=>a+r.v,0);
+  if(!tot){ el.innerHTML='<div class="sub">Buy idle gear to see where your income comes from.</div>'; return; }
+  const top=rows.slice(0,6), rest=rows.slice(6).reduce((a,r)=>a+r.v,0); if(rest>0) top.push({n:'Everything else',v:rest});
+  el.innerHTML=top.map(r=>`<div class="bdrow"><span class="bdn">${r.n}</span><span class="bdbar"><i style="width:${Math.max(2,r.v/top[0].v*100).toFixed(1)}%"></i></span><span class="bdv">${Math.round(r.v/tot*100)}%</span></div>`).join('');
 }
 
 //////////////////// MUSCLE CHIPS ////////////////////
@@ -2505,6 +2756,79 @@ const IDLE_POSES={
 };
 const IDLE_ORDER=['dbl','most','lat','abs'];
 
+// ---------- the gym behind the lifter: upgrades with rank, shows the gear you own ----------
+const GYMS=[
+  {name:"Dad's Garage",    wall:'#343944', floor:'#4a4d55'},
+  {name:"Mom's Basement",  wall:'#4a2f2a', floor:'#3b4636'},
+  {name:'Iron Paradise Gym',wall:'#26344c', floor:'#22252c'},
+  {name:'The Iron Dungeon', wall:'#211717', floor:'#2b2626'},
+  {name:'Olympia Stage',    wall:'#140f1c', floor:'#5a3b1f'},
+];
+function gymTier(){ if(stageOn) return 4; const r=rankIndex(); return r>=8?4:r>=6?3:r>=4?2:r>=2?1:0; }
+const gymCv=document.createElement('canvas'); gymCv.width=CW*DPR; gymCv.height=CH*DPR;
+const gctx=gymCv.getContext('2d'); gctx.scale(DPR,DPR);
+let gymKey='', lastGymTier=-1;
+function gymProps(){ const o=state.owned; return {db:o.dumbbell>0, bench:o.bench>0, rack:o.squatrack>0, cable:(o.flyes||o.latpull)>0, row:o.rowing>0, tub:o.shake>0, trophies:Math.min(10,state.trophies)}; }
+function renderGym(){
+  const tier=gymTier(), P=gymProps(), key=tier+JSON.stringify(P);
+  if(key===gymKey) return; gymKey=key;
+  const g=gctx, G=GYMS[tier], W=CW, H=CH, FL=GROUND+4;
+  g.clearRect(0,0,W,H);
+  g.fillStyle=G.wall; g.fillRect(0,0,W,FL);
+  g.fillStyle=G.floor; g.fillRect(0,FL,W,H-FL);
+  g.strokeStyle='rgba(0,0,0,.25)'; g.lineWidth=2; g.beginPath(); g.moveTo(0,FL); g.lineTo(W,FL); g.stroke();
+  const rect=(x,y,w,h,c)=>{ g.fillStyle=c; g.fillRect(x,y,w,h); };
+  if(tier===0){ // garage: door slats, bare bulb, shelf, oil stain
+    for(let y=70;y<FL-20;y+=26){ rect(70,y,340,22,'rgba(255,255,255,.05)'); }
+    rect(66,66,4,FL-86,'rgba(0,0,0,.25)'); rect(410,66,4,FL-86,'rgba(0,0,0,.25)');
+    g.strokeStyle='#666'; g.lineWidth=2; g.beginPath(); g.moveTo(240,0); g.lineTo(240,34); g.stroke();
+    const gl=g.createRadialGradient(240,40,2,240,40,170); gl.addColorStop(0,'rgba(255,230,160,.35)'); gl.addColorStop(1,'rgba(255,230,160,0)'); g.fillStyle=gl; g.fillRect(0,0,W,260);
+    g.fillStyle='#ffe9a8'; g.beginPath(); g.arc(240,40,7,0,7); g.fill();
+    rect(10,150,50,6,'#5b4630'); rect(14,128,12,22,'#a33'); rect(30,134,12,16,'#3a6'); rect(44,124,12,26,'#36a');
+    g.fillStyle='rgba(0,0,0,.25)'; g.beginPath(); g.ellipse(360,FL+30,40,8,0,0,7); g.fill();
+  } else if(tier===1){ // basement: bricks, window, pipes, rug
+    g.fillStyle='rgba(0,0,0,.18)';
+    for(let y=0;y<FL;y+=18){ g.fillRect(0,y,W,2); for(let x=((y/18)%2)*22;x<W;x+=44) g.fillRect(x,y,2,18); }
+    rect(330,40,90,46,'#8fb3d9'); g.strokeStyle='#2a1d18'; g.lineWidth=4; g.strokeRect(330,40,90,46); g.beginPath(); g.moveTo(375,40); g.lineTo(375,86); g.stroke();
+    g.fillStyle='rgba(180,210,255,.07)'; g.beginPath(); g.moveTo(330,86); g.lineTo(420,86); g.lineTo(470,FL); g.lineTo(250,FL); g.closePath(); g.fill();
+    rect(0,14,W,9,'#7a7f88'); rect(0,28,W,5,'#a0703a');
+    rect(130,FL+14,220,40,'#6b3a3a'); g.strokeStyle='rgba(255,220,180,.25)'; g.lineWidth=2; g.strokeRect(138,FL+20,204,28);
+  } else if(tier===2){ // commercial gym: mirrors, rubber tiles, poster
+    for(let i=0;i<3;i++){ const x=40+i*140; rect(x,60,120,FL-80,'#3d5070'); g.fillStyle='rgba(255,255,255,.07)'; g.beginPath(); g.moveTo(x+20,60); g.lineTo(x+50,60); g.lineTo(x+10,FL-20); g.lineTo(x,FL-20); g.lineTo(x,90); g.closePath(); g.fill(); }
+    g.strokeStyle='rgba(255,255,255,.05)'; g.lineWidth=1; for(let x=0;x<W;x+=40){ g.beginPath(); g.moveTo(x,FL); g.lineTo(x,H); g.stroke(); }
+    rect(0,20,W,26,'#ffcc33'); g.fillStyle='#1a1206'; g.font='bold 16px "Trebuchet MS",sans-serif'; g.textAlign='center'; g.fillText('IRON PARADISE · NO PAIN NO GAIN',240,39);
+  } else if(tier===3){ // hardcore dungeon: red neon, chains, chalk
+    g.fillStyle='rgba(0,0,0,.25)'; for(let y=0;y<FL;y+=30) g.fillRect(0,y,W,2);
+    g.save(); g.shadowColor='#ff3d5a'; g.shadowBlur=18; g.fillStyle='#ff5a70'; g.font='bold 26px "Trebuchet MS",sans-serif'; g.textAlign='center'; g.fillText('IRON DUNGEON',240,48); g.restore();
+    g.strokeStyle='#5b5f68'; g.lineWidth=3; [40,440].forEach(x=>{ for(let y=0;y<180;y+=12){ g.beginPath(); g.ellipse(x,y,4,6,0,0,7); g.stroke(); } });
+    g.fillStyle='rgba(255,255,255,.08)'; for(let i=0;i<30;i++){ g.beginPath(); g.arc(120+Math.sin(i*7)*120+120, FL+10+((i*13)%40), 3+(i%4), 0,7); g.fill(); }
+    const rl=g.createRadialGradient(240,FL,10,240,FL,300); rl.addColorStop(0,'rgba(255,40,60,.16)'); rl.addColorStop(1,'rgba(255,40,60,0)'); g.fillStyle=rl; g.fillRect(0,0,W,H);
+  } else { // Olympia stage: curtains, spotlights, wooden stage, banner
+    const cur=(x0,dir)=>{ for(let i=0;i<6;i++){ g.fillStyle=i%2?'#7a1020':'#93182b'; g.fillRect(x0+dir*i*14,0,14*dir,FL); } };
+    cur(0,1); cur(W,-1);
+    rect(0,0,W,34,'#93182b'); g.fillStyle='#ffd24a'; g.font='bold 18px "Trebuchet MS",sans-serif'; g.textAlign='center'; g.fillText('★ MR. SWOLEYMPIA ★',240,24);
+    [[140,-1],[340,1]].forEach(([x,d])=>{ const sg=g.createLinearGradient(x,34,240,FL); sg.addColorStop(0,'rgba(255,245,200,.22)'); sg.addColorStop(1,'rgba(255,245,200,0)');
+      g.fillStyle=sg; g.beginPath(); g.moveTo(x-10,34); g.lineTo(x+10,34); g.lineTo(240+d*-10+90,FL); g.lineTo(240+d*-10-90,FL); g.closePath(); g.fill(); });
+    g.strokeStyle='rgba(0,0,0,.25)'; g.lineWidth=1; for(let x=0;x<W;x+=34){ g.beginPath(); g.moveTo(x,FL); g.lineTo(x-20,H); g.stroke(); }
+  }
+  // owned gear in the background (kept dim so the lifter stays the focus)
+  g.save(); g.globalAlpha=0.6;
+  if(P.db){ rect(18,FL-70,90,6,'#2a3040'); rect(18,FL-36,90,6,'#2a3040'); rect(22,FL-70,6,70,'#2a3040'); rect(98,FL-70,6,70,'#2a3040');
+    for(let i=0;i<4;i++){ [FL-78,FL-44].forEach(y=>{ g.fillStyle='#4a5163'; g.beginPath(); g.ellipse(34+i*20,y,7,7,0,0,7); g.fill(); }); } }
+  if(P.rack){ rect(380,FL-200,8,200,'#3a4152'); rect(452,FL-200,8,200,'#3a4152'); rect(380,FL-200,80,6,'#3a4152'); rect(370,FL-120,100,5,'#cdd2dc'); g.fillStyle='#23272f'; [372,468].forEach(x=>{ g.beginPath(); g.ellipse(x,FL-118,6,18,0,0,7); g.fill(); }); }
+  else if(P.cable){ rect(430,FL-230,26,230,'#3a4152'); for(let i=0;i<6;i++) rect(433,FL-70+i*10,20,8,'#23272f'); }
+  if(P.bench){ rect(330,FL-34,70,10,'#414a5e'); rect(336,FL-24,6,24,'#2a3040'); rect(388,FL-24,6,24,'#2a3040'); }
+  if(P.row){ rect(110,FL+14,120,6,'#3a4152'); g.fillStyle='#2a3040'; g.beginPath(); g.arc(112,FL+12,12,0,7); g.fill(); }
+  if(P.tub){ rect(420,FL+8,26,30,'#e85d75'); rect(418,FL+4,30,6,'#fff'); }
+  g.restore();
+  if(P.trophies>0){ rect(12,96,130,5,'#5b4630'); for(let i=0;i<P.trophies;i++){ const x=20+i*12; g.fillStyle='#ffd24a'; g.fillRect(x,84,8,8); g.fillRect(x+2,92,4,4); } }
+  // a soft vignette keeps the edges quiet
+  const vg=g.createRadialGradient(240,260,140,240,260,380); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.45)'); g.fillStyle=vg; g.fillRect(0,0,W,H);
+  if(lastGymTier>=0 && tier>lastGymTier && !stageOn){ toast(`🏋️ You moved up to <b>${G.name}</b>!`); }
+  if(!stageOn) lastGymTier=tier;
+}
+function drawGymBg(){ renderGym(); ctx.drawImage(gymCv,0,0,CW,CH); }
+
 function drawPill(text,x,y,align,alpha,col){
   ctx.save(); ctx.globalAlpha=alpha; ctx.font='bold 13px "Trebuchet MS",sans-serif';
   const w=ctx.measureText(text).width+18, x0=align==='center'?x-w/2:align==='right'?x-w:x;
@@ -2514,11 +2838,12 @@ function drawPill(text,x,y,align,alpha,col){
 
 function drawDude(dt){
   ctx.clearRect(0,0,CW,CH);
+  drawGymBg();
   const m=metrics(), cx=CXC;
   // turning: squash horizontally, swap front/back at the midpoint
   let sx=1;
   if(turnT>=0){ const before=turnT; turnT+=dt/0.42;
-    if(before<0.5 && turnT>=0.5){ state.view=state.view==='front'?'back':'front'; updateTurnBtn(); }
+    if(before<0.5 && turnT>=0.5){ state.view=state.view==='front'?'back':'front'; updateTurnBtn(); if(!stageOn) state.turns=(state.turns||0)+1; }
     if(turnT>=1) turnT=-1; else sx=Math.max(0.05,Math.abs(Math.cos(turnT*Math.PI))); }
   const view=state.view;
   const breathe=Math.sin(t*2)*1.2;
@@ -2567,7 +2892,7 @@ function drawDude(dt){
   // labels
   if(label) drawPill(label,cx,CH-28,'center',active?Math.min(1,0.4+exEnergy):0.55,active?'#ffcc33':'#c9d1e4');
   if(hoverMus){ const L=S.lvl[hoverMus]; drawPill(MUS[hoverMus].name+' · Lv '+L+(isWeak(hoverMus)?'  🎯 ×'+weakMult():''),12,24,'left',1,'#ffcc33'); }
-  if(!stageOn) drawPill(view==='front'?'FRONT':'BACK',12,hoverMus?54:24,'left',0.5,'#8b95ab');
+  if(!stageOn){ drawPill(view==='front'?'FRONT':'BACK',12,hoverMus?54:24,'left',0.5,'#8b95ab'); drawPill('📍 '+GYMS[gymTier()].name,CW-12,58,'right',0.6,'#c9d1e4'); }
 }
 
 //////////////////// LOOP ////////////////////
@@ -2586,7 +2911,7 @@ function loop(now){
   // auto-spotter perk: free reps on the selected muscle
   const sr=[0,1,2,4][perk('spotter')];
   if(sr && !stageOn){ spotAcc+=dt*sr; while(spotAcc>=1){ spotAcc-=1; freeRep(); } }
-  tickPump(dt); tickEvents(dt);
+  tickPump(dt); tickEvents(dt); recordHistory(dt);
   // particles
   particles.forEach(p=>{ p.t+=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=160*dt; });
   particles=particles.filter(p=>p.t<p.life);
@@ -2594,6 +2919,8 @@ function loop(now){
   goldTimer-=dt; if(goldTimer<=0 && !goldActive){ spawnGold(); scheduleGold(); }
   // periodic
   saveAcc+=dt; if(saveAcc>2){ saveAcc=0; checkAchievements(); ensureQuests(); updateUI(); updateAdButtons(); updateQuestBadge(); updateUpBadge(); updateRivalBadge(); if(activeTab==='rivals') renderRivals();
+    { const h=new Date().getHours(); if(h>=2&&h<5) state.flags.night=true; } if(perSecRaw()>0 && performance.now()-lastRepAt>600000) state.flags.couch=true;
+    if(activeTab==='stats'){ drawHistory(); renderBreakdown(); } if(activeTab==='ach') renderAch();
     if(activeTab==='stats') renderStats(); if(activeTab==='stage') renderStage(); if(activeTab==='shop') renderShop(); if(activeTab==='quests') renderQuests(); updateMusChips(); }
   drawDude(dt);
   rafId=requestAnimationFrame(loop);
@@ -2654,7 +2981,7 @@ document.querySelectorAll('.tab').forEach(tb=>tb.addEventListener('click',()=>{
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+activeTab));
   if(activeTab==='shop') renderShop(); if(activeTab==='upgrades') renderUpgrades();
   if(activeTab==='ach') renderAch(); if(activeTab==='quests') renderQuests();
-  if(activeTab==='locker') renderLocker(); if(activeTab==='stats') renderStats(); if(activeTab==='stage') renderStage(); if(activeTab==='rivals') renderRivals();
+  if(activeTab==='locker') renderLocker(); if(activeTab==='stats'){ renderStats(); drawHistory(); renderBreakdown(); } if(activeTab==='stage') renderStage(); if(activeTab==='rivals') renderRivals();
 }));
 
 // rewarded-ad placements (b) frenzy + (c) windfall — cooldowns tracked in save, graceful on fail
@@ -2677,20 +3004,12 @@ document.addEventListener('visibilitychange',()=>{
 [['buy1',1],['buy10',10],['buy100',100],['buymax','max']].forEach(([id,v])=>$(id).addEventListener('click',()=>{ buyAmt=v;
   ['buy1','buy10','buy100','buymax'].forEach(b=>$(b).classList.toggle('on',b===id)); renderShop(); }));
 
-$('soundbtn').addEventListener('click',()=>{ state.sound=!state.sound; $('soundbtn').textContent=state.sound?'🔊 Sound: On':'🔇 Sound: Off'; beep(500,0.08); save(); });
-$('savebtn').addEventListener('click',()=>{ save(); $('savebtn').textContent='✓ Saved'; setTimeout(()=>$('savebtn').textContent='💾 Save',900); });
-$('exportbtn').addEventListener('click',()=>{ save(); const code=btoa(unescape(encodeURIComponent(JSON.stringify(state))));
-  modal('⤴ Export Save', `<div class="sub">Copy this code to back up or move your gains:</div><textarea readonly>${code}</textarea>`,
-    [{label:'Done', cls:'btnyes'}]); });
-$('importbtn').addEventListener('click',()=>{
-  modal('⤵ Import Save', `<div class="sub">Paste a save code:</div><textarea id="impta"></textarea>`,
-    [{label:'Import', cls:'btnyes', fn:()=>{ try{ const raw=JSON.parse(decodeURIComponent(escape(atob($('impta').value.trim()))));
-        const m=migrate(raw); if(m){ state=m; recomputeAchBonus(); renderAll(); save(); toast('✓ Save imported!'); } }catch(e){ toast('❌ Invalid code'); } }},
-     {label:'Cancel', cls:'btnno'}]); });
-$('resetbtn').addEventListener('click',()=>{
-  modal('♻ Full Reset?', `<div class="sub">This wipes <b style="color:#fff">everything</b> — gains, items, awards, trophies. No undo.</div>`,
-    [{label:'Wipe it all', cls:'btnyes', fn:()=>{ state=defaultState(); recomputeAchBonus(); renderAll(); save(); }},
-     {label:'Cancel', cls:'btnno'}]); });
+$('setbtn').onclick=openSettings; $('setbtn2').onclick=openSettings;
+$('hfine').onclick=()=>{ histRange='fine'; $('hfine').classList.add('on'); $('hlong').classList.remove('on'); drawHistory(); };
+$('hlong').onclick=()=>{ histRange='long'; $('hlong').classList.add('on'); $('hfine').classList.remove('on'); drawHistory(); };
+$('histc').addEventListener('mousemove',e=>{ histHover=e.clientX-$('histc').getBoundingClientRect().left; drawHistory(); });
+$('histc').addEventListener('touchstart',e=>{ histHover=e.touches[0].clientX-$('histc').getBoundingClientRect().left; drawHistory(); },{passive:true});
+$('histc').addEventListener('mouseleave',()=>{ histHover=null; drawHistory(); });
 
 setInterval(save, 10000);
 window.addEventListener('beforeunload', save);
@@ -2702,7 +3021,7 @@ function boot(){
   recomputeAchBonus();
   buildMusGrid();
   ensureQuests();      // seed today's daily quests
-  $('soundbtn').textContent=state.sound?'🔊 Sound: On':'🔇 Sound: Off';
+  document.body.classList.toggle('reduce',reduceMotion()); applyVolumes();
   scheduleGold(); scheduleEvent();
   renderAll();
   updateAdButtons();
