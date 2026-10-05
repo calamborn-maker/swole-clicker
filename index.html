@@ -166,6 +166,57 @@
   .judge .jv.show{color:var(--gold); transform:scale(1.25)}
   .sresult .sgain{font-size:30px; font-weight:bold; color:#b06bff; margin-top:10px}
   #stagedone{background:var(--accent); color:#1a1206; max-width:320px}
+  /* tabs: two rows of four */
+  #tabs{display:grid; grid-template-columns:repeat(4,1fr); gap:6px}
+  .tab{white-space:nowrap}
+  /* pump meter + active effects */
+  #pumpbar{position:absolute; top:12px; left:50%; transform:translateX(-50%); width:min(46%,220px); height:22px; background:rgba(10,13,20,.72);
+           border:1px solid var(--line); border-radius:11px; overflow:hidden; z-index:2; pointer-events:none}
+  #pumpbar i{position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg,#ff8a3d,#ff3d5a)}
+  #pumpbar span{position:relative; display:block; text-align:center; font-size:11px; font-weight:bold; line-height:22px; color:#fff; text-shadow:0 1px 2px #000}
+  #stage.beast{box-shadow:0 0 0 2px #ff3d5a, 0 0 28px rgba(255,61,90,.55)}
+  #stage.beast #pumpbar{border-color:#ff3d5a}
+  #fxbox{position:absolute; left:10px; bottom:46px; display:flex; flex-direction:column; gap:4px; z-index:2; pointer-events:none}
+  #fxbox span{background:rgba(10,13,20,.78); border:1px solid var(--gold); color:#fff; font-size:11px; font-weight:bold; padding:3px 8px; border-radius:8px}
+  .gymevt{position:absolute; z-index:3; display:flex; align-items:center; gap:6px; background:rgba(10,13,20,.85); border:2px solid var(--gold); border-radius:20px;
+          padding:5px 11px 5px 6px; cursor:pointer; animation:evtpop .3s, evtbob 1.2s ease-in-out infinite .3s; box-shadow:0 0 18px rgba(255,210,74,.45)}
+  .gymevt span{font-size:26px} .gymevt b{font-size:12px; color:var(--gold); white-space:nowrap}
+  @keyframes evtpop{from{transform:scale(0)} to{transform:scale(1)}}
+  @keyframes evtbob{0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)}}
+  #ptitle{font-size:12px; color:var(--gold); font-style:italic}
+  /* rivals arena */
+  .item.rival .mini.on{white-space:nowrap}
+  #arena{position:fixed; inset:0; z-index:115; background:rgba(5,7,12,.92); display:flex; align-items:center; justify-content:center; padding:14px}
+  .abox{width:100%; max-width:440px; background:var(--panel); border:1px solid var(--accent); border-radius:16px; padding:18px}
+  .ahead{display:flex; align-items:center; justify-content:space-around}
+  .afig{font-size:44px; text-align:center} .afig div{font-size:12px; font-weight:bold}
+  .avs{font-size:22px; font-weight:bold; color:var(--accent2)}
+  .ataunt{text-align:center; font-style:italic; color:#c9d1e4; font-size:13px; margin:10px 0}
+  .agame{min-height:180px; display:flex; flex-direction:column; justify-content:center; gap:12px}
+  .afoot{display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:12px}
+  .abtn{background:var(--accent); color:#1a1206; margin-top:0; touch-action:none; user-select:none}
+  .acount{font-size:64px; font-weight:bold; text-align:center; color:var(--accent)}
+  .atimer{text-align:center; font-weight:bold; color:var(--muted)}
+  .tug{position:relative; height:34px; border-radius:17px; background:linear-gradient(90deg,#c43c3c,#39414f 50%,#3a8f4f); border:1px solid var(--line)}
+  .tug .l,.tug .r{position:absolute; top:4px; font-size:20px} .tug .l{left:8px} .tug .r{right:8px}
+  .tugmark{position:absolute; top:-6px; width:8px; height:44px; margin-left:-4px; background:#fff; border-radius:4px; box-shadow:0 0 10px #fff; left:50%}
+  .form{position:relative; height:34px; border-radius:8px; background:#0c0f16; border:1px solid var(--line); overflow:hidden}
+  .fzone{position:absolute; top:0; bottom:0; background:rgba(94,224,122,.45); border-left:2px solid var(--good); border-right:2px solid var(--good)}
+  .fcur{position:absolute; top:0; bottom:0; width:4px; margin-left:-2px; background:#fff}
+  .fpips{text-align:center; font-size:15px; letter-spacing:1px}
+  .holdwrap{display:flex; gap:14px; justify-content:center; align-items:flex-end}
+  .hold{position:relative; width:60px; height:190px; background:#0c0f16; border:1px solid var(--line); border-radius:8px; overflow:hidden}
+  .hzone{position:absolute; left:0; right:0; background:rgba(94,224,122,.35); border-top:2px solid var(--good); border-bottom:2px solid var(--good)}
+  .hbar{position:absolute; left:6px; right:6px; height:8px; margin-bottom:-4px; background:#cdd2dc; border-radius:4px}
+  .hbar.in{background:var(--good); box-shadow:0 0 10px var(--good)}
+  .hprog{width:14px; height:190px; background:#0c0f16; border:1px solid var(--line); border-radius:7px; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end}
+  .hprog i{display:block; width:100%; background:var(--gold); height:0}
+  .pshow{text-align:center} .pshow .pe{font-size:48px} .pshow .pn{font-weight:bold; min-height:20px}
+  .pgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:6px}
+  .pbtn{background:var(--panel2); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 4px; font-size:11px; cursor:pointer; touch-action:manipulation}
+  .pbtn span{display:block; font-size:22px} .pbtn.lit{border-color:var(--gold); background:#3a3420; box-shadow:0 0 12px rgba(255,210,74,.5)}
+  .awin{font-size:30px; font-weight:bold; text-align:center; color:var(--gold)} .alose{font-size:24px; font-weight:bold; text-align:center; color:var(--accent2)}
+  .arew{font-size:24px; text-align:center; color:var(--good); font-weight:bold}
   /* muscle chips + turn button */
   .stagebtn{position:absolute; top:10px; right:10px; z-index:2; background:rgba(10,13,20,.72); color:var(--ink);
             border:1px solid var(--line); border-radius:9px; padding:7px 11px; font-size:12px; font-weight:bold; cursor:pointer}
@@ -239,7 +290,7 @@
     #game{padding:12px; gap:12px}
     h1{font-size:24px}
     .tab{padding:10px 3px; font-size:11px}
-    #tabs{overflow-x:auto; scrollbar-width:none} #tabs::-webkit-scrollbar{display:none} .tab{flex:0 0 auto; min-width:64px}
+
     .item{padding:11px}
     .mini{padding:8px 10px; font-size:12px}
     #repbtn{padding:18px; font-size:22px}
@@ -262,7 +313,7 @@
         </span>
       </div>
       <div style="margin-top:8px">
-        <span id="rank">Noodle Arms</span>
+        <span id="rank">Noodle Arms</span> <span id="ptitle"></span>
         <div id="rankbar"><div id="rankfill"></div></div>
       </div>
     </div>
@@ -270,6 +321,8 @@
     <div id="stage" class="card" style="padding:0">
       <canvas id="c"></canvas>
       <button id="turnbtn" class="stagebtn">🔄 See back</button>
+      <div id="pumpbar"><i id="pumpfill"></i><span id="pumplabel">PUMP — tap fast!</span></div>
+      <div id="fxbox"></div>
       <div id="floatwrap"></div>
     </div>
 
@@ -294,6 +347,7 @@
       <div class="tab active" data-tab="shop">🏋️ Shop</div>
       <div class="tab" data-tab="upgrades">⭐ Upgrades</div>
       <div class="tab" data-tab="stage">🎤 Stage</div>
+      <div class="tab" data-tab="rivals">⚔️ Rivals</div>
       <div class="tab" data-tab="ach">🏅 Awards</div>
       <div class="tab" data-tab="quests">🎯 Quests</div>
       <div class="tab" data-tab="locker">🪞 Locker</div>
@@ -318,6 +372,11 @@
 
     <div class="panel" id="panel-stage">
       <div id="stagepanel"></div>
+    </div>
+
+    <div class="panel" id="panel-rivals">
+      <div class="sub" style="margin-bottom:8px">⚔️ Gym rivals show up as your rank climbs. Beat each one in a minigame for gains, a title, a cosmetic and +5% all gains forever.</div>
+      <div id="rivals"></div>
     </div>
 
     <div class="panel" id="panel-ach">
@@ -484,6 +543,9 @@ const UPGRADES = [
   {id:'sym1',   emoji:'⚖', name:'Aesthetic Focus',  cost:2e7,  desc:'Symmetry bonus cap 15% → 30%', req:s=>musStats().avg>=10,  reqtxt:'Average muscle Lv 10'},
   {id:'weak1',  emoji:'🎯', name:'Weak-Point Specialist',cost:5e8,desc:'Weak-point reps ×3 instead of ×2', req:s=>musStats().avg>=15, reqtxt:'Average muscle Lv 15'},
   {id:'sleep1', emoji:'😴', name:'Sleep Gains',      cost:1e6,  desc:'Offline earnings 50% → 75%',  req:s=>s.playtime>=3600,   reqtxt:'Play for 1 hour'},
+  {id:'pre1',   emoji:'☕', name:'Pre-Workout',       cost:2e5,  desc:'Pump meter fills 50% faster', req:s=>(s.beastCount||0)>=3,  reqtxt:'Go Beast Mode 3 times'},
+  {id:'pre2',   emoji:'💥', name:'Stim Stack',        cost:5e8,  desc:'Beast Mode lasts 15s instead of 10s', req:s=>(s.beastCount||0)>=25, reqtxt:'Go Beast Mode 25 times'},
+  {id:'event1', emoji:'📣', name:'Gym Regular',       cost:3e6,  desc:'Gym events show up twice as often', req:s=>(s.eventsClicked||0)>=5, reqtxt:'Catch 5 gym events'},
   {id:'sleep2', emoji:'🛌', name:'Growth-Hormone Naps',cost:1e10,desc:'Offline earnings 75% → 100%', req:s=>s.playtime>=5*3600, reqtxt:'Play for 5 hours'},
 ];
 // two specialisation upgrades per muscle: ×2 to items that train it AND ×2 to taps on it
@@ -556,7 +618,7 @@ const ACHS = [
 
 //////////////////// STATE ////////////////////
 const SAVE_KEY='swoleclicker';
-const SAVE_VER=6; // v6: trophy perks (v5: per-muscle training + view (v4: daily quests; v3: cosmetics, daily login, ad cooldowns, onboarding flag)
+const SAVE_VER=7; // v7: rivals, beast mode, events (v6: trophy perks (v5: per-muscle training + view (v4: daily quests; v3: cosmetics, daily login, ad cooldowns, onboarding flag)
 // cosmetics/daily/trophies persist through prestige; muscle memory keeps 25% of tap training
 function freshRun(s){
   const keep={}; if(perk('keepgroup')) Object.keys(s.upgrades).forEach(k=>{ if(/^m_/.test(k)) keep[k]=true; });
@@ -584,7 +646,12 @@ function defaultState(){
     exRot:{},               // per-muscle rotation index through unlocked moves
     // --- v6 additions ---
     perks:{},               // trophy perk levels {perkId: level}
-    trophiesSpent:0 };      // trophies spent on perks (passive bonus still uses state.trophies)
+    trophiesSpent:0,        // trophies spent on perks (passive bonus still uses state.trophies)
+    // --- v7 additions ---
+    rivals:{},              // {rivalId:{beat, wins, next(ms timestamp of next allowed try)}}
+    bestRank:0,             // best rank index ever reached (unlocks rivals; survives prestige)
+    title:'',               // displayed title earned from a rival
+    beastCount:0, eventsClicked:0 };
   ITEMS.forEach(i=>s.owned[i.id]=0);
   MUSCLES.forEach(mu=>s.muscles[mu.id]=0);
   return s;
@@ -615,7 +682,7 @@ function migrate(raw){
   if(s.view!=='back') s.view='front';
   if(!MUS[s.selMuscle]) s.selMuscle='chest';
   s.exRot=raw.exRot||{};
-  s.perks=raw.perks||{}; s.trophiesSpent=raw.trophiesSpent||0;
+  s.perks=raw.perks||{}; s.trophiesSpent=raw.trophiesSpent||0; s.rivals=raw.rivals||{};
   s.v=SAVE_VER;
   return s;
 }
@@ -686,7 +753,7 @@ function repPct(){ const u=state.upgrades; return (u.rep1?0.01:0)+(u.rep2?0.01:0
 function revealed(i){ return state.owned[i.id]>0 || state.lifetime>=i.base*0.5 || state.gains>=i.base*0.5; }
 let achBonus=0;
 function recomputeAchBonus(){ achBonus=0; ACHS.forEach(a=>{ if(state.achievements[a.id]) achBonus+=a.bonus; }); }
-function achMult(){ return 1+achBonus; }
+function achMult(){ return (1+achBonus)*(1+0.05*rivalsBeaten()); } // awards + beaten rivals (+5% each)
 let frenzy=0; // seconds remaining
 function frenzyMult(){ return frenzy>0?7:1; }
 function globalMult(){ return prestigeMult()*achMult()*frenzyMult(); }
@@ -741,22 +808,24 @@ function doRep(clientX, clientY, mid, fromUI){
   mid = MUS[mid] ? mid : state.selMuscle;
   if(fromUI) ensureView(mid);
   const before=Object.assign({}, musStats().lvl), weak=isWeak(mid);
-  const p=repGain(mid);
+  const em=repEventMult(), p=repGain(mid)*em;
   state.gains+=p; state.total+=p; state.lifetime+=p; state.clicks++;
-  state.selMuscle=mid; state.muscles[mid]=(state.muscles[mid]||0)+1+perk('learner'); musDirty=true;
+  state.selMuscle=mid; state.muscles[mid]=(state.muscles[mid]||0)+(1+perk('learner'))*(beastT>0?2:1); musDirty=true;
+  lastRepAt=performance.now(); if(beastT<=0){ pumpMeter=Math.min(1,pumpMeter+pumpFill()); if(pumpMeter>=1) startBeast(); }
+  noteRepForEvents();
   questProgress('reps',1);
   pump=1; musPump[mid]=Math.min(1,(musPump[mid]||0)+0.3); musFlash[mid]=1; beep(420,0.05);
   startMuscleEx(mid, 1.6);
-  spawnFloat('+'+fmt(p)+(weak?' 🎯×'+weakMult():''), clientX, clientY);
+  spawnFloat('+'+fmt(p)+(weak?' 🎯×'+weakMult():'')+(em>1?' 🔥×'+em:''), clientX, clientY);
   noteLevels(before, clientX===undefined?null:clientX, clientY);
   spawnParticles();
-  if(p>1e6 || frenzy>0) shakeStage();
+  if(p>1e6 || frenzy>0 || beastT>0) shakeStage();
   if(coachStep===0){ advanceCoach(1); const st=document.querySelector('.tab[data-tab=shop]'); if(st) st.click(); } // onboarding: rep done → point to shop
   afterChange(false);
 }
 // canvas taps only train the muscle actually under the finger; a miss just shows a hint
 let missHintAt=0;
-function repAtCanvas(x,y){ if(stageOn) return; const q=canvasPt(x,y), id=regionAt(q.x,q.y);
+function repAtCanvas(x,y){ if(stageOn||arenaOn) return; const q=canvasPt(x,y), id=regionAt(q.x,q.y);
   if(id){ doRep(x,y,id); return; }
   if(Date.now()-missHintAt>1200){ missHintAt=Date.now(); spawnFloat(turnT>=0?'Turning…':'Tap a muscle!',x,y,'miss'); } }
 function buy(item, want, ev){
@@ -989,14 +1058,15 @@ function renderStats(){
   el.innerHTML=rows.map(r=>`<div class="statrow"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
 }
 
-function renderAll(){ musDirty=true; updateTurnBtn(); renderShop(); renderUpgrades(); renderStage(); updateUpBadge(); renderAch(); renderQuests(); renderLocker(); renderStats(); updateUI(); updateQuestBadge(); updateMusChips(); }
+function renderAll(){ musDirty=true; updateTurnBtn(); renderShop(); renderUpgrades(); renderStage(); updateUpBadge(); renderRivals(); updateRivalBadge(); renderAch(); renderQuests(); renderLocker(); renderStats(); updateUI(); updateQuestBadge(); updateMusChips(); }
 
 function updateUI(){
   $('gains').textContent=fmt(state.gains);
   $('rate').textContent='+'+fmt(perSec())+'/sec';
   $('perclick').textContent=fmt(repGain(state.selMuscle)); $('selmus').textContent=MUS[state.selMuscle].name;
   const r=rankInfo();
-  $('rank').textContent=r.name; $('rank').title=r.next?`Next: ${r.next} at ${fmt(r.need)} gains this run`:'Top rank!';
+  checkRivalUnlocks();
+  $('rank').textContent=r.name; $('ptitle').textContent=state.title?'“'+state.title+'”':''; $('rank').title=r.next?`Next: ${r.next} at ${fmt(r.need)} gains this run`:'Top rank!';
   $('rankfill').style.width=(r.frac*100).toFixed(0)+'%';
   $('trophyBadge').textContent='🏆 '+state.trophies;
   $('multBadge').textContent='×'+(prestigeMult()*achMult()).toFixed(2)+(frenzy>0?' 🔥7×':'');
@@ -1079,7 +1149,9 @@ goldEl.addEventListener('click',()=>{
   cancelAnimationFrame(goldAnim); goldEl.style.display='none'; goldActive=false;
   state.goldenClicked++; questProgress('golden',1);
   const big=state.upgrades.golden;
-  if(Math.random()<0.6){ frenzy=frenzyLen(big?22:15); toast(`✨ <b>FRENZY!</b> 7× gains for ${frenzy|0}s!`); }
+  const roll=Math.random();
+  if(roll<0.5){ frenzy=frenzyLen(big?22:15); toast(`✨ <b>FRENZY!</b> 7× gains for ${frenzy|0}s!`); }
+  else if(roll<0.68){ fx.storm=Math.max(fx.storm,big?15:10); toast(`⚡ <b>Rep Storm!</b> Reps ×10 for ${fx.storm|0}s`); }
   else { const lump=Math.max(perClick()*200, perSecRaw()*(big?1200:600))*(state.upgrades.golden3?3:1); state.gains+=lump; state.total+=lump; state.lifetime+=lump;
     toast(`✨ <b>+${fmt(lump)}</b> protein windfall!`); spawnFloat('+'+fmt(lump)); }
   beep(880,0.15); shakeStage(); afterChange(true);
@@ -1116,6 +1188,21 @@ function ax_backcap(J,m){ const hx=J.head.x,hy=J.head.y,r=m.headR; ctx.fillStyle
 function ax_partyhat(J,m){ const hx=J.head.x,hy=J.head.y-m.headR; ctx.fillStyle='#ff5ea8'; ctx.beginPath(); ctx.moveTo(hx-12,hy+2); ctx.lineTo(hx+12,hy+2); ctx.lineTo(hx,hy-30); ctx.closePath(); ctx.fill(); ctx.fillStyle='#ffd24a'; ctx.beginPath(); ctx.arc(hx,hy-30,3,0,7); ctx.fill(); ctx.fillStyle='#fff'; for(let i=0;i<3;i++){ ctx.beginPath(); ctx.arc(hx-6+i*6,hy-6-i*7,2,0,7); ctx.fill(); } }
 function ax_mulletwig(J,m){ const hx=J.head.x,hy=J.head.y,r=m.headR; ctx.fillStyle='#3b2a16'; ctx.beginPath(); ctx.arc(hx,hy-3,r+2,Math.PI,2*Math.PI); ctx.fill(); ctx.beginPath(); ctx.moveTo(hx-r,hy-4); ctx.quadraticCurveTo(hx-r-8,hy+r+16,hx-r+4,hy+r+18); ctx.quadraticCurveTo(hx-4,hy+4,hx-r,hy-4); ctx.fill(); ctx.beginPath(); ctx.moveTo(hx+r,hy-4); ctx.quadraticCurveTo(hx+r+8,hy+r+16,hx+r-4,hy+r+18); ctx.quadraticCurveTo(hx+4,hy+4,hx+r,hy-4); ctx.fill(); }
 function ax_monocle(J,m){ const hx=J.head.x+7,hy=J.head.y-2; ctx.strokeStyle='#ffd24a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(hx,hy,5,0,7); ctx.stroke(); ctx.beginPath(); ctx.moveTo(hx+2,hy+5); ctx.lineTo(hx+4,hy+16); ctx.stroke(); }
+function ax_wristbands(J,m){ ctx.strokeStyle='#e8463c'; ctx.lineWidth=6; ctx.lineCap='butt'; [['eL','hL'],['eR','hR']].forEach(([e,h])=>{ const a=segPt(J[e],J[h],.8,m.fore*0.95), b=segPt(J[e],J[h],.8,-m.fore*0.95); ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); }); }
+function ax_headphones(J,m){ const hx=J.head.x,hy=J.head.y,r=m.headR; ctx.strokeStyle='#222'; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(hx,hy-2,r+3,Math.PI*1.05,Math.PI*1.95); ctx.stroke(); ctx.fillStyle='#e8463c'; [-1,1].forEach(d=>{ ctx.beginPath(); ctx.ellipse(hx+d*(r+2),hy+1,5,9,0,0,7); ctx.fill(); }); }
+function ax_goldtooth(J,m){ ctx.fillStyle='#ffd24a'; ctx.fillRect(J.head.x+1,J.head.y+5,4,4); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(J.head.x+8,J.head.y+4,1.6,0,7); ctx.fill(); }
+function beltShape(J,m,mode,gold){ const S=lp(J.sL,J.sR,.5), H=lp(J.hipL,J.hipR,.5), ax=H.x-S.x, ay=H.y-S.y, L=Math.hypot(ax,ay)||1, c={x:H.x-ax/L*20,y:H.y-ay/L*20};
+  const hw=Math.max(Math.hypot(J.hipR.x-J.hipL.x,J.hipR.y-J.hipL.y)/2+7,16);
+  ctx.translate(c.x,c.y); ctx.rotate(Math.atan2(ay,ax)-Math.PI/2);
+  ctx.fillStyle=gold?'#d9a520':'#5a3a22'; ctx.fillRect(-hw,-7,hw*2,14); ctx.strokeStyle='rgba(0,0,0,.35)'; ctx.lineWidth=1.5; ctx.strokeRect(-hw,-7,hw*2,14);
+  if(mode!=='back'){ if(gold){ ctx.fillStyle='#ffe58a'; ctx.beginPath(); ctx.ellipse(0,0,15,11,0,0,7); ctx.fill(); ctx.stroke(); ctx.fillStyle='#e8463c'; ctx.beginPath(); ctx.arc(0,0,4,0,7); ctx.fill(); }
+    else { ctx.fillStyle='#cdd2dc'; ctx.fillRect(-6,-6,12,12); } } }
+function ax_belt(J,m,mode){ beltShape(J,m,mode,false); }
+function ax_champbelt(J,m,mode){ beltShape(J,m,mode,true); }
+function ax_chalk(J,m){ ctx.fillStyle='rgba(255,255,255,.75)'; [J.hL,J.hR].forEach(h=>{ ctx.beginPath(); ctx.arc(h.x,h.y,6+m.mz.forearms*2.5,0,7); ctx.fill(); }); }
+function ax_tattoo(J,m){ ctx.strokeStyle='#1d2a44'; ctx.lineWidth=2.4; ctx.beginPath(); for(let i=0;i<=6;i++){ const p=segPt(J.sL,J.eL,0.25+i*0.08,(i%2?1:-1)*m.armMid*0.45); i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y); } ctx.stroke(); }
+function ax_viking(J,m){ const hx=J.head.x,hy=J.head.y,r=m.headR; ctx.fillStyle='#f2ead8'; [-1,1].forEach(d=>{ ctx.beginPath(); ctx.moveTo(hx+d*(r-4),hy-r*0.5); ctx.quadraticCurveTo(hx+d*(r+16),hy-r*0.6,hx+d*(r+12),hy-r-14); ctx.quadraticCurveTo(hx+d*(r+6),hy-r*0.9,hx+d*(r-8),hy-r*0.8); ctx.fill(); });
+  ctx.fillStyle='#8a8f99'; ctx.beginPath(); ctx.arc(hx,hy-3,r+1,Math.PI,2*Math.PI); ctx.fill(); ctx.fillStyle='#6b707a'; ctx.fillRect(hx-r-1,hy-6,2*r+2,5); }
 function ax_crown(J,m){ const hx=J.head.x,hy=J.head.y-m.headR+2; ctx.fillStyle='#ffd24a'; ctx.beginPath(); ctx.moveTo(hx-13,hy+4); ctx.lineTo(hx-13,hy-6); ctx.lineTo(hx-6,hy); ctx.lineTo(hx,hy-9); ctx.lineTo(hx+6,hy); ctx.lineTo(hx+13,hy-6); ctx.lineTo(hx+13,hy+4); ctx.closePath(); ctx.fill(); ctx.fillStyle='#ff5ea8'; ctx.beginPath(); ctx.arc(hx,hy-2,2,0,7); ctx.fill(); }
 const ACCESSORIES=[
   {id:'sunglasses',name:'Sunglasses',emoji:'🕶️',free:true,draw:ax_sunglasses},
@@ -1129,13 +1216,21 @@ const ACCESSORIES=[
   {id:'monocle',  name:'Monocle',  emoji:'🧐', buy:5e5,  draw:ax_monocle},
   {id:'partyhat',back:true, name:'Party Hat',emoji:'🎉', ach:'p1', draw:ax_partyhat},
   {id:'faketan',  name:'Fake Tan', emoji:'✨', ach:'roid',tan:true,draw:null},
+  {id:'wristbands',back:true,name:'Wristbands',emoji:'🎗️',rival:'steve',draw:ax_wristbands},
+  {id:'headphones',back:true,name:'Headphones',emoji:'🎧',rival:'carl', draw:ax_headphones},
+  {id:'goldtooth', name:'Gold Tooth',  emoji:'🦷', rival:'mike', draw:ax_goldtooth},
+  {id:'belt',back:true,      name:'Lifting Belt',emoji:'🥋',rival:'brad', draw:ax_belt},
+  {id:'chalk',back:true,     name:'Chalk Hands', emoji:'🤍', rival:'doug', draw:ax_chalk},
+  {id:'tattoo',back:true,    name:'Tribal Tattoo',emoji:'🐉',rival:'yasmin',draw:ax_tattoo},
+  {id:'viking',back:true,    name:'Viking Helmet',emoji:'⛑️',rival:'mo',  draw:ax_viking},
+  {id:'champbelt',back:true, name:'Champ Belt',  emoji:'🥇', rival:'ollie',draw:ax_champbelt},
   {id:'crown',back:true,    name:'Crown',    emoji:'👑', ach:'r3', draw:ax_crown},
 ];
 const ACC_BY_ID={}; ACCESSORIES.forEach(a=>ACC_BY_ID[a.id]=a);
-function cosUnlocked(a){ if(!a) return false; if(a.free) return true; if(a.ach) return !!state.achievements[a.ach]; if(a.trophies) return state.trophies>=a.trophies; if(a.buy) return !!state.cosBought[a.id]; return true; }
-function cosLockText(a){ if(a.ach){ const ac=ACHS.find(x=>x.id===a.ach); return '🔒 '+(ac?ac.name:a.ach); } if(a.trophies) return '🔒 '+a.trophies+' 🏆'; if(a.buy) return '💪 '+fmt(a.buy); return ''; }
+function cosUnlocked(a){ if(!a) return false; if(a.free) return true; if(a.rival) return !!(state.rivals[a.rival]&&state.rivals[a.rival].beat); if(a.ach) return !!state.achievements[a.ach]; if(a.trophies) return state.trophies>=a.trophies; if(a.buy) return !!state.cosBought[a.id]; return true; }
+function cosLockText(a){ if(a.rival) return '🔒 Beat '+RIVAL_BY_ID[a.rival].name; if(a.ach){ const ac=ACHS.find(x=>x.id===a.ach); return '🔒 '+(ac?ac.name:a.ach); } if(a.trophies) return '🔒 '+a.trophies+' 🏆'; if(a.buy) return '💪 '+fmt(a.buy); return ''; }
 function drawHair(J,m){ const h=HAIR_BY_ID[(state.cos&&state.cos.hair)||'short']; if(!h||!h.draw) return; const c=HAIRCOL[(state.cos&&state.cos.hairColor)||0]||HAIRCOL[0]; ctx.save(); h.draw(J,m,c); ctx.restore(); }
-function drawAccessories(J,m,mode){ const eq=(state.cos&&state.cos.eq)||{}; ACCESSORIES.forEach(a=>{ if(eq[a.id]&&a.draw&&cosUnlocked(a)&&(mode!=='back'||a.back)){ ctx.save(); a.draw(J,m); ctx.restore(); } }); }
+function drawAccessories(J,m,mode){ const eq=(state.cos&&state.cos.eq)||{}; ACCESSORIES.forEach(a=>{ if(eq[a.id]&&a.draw&&cosUnlocked(a)&&(mode!=='back'||a.back)){ ctx.save(); a.draw(J,m,mode); ctx.restore(); } }); }
 
 //////////////////// ADS — platform-aware (CrazyGames / GameDistribution / dev) ////////////////////
 /*
@@ -1281,9 +1376,12 @@ const QUEST_DEFS=[
   {id:'earn',     kind:'earn',     icon:'💰', make:()=>{ const t=Math.max(2000, Math.ceil(perSecRaw()*600+perClick()*120)); return {target:t, label:'Earn '+fmt(t)+' gains', reward:Math.max(1000, perSecRaw()*480)}; }},
   {id:'golden',   kind:'golden',   icon:'🥤', make:()=>({target:1, label:'Catch a golden shake', reward:Math.max(1500, perSecRaw()*600)})},
   {id:'upgrade',  kind:'upgrade',  icon:'⭐', make:()=>({target:1, label:'Buy an upgrade', reward:Math.max(1200, perSecRaw()*540)})},
+  {id:'beast',    kind:'beast',    icon:'😤', make:()=>({target:2, label:'Go Beast Mode twice', reward:Math.max(1500, perSecRaw()*600)})},
+  {id:'event',    kind:'event',    icon:'📦', make:()=>({target:2, label:'Catch 2 gym events', reward:Math.max(1500, perSecRaw()*600)})},
+  {id:'rival',    kind:'rival',    icon:'⚔️', make:()=>({target:1, label:'Beat a rival (rematches count)', reward:Math.max(2000, perSecRaw()*720)})},
 ];
 function questSeed(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
-function questPick(seed){ const a=QUEST_DEFS.slice(); let x=seed||1; const rnd=()=>{ x=(x*1103515245+12345)&0x7fffffff; return x/0x7fffffff; };
+function questPick(seed){ const a=QUEST_DEFS.filter(d=>d.id!=='rival'||(state.bestRank||0)>=1); let x=seed||1; const rnd=()=>{ x=(x*1103515245+12345)&0x7fffffff; return x/0x7fffffff; };
   for(let i=a.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t; } return a.slice(0,3); }
 function ensureQuests(){
   const today=todayStr();
@@ -1396,6 +1494,223 @@ function openShare(){
 }
 // Hook for a future hosted leaderboard:  function submitScore(){ fetch(LEADERBOARD_URL,{method:'POST',body:JSON.stringify({lifetime:state.lifetime,trophies:state.trophies})}); }
 
+//////////////////// PUMP METER → BEAST MODE ////////////////////
+// fast tapping fills the meter; when full you go Beast Mode (reps ×5) until it drains
+let pumpMeter=0, beastT=0, lastRepAt=0;
+const BEAST_MULT=5;
+function beastLen(){ return state.upgrades.pre2?15:10; }
+function pumpFill(){ return state.upgrades.pre1?0.075:0.05; }
+function startBeast(){
+  beastT=beastLen(); pumpMeter=1; state.beastCount=(state.beastCount||0)+1; questProgress('beast',1);
+  toast(`😤 <b>BEAST MODE!</b> Reps ×${BEAST_MULT} for ${beastT}s`); beep(220,0.3); shakeStage();
+  $('stage').classList.add('beast');
+}
+function tickPump(dt){
+  if(beastT>0){ beastT=Math.max(0,beastT-dt); pumpMeter=beastT/beastLen(); if(beastT<=0){ pumpMeter=0; $('stage').classList.remove('beast'); } }
+  else if(performance.now()-lastRepAt>800) pumpMeter=Math.max(0,pumpMeter-dt*0.25);
+  const bar=$('pumpfill'); if(bar){ bar.style.width=(pumpMeter*100).toFixed(1)+'%'; }
+  const lab=$('pumplabel'); if(lab) lab.textContent=beastT>0?`😤 BEAST MODE ${Math.ceil(beastT)}s`:(pumpMeter>0.02?'PUMP '+Math.round(pumpMeter*100)+'%':'PUMP — tap fast!');
+}
+
+//////////////////// GYM EVENTS ////////////////////
+// little things that pop up on the stage now and then — tap them before they leave
+const EVENTS=[
+  {id:'delivery', emoji:'📦', name:'Protein Delivery', w:3, desc:'Free gains!'},
+  {id:'spotter',  emoji:'🤝', name:'Spotter Shows Up', w:2, desc:'+5 free reps/sec for 20s'},
+  {id:'crush',    emoji:'😍', name:'Gym Crush Watching', w:2, desc:'Reps ×3 — but keep tapping or they leave'},
+  {id:'photo',    emoji:'📸', name:'Influencer Shoot', w:2, desc:'Do 20 reps in 10s for a big payout'},
+  {id:'storm',    emoji:'⚡', name:'Rep Storm', w:1, desc:'Reps ×10 for 12s'},
+];
+const fx={spotter:0, crush:0, storm:0, photo:0, photoN:0};
+let evtTimer=50, evtEl=null, evtLife=0, evtSpotAcc=0;
+function scheduleEvent(){ evtTimer=(70+Math.random()*70)*(state.upgrades.event1?0.5:1); }
+function spawnEvent(){
+  const tot=EVENTS.reduce((a,e)=>a+e.w,0); let r=Math.random()*tot, ev=EVENTS[0];
+  for(const e of EVENTS){ r-=e.w; if(r<=0){ ev=e; break; } }
+  evtEl=document.createElement('div'); evtEl.className='gymevt'; evtEl.innerHTML=`<span>${ev.emoji}</span><b>${ev.name}</b>`;
+  evtEl.style.left=(8+Math.random()*58)+'%'; evtEl.style.top=(22+Math.random()*48)+'%';
+  bindTap(evtEl,()=>{ if(!evtEl) return; evtEl.remove(); evtEl=null; triggerEvent(ev); });
+  $('stage').appendChild(evtEl); evtLife=9;
+}
+function triggerEvent(ev){
+  state.eventsClicked=(state.eventsClicked||0)+1; questProgress('event',1); beep(760,0.12);
+  if(ev.id==='delivery'){ const g=Math.max(perSecRaw()*90+perClick()*60, 200); state.gains+=g; state.total+=g; state.lifetime+=g; toast(`📦 <b>Protein Delivery!</b> +${fmt(g)}`); spawnFloat('+'+fmt(g)); }
+  else if(ev.id==='spotter'){ fx.spotter=20; toast('🤝 A <b>spotter</b> shows up — +5 free reps/sec for 20s'); }
+  else if(ev.id==='crush'){ fx.crush=25; lastRepAt=performance.now(); toast('😍 Your <b>gym crush</b> is watching — reps ×3. Keep tapping!'); }
+  else if(ev.id==='photo'){ fx.photo=10; fx.photoN=0; toast('📸 <b>Photo shoot!</b> Do 20 reps in 10 seconds!'); }
+  else if(ev.id==='storm'){ fx.storm=12; toast('⚡ <b>Rep Storm!</b> Reps ×10 for 12s'); }
+  afterChange(true);
+}
+function repEventMult(){ return (beastT>0?BEAST_MULT:1)*(fx.crush>0?3:1)*(fx.storm>0?10:1); }
+function tickEvents(dt){
+  if(evtEl){ evtLife-=dt; if(evtLife<=0){ evtEl.remove(); evtEl=null; } }
+  else if(!stageOn && !arenaOn){ evtTimer-=dt; if(evtTimer<=0){ spawnEvent(); scheduleEvent(); } }
+  if(fx.storm>0) fx.storm=Math.max(0,fx.storm-dt);
+  if(fx.crush>0){ fx.crush=Math.max(0,fx.crush-dt); if(fx.crush>0 && performance.now()-lastRepAt>2500){ fx.crush=0; toast('😍 Your crush got bored and left. Keep tapping next time!'); } }
+  if(fx.photo>0){ fx.photo=Math.max(0,fx.photo-dt); if(fx.photo<=0) toast(`📸 Shoot over — only ${fx.photoN}/20 reps. The influencer left.`); }
+  if(fx.spotter>0){ fx.spotter=Math.max(0,fx.spotter-dt); evtSpotAcc+=dt*5; while(evtSpotAcc>=1){ evtSpotAcc-=1; freeRep(); } } else evtSpotAcc=0;
+  const box=$('fxbox'); if(!box) return;
+  const chips=[];
+  if(frenzy>0) chips.push(`🔥 Frenzy ×7 · ${Math.ceil(frenzy)}s`);
+  if(fx.storm>0) chips.push(`⚡ Storm ×10 · ${Math.ceil(fx.storm)}s`);
+  if(fx.crush>0) chips.push(`😍 Crush ×3 · ${Math.ceil(fx.crush)}s`);
+  if(fx.spotter>0) chips.push(`🤝 Spotter · ${Math.ceil(fx.spotter)}s`);
+  if(fx.photo>0) chips.push(`📸 ${fx.photoN}/20 · ${Math.ceil(fx.photo)}s`);
+  const html=chips.map(c=>`<span>${c}</span>`).join(''); if(box.innerHTML!==html) box.innerHTML=html;
+}
+function noteRepForEvents(){
+  if(fx.photo>0){ fx.photoN++; if(fx.photoN>=20){ fx.photo=0; const g=Math.max(perSecRaw()*240+perClick()*150, 500); state.gains+=g; state.total+=g; state.lifetime+=g; toast(`📸 <b>Viral post!</b> +${fmt(g)}`); spawnFloat('+'+fmt(g)); } }
+}
+// a rep that costs no tap (spotters) — earns gains + XP, no animation spam
+function freeRep(){ const mid=state.selMuscle, p=repGain(mid); state.gains+=p; state.total+=p; state.lifetime+=p; state.muscles[mid]=(state.muscles[mid]||0)+1; musDirty=true; musFlash[mid]=Math.max(musFlash[mid]||0,0.5); }
+
+//////////////////// RIVALS ////////////////////
+// 8 gym rivals unlock as your best-ever rank climbs. Beat them in a minigame for gains, a title,
+// a cosmetic and a permanent +5% to all gains each.
+const RIVALS=[
+  {id:'steve', name:'Skinny Steve',      emoji:'🧍', rank:1, game:'tug',  title:'Not Skinny',  acc:'wristbands', taunt:"I've been lifting for, like, two weeks. I'm basically huge."},
+  {id:'carl',  name:'Cardio Carl',       emoji:'🏃', rank:2, game:'form', title:'Rhythm Rat',  acc:'headphones', taunt:"Weights? I came here for the treadmill. And to beat you."},
+  {id:'mike',  name:'Mirror Mike',       emoji:'🤳', rank:3, game:'pose', title:'Poser',       acc:'goldtooth',  taunt:"Hold on, let me get my angles. OK. Pose-off. Now."},
+  {id:'brad',  name:'Bench Bro Brad',    emoji:'🛋️', rank:4, game:'hold', title:'Bench Boss',  acc:'belt',       taunt:"Is this your bench? Weird. It's my bench."},
+  {id:'doug',  name:'Deadlift Doug',     emoji:'⛓️', rank:5, game:'tug',  title:'Iron Grip',   acc:'chalk',      taunt:"I eat chalk for breakfast. Arm-wrestle me."},
+  {id:'yasmin',name:'Yoga Yasmin',       emoji:'🧘', rank:6, game:'hold', title:'Zen Beast',   acc:'tattoo',     taunt:"Strength is balance. Also, I'm stronger than you."},
+  {id:'mo',    name:'The Mountain',      emoji:'🗻', rank:7, game:'form', title:'Avalanche',   acc:'viking',     taunt:"..."},
+  {id:'ollie', name:'Mr. Olympia Ollie', emoji:'👑', rank:8, game:'pose', title:'Gym Legend',  acc:'champbelt',  taunt:"Eight-time champion. Nine after today, little guy."},
+];
+const RIVAL_BY_ID={}; RIVALS.forEach(r=>RIVAL_BY_ID[r.id]=r);
+const GAME_INFO={
+  tug:{name:'Arm-Wrestle', how:'Tap PULL (or Space) as fast as you can to push the bar all the way right.'},
+  form:{name:'Perfect Form', how:'Tap when the marker is inside the green zone. Too many misses and you lose.'},
+  hold:{name:'Hold the Weight', how:'Hold the button (or Space) to lift, let go to lower. Keep the bar in the green zone.'},
+  pose:{name:'Pose-Off', how:'Watch the rival\'s posing routine, then copy it in the same order.'},
+};
+function rivalsBeaten(){ return RIVALS.filter(r=>state.rivals[r.id]&&state.rivals[r.id].beat).length; }
+function rivalUnlocked(r){ return (state.bestRank||0)>=r.rank; }
+function rivalCooldown(r){ const s=state.rivals[r.id]; if(!s||!s.next) return 0; return Math.max(0,(s.next-Date.now())/1000); }
+function rivalReward(r){ const i=RIVALS.indexOf(r); const base=Math.max(perSecRaw()*(300+120*i), perClick()*150, 500*(i+1)*(i+1));
+  return Math.ceil(state.rivals[r.id]&&state.rivals[r.id].beat ? base*0.25 : base); }
+function updateRivalBadge(){ const tab=document.querySelector('.tab[data-tab=rivals]'); if(!tab) return;
+  const n=RIVALS.filter(r=>rivalUnlocked(r)&&!(state.rivals[r.id]&&state.rivals[r.id].beat)&&rivalCooldown(r)<=0).length;
+  tab.innerHTML='⚔️ Rivals'+(n?' <span class="qcount">'+n+'</span>':''); }
+function checkRivalUnlocks(){
+  const ri=rankIndex(); if(ri<=(state.bestRank||0)) return;
+  const old=state.bestRank||0; state.bestRank=ri;
+  RIVALS.forEach(r=>{ if(r.rank>old && r.rank<=ri) toast(`⚔️ <b>${r.name}</b> ${r.emoji} wants a ${GAME_INFO[r.game].name.toLowerCase()}! (Rivals tab)`); });
+  updateRivalBadge();
+}
+function renderRivals(){
+  const el=$('rivals'); if(!el) return; el.innerHTML='';
+  RIVALS.forEach(r=>{
+    const st=state.rivals[r.id]||{}, un=rivalUnlocked(r), cd=rivalCooldown(r);
+    const row=document.createElement('div'); row.className='item rival'+(st.beat?' bought':un?'':' locked');
+    if(!un){ row.innerHTML=`<div class="emoji">❔</div><div class="body"><div class="name">??? </div><div class="desc">Reach the <b>${RANKS[r.rank]}</b> rank to meet this rival</div></div>`; el.appendChild(row); return; }
+    const btn=cd>0?`<div class="owned">${st.beat?'rematch':'retry'} in ${fmtTime(cd)}</div>`:`<button class="mini on">${st.beat?'Rematch':'Challenge'}</button>`;
+    row.innerHTML=`<div class="emoji">${r.emoji}</div><div class="body"><div class="name">${r.name} ${st.beat?'✓':''}</div>
+      <div class="desc">${GAME_INFO[r.game].name} · reward 💪 ${fmt(rivalReward(r))}${st.beat?'':' + “'+r.title+'” title, '+ACC_BY_ID[r.acc].emoji+' '+ACC_BY_ID[r.acc].name+' & +5% gains'}</div>
+      ${st.beat?`<div class="tag" style="color:var(--good)">Beaten ×${st.wins||1} · title “${r.title}”</div>`:''}</div><div class="right">${btn}</div>`;
+    if(cd<=0) row.onclick=()=>openRival(r);
+    el.appendChild(row);
+  });
+  const h=document.createElement('div'); h.className='sub'; h.style.marginTop='6px';
+  h.textContent=`${rivalsBeaten()} / ${RIVALS.length} beaten · +${rivalsBeaten()*5}% all gains`; el.prepend(h);
+}
+
+// ---------- the arena (minigame overlay) ----------
+let arenaOn=false, arena=null;
+function openRival(r){
+  if(arenaOn||stageOn) return; arenaOn=true; gameplay(false);
+  const ov=document.createElement('div'); ov.id='arena';
+  ov.innerHTML=`<div class="abox"><div class="ahead"><div class="afig">💪<div>You</div></div><div class="avs">VS</div><div class="afig">${r.emoji}<div>${r.name}</div></div></div>
+    <div class="ataunt">“${r.taunt}”</div><div class="agame"><div class="sub" style="text-align:center">${GAME_INFO[r.game].name}: ${GAME_INFO[r.game].how}</div></div>
+    <div class="afoot"><button class="bigbtn abtn" id="astart">Let's go! 💪</button><button class="mini" id="aquit">Back out</button></div></div>`;
+  document.body.appendChild(ov);
+  $('aquit').onclick=()=>closeArena();
+  $('astart').onclick=()=>{ $('astart').remove(); countdown(()=>startGame(r)); };
+}
+function closeArena(){ if(arena&&arena.raf) cancelAnimationFrame(arena.raf); arena=null; const ov=$('arena'); if(ov) ov.remove(); arenaOn=false; gameplay(true); renderRivals(); updateRivalBadge(); }
+function countdown(cb){ const g=document.querySelector('#arena .agame'); let n=3; const step=()=>{ if(!$('arena')) return; if(n===0){ cb(); return; } g.innerHTML=`<div class="acount">${n}</div>`; beep(400+n*80,0.1); n--; setTimeout(step,650); }; step(); }
+function rivalDiff(r){ return RIVALS.indexOf(r)/(RIVALS.length-1); } // 0 → 1
+function startGame(r){
+  const g=document.querySelector('#arena .agame'), d=rivalDiff(r);
+  arena={r, t:0, last:performance.now(), raf:null, input:null, down:false, done:false};
+  const A=arena;
+  const loopFn=(fn)=>{ const step=(now)=>{ if(A.done||!$('arena')) return; const dt=Math.min(0.05,(now-A.last)/1000); A.last=now; A.t+=dt; fn(dt); if(!A.done) A.raf=requestAnimationFrame(step); }; A.raf=requestAnimationFrame(step); };
+  if(r.game==='tug'){
+    const S=musStats(), str=1+Math.min(0.5,(S.lvl.biceps+S.lvl.forearms)/200), rate=0.15+0.3*d, LIM=15; let pos=0;
+    g.innerHTML=`<div class="atimer"></div><div class="tug"><div class="tugmark"></div><span class="l">${r.emoji}</span><span class="r">💪</span></div><button class="bigbtn abtn" id="apull">💪 PULL!</button>`;
+    A.input=()=>{ pos+=0.06*str; };
+    bindTap($('apull'),()=>A.input&&A.input());
+    loopFn(dt=>{ pos-=rate*dt*(0.7+0.6*Math.abs(Math.sin(A.t*2.3))); pos=Math.max(-1,Math.min(1,pos));
+      g.querySelector('.tugmark').style.left=((pos+1)/2*100)+'%'; g.querySelector('.atimer').textContent=Math.max(0,LIM-A.t).toFixed(1)+'s';
+      if(pos>=1) endGame(true); else if(pos<=-1||A.t>=LIM) endGame(false); });
+  } else if(r.game==='form'){
+    const speed=0.8+1.0*d, zone=0.24-0.12*d, need=6+Math.round(2*d), maxMiss=3; let hits=0, miss=0, zx=0.3+Math.random()*0.4, cur=0;
+    g.innerHTML=`<div class="atimer"></div><div class="form"><div class="fzone"></div><div class="fcur"></div></div><div class="fpips"></div><button class="bigbtn abtn" id="atap">TAP!</button>`;
+    const draw=()=>{ g.querySelector('.fzone').style.left=((zx-zone/2)*100)+'%'; g.querySelector('.fzone').style.width=(zone*100)+'%';
+      g.querySelector('.fpips').innerHTML='✅'.repeat(hits)+'⬜'.repeat(need-hits)+'  '+'❌'.repeat(miss); };
+    draw();
+    A.input=()=>{ if(Math.abs(cur-zx)<=zone/2){ hits++; beep(700,0.06); zx=zone/2+0.05+Math.random()*(0.9-zone); } else { miss++; beep(160,0.12); } draw();
+      if(hits>=need) endGame(true); else if(miss>=maxMiss) endGame(false); };
+    bindTap($('atap'),()=>A.input&&A.input());
+    loopFn(dt=>{ cur=(1-Math.cos(A.t*speed*Math.PI))/2; g.querySelector('.fcur').style.left=(cur*100)+'%'; g.querySelector('.atimer').textContent=`${hits}/${need} good reps`; });
+  } else if(r.game==='hold'){
+    const zh=0.3-0.12*d, zsp=0.6+0.8*d, NEED=5, LIM=20; let y=0.2, v=0, inside=0;
+    g.innerHTML=`<div class="atimer"></div><div class="holdwrap"><div class="hold"><div class="hzone"></div><div class="hbar"></div></div><div class="hprog"><i></i></div></div><button class="bigbtn abtn" id="ahold">HOLD 🏋️</button>`;
+    const hb=$('ahold');
+    const dn=e=>{ e.preventDefault(); A.down=true; }, up=()=>{ A.down=false; };
+    hb.addEventListener('pointerdown',dn); hb.addEventListener('pointerup',up); hb.addEventListener('pointerleave',up); hb.addEventListener('pointercancel',up);
+    A.input=(on)=>{ A.down=on; };
+    loopFn(dt=>{ v+=(A.down?1.6:-1.4)*dt; v*=0.92; y=Math.max(0,Math.min(1,y+v*dt*1.6)); if(y<=0||y>=1) v=0;
+      const zc=0.5+0.32*Math.sin(A.t*zsp)*Math.cos(A.t*zsp*0.37), z0=zc-zh/2;
+      const isIn=y>=z0&&y<=z0+zh; if(isIn) inside+=dt;
+      g.querySelector('.hzone').style.bottom=(z0*100)+'%'; g.querySelector('.hzone').style.height=(zh*100)+'%';
+      g.querySelector('.hbar').style.bottom=(y*100)+'%'; g.querySelector('.hbar').classList.toggle('in',isIn);
+      g.querySelector('.hprog i').style.height=Math.min(100,inside/NEED*100)+'%';
+      g.querySelector('.atimer').textContent=Math.max(0,LIM-A.t).toFixed(1)+'s';
+      if(inside>=NEED) endGame(true); else if(A.t>=LIM) endGame(false); });
+  } else if(r.game==='pose'){
+    const POSES=[{e:'💪',n:'Double Biceps'},{e:'🦅',n:'Lat Spread'},{e:'🍫',n:'Abs & Thighs'},{e:'🛡️',n:'Side Chest'},{e:'🔙',n:'Back Double'},{e:'😤',n:'Most Muscular'}];
+    const target=4+Math.round(3*d), showMs=650-250*d, seq=[]; let len=3, idx=0, watching=true;
+    g.innerHTML=`<div class="atimer"></div><div class="pshow"><div class="pe">${r.emoji}</div><div class="pn">Get ready…</div></div><div class="pgrid"></div>`;
+    const grid=g.querySelector('.pgrid');
+    POSES.forEach((p,i)=>{ const b=document.createElement('button'); b.className='pbtn'; b.innerHTML=`<span>${p.e}</span>${p.n}`; bindTap(b,()=>A.input&&A.input(i)); grid.appendChild(b); });
+    const show=()=>{ watching=true; idx=0; while(seq.length<len) seq.push(Math.floor(Math.random()*POSES.length));
+      g.querySelector('.atimer').textContent=`Round ${len-2}/${target-2} — watch ${r.name}`;
+      let k=0; const pe=g.querySelector('.pe'), pn=g.querySelector('.pn');
+      const nxt=()=>{ if(A.done||!$('arena')) return; if(k>=len){ pe.textContent='👀'; pn.textContent='Your turn!'; watching=false; g.querySelector('.atimer').textContent=`Your turn — 0/${len}`; return; }
+        const p=POSES[seq[k]]; pe.textContent=p.e; pn.textContent=p.n; grid.children[seq[k]].classList.add('lit'); beep(440+seq[k]*60,0.08);
+        setTimeout(()=>{ grid.children[seq[k]].classList.remove('lit'); pe.textContent=r.emoji; pn.textContent='…'; k++; setTimeout(nxt,180); },showMs); };
+      setTimeout(nxt,500); };
+    A.input=(i)=>{ if(watching||A.done||typeof i!=='number') return; const b=grid.children[i]; b.classList.add('lit'); setTimeout(()=>b.classList.remove('lit'),160);
+      if(i!==seq[idx]){ beep(160,0.15); endGame(false); return; }
+      idx++; beep(440+i*60,0.06); g.querySelector('.atimer').textContent=`Your turn — ${idx}/${len}`;
+      if(idx>=len){ if(len>=target) endGame(true); else { len++; setTimeout(show,500); } } };
+    show();
+  }
+}
+function endGame(won){
+  const A=arena; if(!A||A.done) return; A.done=true; A.input=null; if(A.raf) cancelAnimationFrame(A.raf);
+  const r=A.r, st=state.rivals[r.id]||(state.rivals[r.id]={}), first=won&&!st.beat, g=document.querySelector('#arena .agame'), f=document.querySelector('#arena .afoot');
+  if(won){
+    const rew=rivalReward(r);
+    st.beat=true; st.wins=(st.wins||0)+1; st.next=Date.now()+5*60*1000;
+    state.gains+=rew; state.total+=rew; state.lifetime+=rew; questProgress('rival',1);
+    if(first){ state.title=r.title; recomputeAchBonus(); }
+    g.innerHTML=`<div class="awin">🏆 YOU WIN!</div><div class="sub" style="text-align:center">${r.name}: “${first?'No way… you\'re a beast.':'Rematch me again. I dare you.'}”</div>
+      <div class="arew">+${fmt(rew)} gains</div>${first?`<div class="sub" style="text-align:center;color:var(--gold)">New title “${r.title}” · ${ACC_BY_ID[r.acc].emoji} ${ACC_BY_ID[r.acc].name} unlocked in the Locker · +5% all gains forever</div>`:''}`;
+    f.innerHTML=`<button class="bigbtn abtn" id="adone">Collect 💪</button>`;
+    if(ads.available()){ const b=document.createElement('button'); b.className='adbtn'; b.textContent='📺 Watch: 2× reward'; b.style.marginTop='8px';
+      b.onclick=()=>{ b.remove(); ads.showRewarded('rival2x',()=>{ state.gains+=rew; state.total+=rew; state.lifetime+=rew; toast('📺 Rival reward doubled! +'+fmt(rew)); afterChange(true); },()=>toast('📺 Ad unavailable — try later')); }; f.appendChild(b); }
+    confettiBurst(window.innerWidth/2, window.innerHeight/3); beep(880,0.25);
+  } else {
+    st.next=Date.now()+30*1000;
+    g.innerHTML=`<div class="alose">😩 ${r.name} wins…</div><div class="sub" style="text-align:center">“${r.game==='pose'?'Sloppy posing, bro.':'Come back when you\'ve trained.'}” — you can try again in 30 seconds.</div>`;
+    f.innerHTML=`<button class="bigbtn abtn" id="adone">Walk it off</button>`;
+  }
+  $('adone').onclick=closeArena;
+  afterChange(true);
+}
+
 //////////////////// MUSCLE CHIPS ////////////////////
 function buildMusGrid(){
   const g=$('musgrid'); g.innerHTML='';
@@ -1438,6 +1753,8 @@ function renderLocker(){
     grid.appendChild(card);
   });
   el.appendChild(locSection('Accessories', grid));
+  const titles=RIVALS.filter(r=>state.rivals[r.id]&&state.rivals[r.id].beat).map(r=>({id:r.title,label:'“'+r.title+'”'}));
+  if(titles.length) el.appendChild(locSection('Title', btnRow([{id:'',label:'None'}].concat(titles), o=>state.title===o.id, o=>{ state.title=o.id; updateUI(); afterCos(); })));
 }
 
 //////////////////// CANVAS: the lifter ////////////////////
@@ -2268,14 +2585,15 @@ function loop(now){
   if(frenzy>0) frenzy=Math.max(0,frenzy-dt);
   // auto-spotter perk: free reps on the selected muscle
   const sr=[0,1,2,4][perk('spotter')];
-  if(sr && !stageOn){ spotAcc+=dt*sr; while(spotAcc>=1){ spotAcc-=1; const mid=state.selMuscle, p=repGain(mid); state.gains+=p; state.total+=p; state.lifetime+=p; state.muscles[mid]=(state.muscles[mid]||0)+1; musDirty=true; musFlash[mid]=Math.max(musFlash[mid]||0,0.5); } }
+  if(sr && !stageOn){ spotAcc+=dt*sr; while(spotAcc>=1){ spotAcc-=1; freeRep(); } }
+  tickPump(dt); tickEvents(dt);
   // particles
   particles.forEach(p=>{ p.t+=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=160*dt; });
   particles=particles.filter(p=>p.t<p.life);
   // golden
   goldTimer-=dt; if(goldTimer<=0 && !goldActive){ spawnGold(); scheduleGold(); }
   // periodic
-  saveAcc+=dt; if(saveAcc>2){ saveAcc=0; checkAchievements(); ensureQuests(); updateUI(); updateAdButtons(); updateQuestBadge(); updateUpBadge();
+  saveAcc+=dt; if(saveAcc>2){ saveAcc=0; checkAchievements(); ensureQuests(); updateUI(); updateAdButtons(); updateQuestBadge(); updateUpBadge(); updateRivalBadge(); if(activeTab==='rivals') renderRivals();
     if(activeTab==='stats') renderStats(); if(activeTab==='stage') renderStage(); if(activeTab==='shop') renderShop(); if(activeTab==='quests') renderQuests(); updateMusChips(); }
   drawDude(dt);
   rafId=requestAnimationFrame(loop);
@@ -2323,7 +2641,10 @@ bindTap($('repbtn'),()=>doRep(undefined,undefined,state.selMuscle,true));
 cv.addEventListener('mousemove',e=>{ const q=canvasPt(e.clientX,e.clientY); hoverMus=regionAt(q.x,q.y); });
 cv.addEventListener('mouseleave',()=>{ hoverMus=null; });
 $('turnbtn').addEventListener('click',e=>{ e.stopPropagation(); startTurn(); });
+document.addEventListener('keyup',e=>{ if(arenaOn && e.code==='Space' && arena && arena.input && arena.r.game==='hold') arena.input(false); });
 document.addEventListener('keydown',e=>{ if(/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if(arenaOn){ if(e.code==='Space'){ e.preventDefault(); if(!e.repeat && arena && arena.input) arena.input(arena.r.game==='hold'?true:undefined); } return; }
+  if(stageOn) return;
   if(e.code==='Space'){ e.preventDefault(); doRep(undefined,undefined,state.selMuscle,true); }
   else if(e.code==='KeyT'){ startTurn(); } });
 
@@ -2333,7 +2654,7 @@ document.querySelectorAll('.tab').forEach(tb=>tb.addEventListener('click',()=>{
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+activeTab));
   if(activeTab==='shop') renderShop(); if(activeTab==='upgrades') renderUpgrades();
   if(activeTab==='ach') renderAch(); if(activeTab==='quests') renderQuests();
-  if(activeTab==='locker') renderLocker(); if(activeTab==='stats') renderStats(); if(activeTab==='stage') renderStage();
+  if(activeTab==='locker') renderLocker(); if(activeTab==='stats') renderStats(); if(activeTab==='stage') renderStage(); if(activeTab==='rivals') renderRivals();
 }));
 
 // rewarded-ad placements (b) frenzy + (c) windfall — cooldowns tracked in save, graceful on fail
@@ -2382,7 +2703,7 @@ function boot(){
   buildMusGrid();
   ensureQuests();      // seed today's daily quests
   $('soundbtn').textContent=state.sound?'🔊 Sound: On':'🔇 Sound: Off';
-  scheduleGold();
+  scheduleGold(); scheduleEvent();
   renderAll();
   updateAdButtons();
   offlineProgress();   // modal (queued)
