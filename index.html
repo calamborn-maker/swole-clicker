@@ -170,6 +170,7 @@
   .setbtn{cursor:pointer; color:var(--ink); font-size:13px}
   .setgrp{font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin:12px 0 4px}
   .setrow{display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--line); font-size:13px; gap:10px}
+  .stylebtns{display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end; max-width:260px}
   .setrow input[type=range]{width:130px; accent-color:var(--accent)}
   #modal{max-height:88vh; overflow:auto}
   /* stats charts */
@@ -1273,25 +1274,86 @@ const SFX={
 function sfx(name,arg){ if(!sfxOn()) return; try{ SFX[name]&&SFX[name](arg); }catch(e){} }
 function haptic(ms){ if(state.settings.haptics && navigator.vibrate) try{ navigator.vibrate(ms||8); }catch(e){} }
 
-// ---- music: 124bpm 4-bar loop (Am–F–C–G) — kick, snare, hats, bass, arps; Beast Mode adds a lead ----
-const BPM=124, STEP16=60/BPM/4, PROG=[{r:57,min:true},{r:53},{r:48},{r:55}];
-let musTimer=null, musStep=0, musNext=0;
+// ---- music: every gym has its own genre (4-bar loops on a 16th-note grid). Moving up a gym switches
+// style at the next bar; Beast Mode adds an extra layer to whichever style is playing. ----
+let musTimer=null, musStep=0, musNext=0, musStyle=-1, distIn=null;
 function mtof(n){ return 440*Math.pow(2,(n-69)/12); }
-function kick(t){ const a=actx, o=a.createOscillator(), g=a.createGain(); o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(42,t+0.14);
-  g.gain.setValueAtTime(0.5,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.18); o.connect(g); g.connect(musBus); o.start(t); o.stop(t+0.2); }
-function playStep(i,t){
-  const bar=Math.floor(i/16)%4, s=i%16, ch=PROG[bar], beast=beastT>0, when=t-actx.currentTime;
-  if(s%4===0) kick(t);
-  if(s===4||s===12){ noise(0.12,0.12,when,1400,musBus); }
-  if(s%2===0||beast) noise(0.03,s%4===2?0.05:0.025,when,7000,musBus);
-  const bassPat=[0,0,12,0,7,0,12,7]; if(s%2===0) tone(mtof(ch.r-12+bassPat[s/2]),STEP16*1.6,'sawtooth',0.07,when,0,musBus);
-  const third=ch.min?3:4, arp=[0,third,7,12,7,third,0,7];
-  if(s%2===1) tone(mtof(ch.r+12+arp[(s-1)/2]),STEP16*1.2,'square',0.022,when,0,musBus);
-  if(beast && (s===0||s===6||s===10)) tone(mtof(ch.r+24+[0,third,7][s%3]),STEP16*3,'square',0.03,when,0,musBus);
+function rel(t){ return t-actx.currentTime; }
+// distortion chain for guitars: waveshaper → lowpass (cab) → music bus
+function guitarBus(){
+  if(!distIn){ const a=actx, ws=a.createWaveShaper(), lp=a.createBiquadFilter(), g=a.createGain(), n=1024, c=new Float32Array(n), k=40;
+    for(let i=0;i<n;i++){ const x=i*2/n-1; c[i]=(1+k)*x/(1+k*Math.abs(x)); }
+    ws.curve=c; ws.oversample='2x'; lp.type='lowpass'; lp.frequency.value=2400; g.gain.value=0.22;
+    ws.connect(lp); lp.connect(g); g.connect(musBus); distIn=ws; }
+  return distIn;
 }
+function kick(t,vol,low){ const a=actx, o=a.createOscillator(), g=a.createGain(); o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(low||42,t+0.14);
+  g.gain.setValueAtTime(vol||0.5,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.18); o.connect(g); g.connect(musBus); o.start(t); o.stop(t+0.2); }
+function snare(t,vol){ vol=vol||0.12; noise(0.13,vol,rel(t),1400,musBus); tone(190,0.08,'triangle',vol*0.6,rel(t),0.6,musBus); }
+function hat(t,vol,len){ noise(len||0.03,vol||0.03,rel(t),7000,musBus); }
+function crash(t,vol){ noise(0.9,vol||0.05,rel(t),3500,musBus); }
+function clap(t,vol){ for(let i=0;i<3;i++) noise(0.06,vol||0.09,rel(t)+i*0.011,1600,musBus); }
+function tom(t,f,vol){ tone(f,0.25,'sine',vol||0.25,rel(t),0.5,musBus); }
+function pluck(freq,t,dur,vol,type,bus){ tone(freq,dur,type||'triangle',vol,rel(t),0,bus||musBus); }
+function power(root,t,dur,vol){ const b=guitarBus(); [0,7,12].forEach(iv=>pluck(mtof(root+iv),t,dur,vol,'sawtooth',b)); }
+// sustained detuned chord (pads / keys)
+function pad(notes,t,dur,vol,type,cut){ const a=actx, f=a.createBiquadFilter(), g=a.createGain(); f.type='lowpass'; f.frequency.value=cut||1800;
+  g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(vol,t+Math.min(0.25,dur*0.3)); g.gain.setValueAtTime(vol,t+dur*0.7); g.gain.linearRampToValueAtTime(0.0001,t+dur);
+  f.connect(g); g.connect(musBus);
+  notes.forEach(n=>[-7,7].forEach(dt=>{ const o=a.createOscillator(); o.type=type||'sawtooth'; o.frequency.value=mtof(n); o.detune.value=dt; o.connect(f); o.start(t); o.stop(t+dur+0.05); })); }
+
+const MUSIC=[
+  { // Dad's Garage — 90s dad rock / grunge: loud power-chord strums, straight rock beat
+    name:'Garage Grunge', bpm:104, swing:0, prog:[40,43,38,45], // E5 G5 D5 A5
+    step(i,t,S,beast){ const s=i%16, bar=(i>>4)%4, r=this.prog[bar];
+      if(s===0||s===8||s===10) kick(t,0.55); if(s===4||s===12) snare(t,0.15); if(s%2===0) hat(t,0.022);
+      if(s===0&&bar===0) crash(t,0.06);
+      if([0,3,6,8,11,14].includes(s)) power(r,t,s===8?S*5:S*2.4,0.05);
+      if(s%2===0) pluck(mtof(r-12),t,S*1.8,0.09,'triangle');
+      if(beast&&s%4===2) pluck(mtof(r+24+[0,3,5,7][s>>2]),t,S*1.6,0.03,'square'); } },
+  { // Mom's Basement — lo-fi hip-hop: swung boom-bap, mellow 7th chords, vinyl crackle
+    name:'Basement Lo-Fi', bpm:84, swing:0.22, prog:[[50,53,57,60],[43,47,50,53],[48,52,55,59],[45,48,52,55]], // Dm7 G7 Cmaj7 Am7
+    step(i,t,S,beast){ const s=i%16, bar=(i>>4)%4, ch=this.prog[bar];
+      if(s===0||s===7||s===10) kick(t,0.45,48); if(s===4||s===12) snare(t,0.07); if(s%2===0) hat(t,0.014,0.025);
+      if(s===0) pad(ch,t,S*15,0.035,'triangle',1100);
+      if(s===0||s===10) pluck(mtof(ch[0]-24),t,S*3,0.12,'sine');
+      if(Math.random()<0.25) noise(0.02,0.006,rel(t),3000,musBus);
+      if(beast||s===6||s===14) { if(s%4===2) pluck(mtof(ch[(s>>2)%4]+12),t,S*2,0.035,'sine'); } } },
+  { // Iron Paradise Gym — house: four-on-the-floor, off-beat hats, minor-7 stabs, octave bass
+    name:'Paradise House', bpm:124, swing:0, prog:[[57,60,64,67],[53,57,60,64],[55,59,62,65],[52,55,59,62]], // Am7 Fmaj7 G7 Em7
+    step(i,t,S,beast){ const s=i%16, bar=(i>>4)%4, ch=this.prog[bar];
+      if(s%4===0) kick(t,0.55); if(s===4||s===12) clap(t,0.08); if(s%4===2) hat(t,0.05,0.09); else if(beast) hat(t,0.02);
+      if(s===3||s===6||s===11||s===14) pad(ch,t,S*1.2,0.05,'square',2200);
+      if(s%4===2) pluck(mtof(ch[0]-24+(s===6||s===14?12:0)),t,S*1.6,0.12,'sawtooth');
+      if(beast&&s%2===1) pluck(mtof(ch[(s>>1)%4]+12),t,S,0.025,'square'); } },
+  { // The Iron Dungeon — metal: double-kick, palm-muted chugs in E phrygian
+    name:'Dungeon Metal', bpm:150, swing:0, riff:[40,40,41,40,43,40,41,38],
+    step(i,t,S,beast){ const s=i%16, bar=(i>>4)%4, r=this.riff[(bar*2+(s>>3))%8];
+      kick(t,s%2?0.3:0.45); if(s===4||s===12) snare(t,0.16); if(s%4===0) hat(t,0.03);
+      if(s===0&&bar%2===0) crash(t,0.07);
+      const chug=[0,1,2,3,6,7,8,10,11,14];
+      if(chug.includes(s)) power(r,t,S*0.7,0.055); else if(s===15) power(r+3,t,S*0.9,0.05);
+      if(beast&&s%2===0) pluck(mtof(r+31+[0,1,3,1][(s>>1)%4]),t,S,0.03,'sawtooth'); } },
+  { // Olympia Stage — arena anthem: huge pads, arpeggios, tom fills
+    name:'Olympia Anthem', bpm:112, swing:0, prog:[[57,60,64],[53,57,60],[48,52,55],[55,59,62]], // Am F C G
+    step(i,t,S,beast){ const s=i%16, bar=(i>>4)%4, ch=this.prog[bar];
+      if(s===0||s===8) kick(t,0.6); if(s===4||s===12) snare(t,0.16); if(s%2===0) hat(t,0.02);
+      if(s===0){ pad(ch.map(n=>n+12),t,S*16,0.03,'sawtooth',2600); pad([ch[0]-12],t,S*16,0.05,'sawtooth',700); if(bar===0) crash(t,0.06); }
+      pluck(mtof(ch[s%3]+24+(s%6>2?12:0)),t,S*0.9,0.02,'square');
+      if(bar===3&&s>=12) tom(t,[160,140,120,100][s-12],0.3);
+      if(beast&&(s===0||s===6||s===10)) pad([ch[0]+24,ch[1]+24],t,S*3,0.03,'square',3000); } },
+];
 function musicTick(){ if(!actx||!state.settings.music||muted||document.hidden) return;
+  const ms=state.settings.musicStyle, want=(ms==='auto'||ms==null)?gymTier():+ms;
+  if(musStyle<0) musStyle=want;
+  let st=MUSIC[musStyle], S=60/st.bpm/4;
   if(musNext<actx.currentTime) musNext=actx.currentTime+0.05;
-  while(musNext<actx.currentTime+0.15){ playStep(musStep,musNext); musNext+=STEP16; musStep=(musStep+1)%64; } }
+  while(musNext<actx.currentTime+0.15){
+    if(musStep%16===0 && want!==musStyle){ musStyle=want; musStep=0; st=MUSIC[musStyle]; S=60/st.bpm/4; }
+    const t=musNext+((musStep%2)?st.swing*S:0);
+    try{ st.step(musStep,t,S,beastT>0); }catch(e){}
+    musNext+=S; musStep=(musStep+1)%64; }
+}
 function setMusic(on){ state.settings.music=on; applyVolumes(); if(on){ audio(); if(actx&&actx.state==='suspended'&&!muted) actx.resume(); if(!musTimer) musTimer=setInterval(musicTick,40); } else if(musTimer){ clearInterval(musTimer); musTimer=null; } }
 // browsers only allow audio after a user gesture — start music on the first tap if it's enabled
 document.addEventListener('pointerdown',()=>{ if(state.settings&&state.settings.music&&!musTimer) setMusic(true); else if(actx&&actx.state==='suspended'&&!muted) actx.resume(); },{once:false,passive:true});
@@ -1880,7 +1942,7 @@ function endGame(won){
 }
 
 //////////////////// SETTINGS ////////////////////
-function defaultSettings(){ return {sfx:true, sfxVol:0.6, music:false, musicVol:0.5, numfmt:'short', reduceMotion:false, floats:true, haptics:true, confirmPrestige:true}; }
+function defaultSettings(){ return {sfx:true, sfxVol:0.6, music:false, musicVol:0.5, musicStyle:'auto', numfmt:'short', reduceMotion:false, floats:true, haptics:true, confirmPrestige:true}; }
 function reduceMotion(){ return state.settings&&state.settings.reduceMotion; }
 function openSettings(){
   const S=state.settings;
@@ -1888,6 +1950,7 @@ function openSettings(){
   const vol=(k,label)=>`<div class="setrow"><span>${label}</span><input type="range" min="0" max="1" step="0.05" value="${S[k]}" data-v="${k}"></div>`;
   modal('⚙️ Settings',
     `<div class="setgrp">Sound</div>${tog('sfx','Sound effects')}${vol('sfxVol','Effects volume')}${tog('music','Gym music')}${vol('musicVol','Music volume')}
+     <div class="setrow"><span>Music style</span><span class="stylebtns">${[['auto','Auto (gym)']].concat(MUSIC.map((m,i)=>[String(i),m.name])).map(([v,l])=>`<button class="mini ${String(S.musicStyle)===v?'on':''}" data-ms="${v}">${l}</button>`).join('')}</span></div>
      <div class="setgrp">Display</div>
      <div class="setrow"><span>Number format</span><span><button class="mini ${S.numfmt==='short'?'on':''}" data-nf="short">1.23M</button> <button class="mini ${S.numfmt==='sci'?'on':''}" data-nf="sci">1.23e6</button></span></div>
      ${tog('floats','Floating numbers')}${tog('reduceMotion','Reduced motion')}${tog('haptics','Vibrate on taps (phones)')}
@@ -1900,6 +1963,7 @@ function openSettings(){
   body.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{ const k=b.dataset.k; S[k]=!S[k]; b.classList.toggle('on',S[k]); b.textContent=S[k]?'On':'Off';
     if(k==='music') setMusic(S.music); applyVolumes(); if(k==='sfx'&&S.sfx){ audio(); sfx('event'); } if(k==='reduceMotion') document.body.classList.toggle('reduce',S.reduceMotion); save(); });
   body.querySelectorAll('[data-v]').forEach(r=>r.oninput=()=>{ S[r.dataset.v]=+r.value; audio(); applyVolumes(); save(); });
+  body.querySelectorAll('[data-ms]').forEach(b=>b.onclick=()=>{ S.musicStyle=b.dataset.ms; body.querySelectorAll('[data-ms]').forEach(x=>x.classList.toggle('on',x===b)); if(!S.music){ S.music=true; setMusic(true); const mb=body.querySelector('[data-k=music]'); mb.classList.add('on'); mb.textContent='On'; } save(); });
   body.querySelectorAll('[data-nf]').forEach(b=>b.onclick=()=>{ S.numfmt=b.dataset.nf; body.querySelectorAll('[data-nf]').forEach(x=>x.classList.toggle('on',x===b)); renderAll(); save(); });
   const later=fn=>()=>{ closeModal(); setTimeout(fn,0); };
   $('savebtn').onclick=()=>{ save(); $('savebtn').textContent='✓ Saved'; };
