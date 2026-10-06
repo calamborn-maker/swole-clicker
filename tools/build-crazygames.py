@@ -18,6 +18,10 @@ html = re.sub(r'\s*<meta (?:property="og:|name="twitter:)[^>]*>', '', html)
 html = re.sub(r'\s*<!-- Open Graph / social preview -->', '', html)
 html = re.sub(r'\s*<script type="application/ld\+json">.*?</script>', '', html, flags=re.S)
 assert 'crazygames-sdk-v3.js' in html, 'expected the CrazyGames v3 SDK loader in index.html'
+# CrazyGames takes a single HTML file, so inline the privacy policy (opened from Settings) as a template
+pol = open(os.path.join(ROOT, 'privacy-policy.html'), encoding='utf-8').read()
+body = re.search(r'<body>(.*)</body>', pol, re.S).group(1)
+html = html.replace('</body>', '<template id="privacytpl">' + body + '</template>\n</body>', 1)
 assert 'https://calamborn-maker.github.io' not in html, 'portal build should not link to the GitHub Pages site'
 
 shutil.rmtree(DIST, ignore_errors=True)

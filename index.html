@@ -210,6 +210,7 @@
   .setgrp{font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin:12px 0 4px}
   .setrow{display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--line); font-size:13px; gap:10px}
   .stylebtns{display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end; max-width:260px}
+  .policy{font-size:12px; line-height:1.5; color:var(--ink)} .policy h1{font-size:16px} .policy h2{font-size:14px; margin:12px 0 4px} .policy a{color:var(--accent)}
   .setrow input[type=range]{width:130px; accent-color:var(--accent)}
   #modal{max-height:88vh; overflow:auto}
   /* stats charts */
@@ -2070,7 +2071,7 @@ function openSettings(){
      <div class="setgrp">Gameplay</div>${tog('confirmPrestige','Confirm before hitting the stage')}
      <div class="setgrp">Save</div>
      <div class="toolbar"><button class="mini" id="savebtn">💾 Save now</button><button class="mini" id="exportbtn">⤴ Export</button><button class="mini" id="importbtn">⤵ Import</button><button class="mini" id="resetbtn">♻ Reset</button></div>
-     <div class="sub" style="margin-top:10px">Progress saves automatically. <a href="privacy-policy.html" target="_blank" rel="noopener" style="color:var(--accent)">Privacy Policy</a></div>`,
+     <div class="sub" style="margin-top:10px">Progress saves automatically. <a href="privacy-policy.html" target="_blank" rel="noopener" id="privlink" style="color:var(--accent)">Privacy Policy</a></div>`,
     [{label:'Done', cls:'btnyes'}]);
   const body=$('modalBody');
   body.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{ const k=b.dataset.k; S[k]=!S[k]; b.classList.toggle('on',S[k]); b.textContent=S[k]?'On':'Off';
@@ -2080,6 +2081,9 @@ function openSettings(){
   body.querySelectorAll('[data-nf]').forEach(b=>b.onclick=()=>{ S.numfmt=b.dataset.nf; body.querySelectorAll('[data-nf]').forEach(x=>x.classList.toggle('on',x===b)); renderAll(); save(); });
   const later=fn=>()=>{ closeModal(); setTimeout(fn,0); };
   $('savebtn').onclick=()=>{ save(); $('savebtn').textContent='✓ Saved'; };
+  // single-file portal builds inline the policy as <template id="privacytpl"> (tools/build-crazygames.py)
+  const tpl=document.getElementById('privacytpl');
+  if(tpl) $('privlink').onclick=(e)=>{ e.preventDefault(); closeModal(); setTimeout(()=>modal('Privacy Policy',`<div class="policy">${tpl.innerHTML}</div>`,[{label:'Close',cls:'btnyes'}]),0); };
   $('exportbtn').onclick=later(exportSave); $('importbtn').onclick=later(importSave); $('resetbtn').onclick=later(resetSave);
 }
 function exportSave(){ save(); const code=btoa(unescape(encodeURIComponent(JSON.stringify(state))));
