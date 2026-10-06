@@ -52,10 +52,15 @@ appstoreconnect.apple.com → **Apps ▸ + ▸ New App**
 **Privacy Policy URL:** https://calamborn-maker.github.io/swole-clicker/privacy-policy.html
 **Copyright:** `2026 Dumped`
 
-## 4. Screenshots
-iPhone **6.9" Display** — upload all six from `assets/appstore/iphone-6.9/` (1320×2868), in order:
-`01-train-any-muscle`, `02-beast-mode`, `03-back-day`, `04-rivals`, `05-swoleympia-stage`, `06-gear-and-milestones`.
-(App Store Connect scales these down for the smaller iPhone sizes. No iPad screenshots needed — the app is iPhone-only.)
+## 4. Screenshots, previews & creative assets (all in `assets/appstore/`)
+Upload each folder's six PNGs in order (01 → 06):
+- **iPhone 6.1" Dynamic Island (medium) — required:** `iphone-6.1/` (1206×2622)
+- iPhone 6.9" (optional, if the slot is shown): `iphone-6.9/` (1320×2868)
+- iPhone Duo: outer screen `iphone-duo-outer/` (1398×2034), inner screen `iphone-duo-inner/` (2007×2853)
+- iPad 13" (only if asked; the app is iPhone-only): `ipad-13/` (2064×2752)
+
+App previews (optional): `preview-iphone-886x1920.mp4` for any iPhone slot, `preview-ipad-1200x1600.mp4` for iPad.
+Header asset: `header-3840x1646.png` · Search result asset: `search-result-3840x2560.png`.
 
 ## 5. Other App Store Connect sections
 - **Category:** Games → primary **Casual**, secondary **Simulation**

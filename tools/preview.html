@@ -89,12 +89,28 @@ async function main(){
     const sh=g.createLinearGradient(0,h-250,0,h); sh.addColorStop(0,'rgba(10,13,20,0)'); sh.addColorStop(1,'rgba(10,13,20,.95)'); g.fillStyle=sh; g.fillRect(0,h-250,w,250);
     title(g,400,h-60,90,'center'); });
 
+  // App Store Creative Assets (title text only, no alpha): product page header 21:9 and search result 3:2
+  const asHeader=coverOf(3840,1646,(g,w,h)=>{
+    g.save(); g.filter='blur(16px) brightness(.5)'; coverDraw(g,bigBeast.bg,-60,-60,w+120,h+120,.5,.4); g.restore();
+    put(g,bigBeast,w-1700,-40,1640,1776);
+    const sh=g.createLinearGradient(w-1700,0,w-1450,0); sh.addColorStop(0,'rgba(0,0,0,.35)'); sh.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=sh; g.fillRect(w-1700,0,250,h);
+    g.save(); g.beginPath(); g.roundRect(380,300,520,920,40); g.clip(); coverDraw(g,bigNoodle,380,300,520,920,.5,.62); g.restore();
+    g.fillStyle='#ffcc33'; g.font=`bold 260px ${FONT}`; g.fillText('›',1010,880);
+    title(g,1400,860,250); });
+  const asSearch=coverOf(3840,2560,(g,w,h)=>{
+    g.save(); g.filter='blur(16px) brightness(.5)'; coverDraw(g,bigBeast.bg,-60,-60,w+120,h+120,.5,.4); g.restore();
+    put(g,bigBeast,w-2300,-60,2240,2427);
+    g.save(); g.beginPath(); g.roundRect(300,900,620,1100,48); g.clip(); coverDraw(g,bigNoodle,300,900,620,1100,.5,.62); g.restore();
+    g.fillStyle='#ffcc33'; g.font=`bold 300px ${FONT}`; g.fillText('›',1000,1560);
+    const bl=g.createLinearGradient(0,h-700,0,h); bl.addColorStop(0,'rgba(10,13,20,0)'); bl.addColorStop(1,'rgba(10,13,20,.85)'); g.fillStyle=bl; g.fillRect(0,h-700,w,700);
+    title(g,w/2,h-230,300,'center'); });
+
   // 5) iOS app icon 1024×1024 — no text, fully opaque (alpha is stripped after export)
   const appIcon=coverOf(1024,1024,(g,w,h)=>{ g.fillStyle='#10131a'; g.fillRect(0,0,w,h); put(g,bigBeast,0,0,w,h,[100,122,280,280]);
     const v=g.createRadialGradient(w/2,h*0.45,w*0.3,w/2,h/2,w*0.75); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.35)'); g.fillStyle=v; g.fillRect(0,0,w,h); });
 
   const out=document.getElementById('out');
-  [['preview',og],['cover-1280x720',cover],['icon-512',icon],['cg-landscape-1920x1080',cgL],['cg-portrait-800x1200',cgP],['cg-square-800x800',cgS],['app-icon-1024',appIcon]].forEach(([n,c])=>{ const im=document.createElement('img'); im.id=n; im.alt=n; im.src=c.toDataURL('image/png'); out.appendChild(im); });
+  [['preview',og],['cover-1280x720',cover],['icon-512',icon],['cg-landscape-1920x1080',cgL],['cg-portrait-800x1200',cgP],['cg-square-800x800',cgS],['app-icon-1024',appIcon],['as-header-3840x1646',asHeader],['as-search-3840x2560',asSearch]].forEach(([n,c])=>{ const im=document.createElement('img'); im.id=n; im.alt=n; im.src=c.toDataURL('image/png'); out.appendChild(im); });
   document.title='READY';
 }
 main();

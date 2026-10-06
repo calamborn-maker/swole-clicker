@@ -42,7 +42,7 @@
   #right{flex:1; min-width:0; max-height:calc(100vh - 36px)}
   @media(max-width:820px){ #game{flex-direction:column} #right{max-height:none} }
   /* desktop / landscape embeds: three columns that always fit the window — no page scrolling */
-  @media (min-width:821px), (orientation:landscape) and (min-width:640px){
+  @media (min-width:821px) and (orientation:landscape), (orientation:landscape) and (min-width:640px){   /* portrait tablets keep the two-column layout */
     html,body{height:100%; overflow:hidden}
     #game{display:grid; max-width:1720px; height:100vh; padding:12px; gap:12px;
           grid-template-columns:clamp(200px,24vw,300px) minmax(0,1fr) clamp(260px,32vw,440px); grid-template-rows:auto auto minmax(0,1fr)}
@@ -322,6 +322,7 @@
   .float.lv{color:var(--good); font-size:14px}
   .float.miss{color:var(--muted); font-size:13px}
   /* mobile tap feel */
+  *{-webkit-tap-highlight-color:transparent}   /* no grey/blue flash over the lifter on every tap */
   html,body,button,.tab,.item,.mchip,.mini{touch-action:manipulation}   /* no double-tap-zoom wait → taps click instantly on iOS */
   /* rewarded-ad buttons under DO A REP */
   #adrow{display:flex; gap:8px; margin-top:8px}
@@ -3032,17 +3033,16 @@ function renderGym(){
   } else if(tier===2){ // commercial gym: mirrors, rubber tiles, poster
     for(let i=0;i<3;i++){ const x=40+i*140; rect(x,60,120,FL-80,'#3d5070'); g.fillStyle='rgba(255,255,255,.07)'; g.beginPath(); g.moveTo(x+20,60); g.lineTo(x+50,60); g.lineTo(x+10,FL-20); g.lineTo(x,FL-20); g.lineTo(x,90); g.closePath(); g.fill(); }
     g.strokeStyle='rgba(255,255,255,.05)'; g.lineWidth=1; for(let x=0;x<W;x+=40){ g.beginPath(); g.moveTo(x,FL); g.lineTo(x,H); g.stroke(); }
-    rect(0,20,W,26,'#ffcc33'); if(!cleanRender){ g.fillStyle='#1a1206'; g.font='bold 16px "Trebuchet MS",sans-serif'; g.textAlign='center'; g.fillText('IRON PARADISE · NO PAIN NO GAIN',240,39); }
+    rect(0,20,W,26,'#ffcc33'); rect(0,20,W,3,'rgba(0,0,0,.18)'); // wall stripe (the gym name lives in the HUD pill, so no sign text under it)
   } else if(tier===3){ // hardcore dungeon: red neon, chains, chalk
     g.fillStyle='rgba(0,0,0,.25)'; for(let y=0;y<FL;y+=30) g.fillRect(0,y,W,2);
-    if(!cleanRender){ g.save(); g.shadowColor='#ff3d5a'; g.shadowBlur=18; g.fillStyle='#ff5a70'; g.font='bold 26px "Trebuchet MS",sans-serif'; g.textAlign='center'; g.fillText('IRON DUNGEON',240,48); g.restore(); }
     g.strokeStyle='#5b5f68'; g.lineWidth=3; [40,440].forEach(x=>{ for(let y=0;y<180;y+=12){ g.beginPath(); g.ellipse(x,y,4,6,0,0,7); g.stroke(); } });
     g.fillStyle='rgba(255,255,255,.08)'; for(let i=0;i<30;i++){ g.beginPath(); g.arc(120+Math.sin(i*7)*120+120, FL+10+((i*13)%40), 3+(i%4), 0,7); g.fill(); }
     const rl=g.createRadialGradient(240,FL,10,240,FL,300); rl.addColorStop(0,'rgba(255,40,60,.16)'); rl.addColorStop(1,'rgba(255,40,60,0)'); g.fillStyle=rl; g.fillRect(0,0,W,H);
   } else { // Swoleympia stage: curtains, spotlights, wooden stage, banner
     const cur=(x0,dir)=>{ for(let i=0;i<6;i++){ g.fillStyle=i%2?'#7a1020':'#93182b'; g.fillRect(x0+dir*i*14,0,14*dir,FL); } };
     cur(0,1); cur(W,-1);
-    rect(0,0,W,34,'#93182b'); if(!cleanRender){ g.fillStyle='#ffd24a'; g.font='bold 18px "Trebuchet MS",sans-serif'; g.textAlign='center'; g.fillText('★ MR. SWOLEYMPIA ★',240,24); }
+    rect(0,0,W,34,'#93182b'); rect(0,30,W,4,'#ffd24a');
     [[140,-1],[340,1]].forEach(([x,d])=>{ const sg=g.createLinearGradient(x,34,240,FL); sg.addColorStop(0,'rgba(255,245,200,.22)'); sg.addColorStop(1,'rgba(255,245,200,0)');
       g.fillStyle=sg; g.beginPath(); g.moveTo(x-10,34); g.lineTo(x+10,34); g.lineTo(240+d*-10+90,FL); g.lineTo(240+d*-10-90,FL); g.closePath(); g.fill(); });
     g.strokeStyle='rgba(0,0,0,.25)'; g.lineWidth=1; for(let x=0;x<W;x+=34){ g.beginPath(); g.moveTo(x,FL); g.lineTo(x-20,H); g.stroke(); }
@@ -3214,7 +3214,8 @@ if('ontouchstart' in window){
 }
 bindTap(cv,(x,y)=>repAtCanvas(x,y));
 bindTap($('repbtn'),()=>doRep(undefined,undefined,state.selMuscle,true));
-cv.addEventListener('mousemove',e=>{ const q=canvasPt(e.clientX,e.clientY); hoverMus=regionAt(q.x,q.y); });
+cv.addEventListener('mousemove',e=>{ if(Date.now()-touchedAt<1500 || matchMedia('(hover: none)').matches) return;   // no hover labels from touch
+  const q=canvasPt(e.clientX,e.clientY); hoverMus=regionAt(q.x,q.y); });
 cv.addEventListener('mouseleave',()=>{ hoverMus=null; });
 $('turnbtn').addEventListener('click',e=>{ e.stopPropagation(); startTurn(); });
 document.addEventListener('keyup',e=>{ if(arenaOn && e.code==='Space' && arena && arena.input && arena.r.game==='hold') arena.input(false); });
