@@ -89,8 +89,12 @@ async function main(){
     const sh=g.createLinearGradient(0,h-250,0,h); sh.addColorStop(0,'rgba(10,13,20,0)'); sh.addColorStop(1,'rgba(10,13,20,.95)'); g.fillStyle=sh; g.fillRect(0,h-250,w,250);
     title(g,400,h-60,90,'center'); });
 
+  // 5) iOS app icon 1024×1024 — no text, fully opaque (alpha is stripped after export)
+  const appIcon=coverOf(1024,1024,(g,w,h)=>{ g.fillStyle='#10131a'; g.fillRect(0,0,w,h); put(g,bigBeast,0,0,w,h,[100,122,280,280]);
+    const v=g.createRadialGradient(w/2,h*0.45,w*0.3,w/2,h/2,w*0.75); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.35)'); g.fillStyle=v; g.fillRect(0,0,w,h); });
+
   const out=document.getElementById('out');
-  [['preview',og],['cover-1280x720',cover],['icon-512',icon],['cg-landscape-1920x1080',cgL],['cg-portrait-800x1200',cgP],['cg-square-800x800',cgS]].forEach(([n,c])=>{ const im=document.createElement('img'); im.id=n; im.alt=n; im.src=c.toDataURL('image/png'); out.appendChild(im); });
+  [['preview',og],['cover-1280x720',cover],['icon-512',icon],['cg-landscape-1920x1080',cgL],['cg-portrait-800x1200',cgP],['cg-square-800x800',cgS],['app-icon-1024',appIcon]].forEach(([n,c])=>{ const im=document.createElement('img'); im.id=n; im.alt=n; im.src=c.toDataURL('image/png'); out.appendChild(im); });
   document.title='READY';
 }
 main();

@@ -6,3 +6,5 @@ thumbnail.svg
 dist/
 .DS_Store
 .claude/
+ios/SwoleClicker.xcodeproj/xcuserdata/
+ios/SwoleClicker.xcodeproj/project.xcworkspace/xcuserdata/
