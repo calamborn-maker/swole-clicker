@@ -290,7 +290,7 @@
   .float.lv{color:var(--good); font-size:14px}
   .float.miss{color:var(--muted); font-size:13px}
   /* mobile tap feel */
-  button{touch-action:manipulation}
+  html,body,button,.tab,.item,.mchip,.mini{touch-action:manipulation}   /* no double-tap-zoom wait → taps click instantly on iOS */
   /* rewarded-ad buttons under DO A REP */
   #adrow{display:flex; gap:8px; margin-top:8px}
   .adbtn{flex:1; min-height:38px; padding:8px 6px; font-size:12px; font-weight:bold; border:none; border-radius:9px;
@@ -954,17 +954,22 @@ function doRep(clientX, clientY, mid, fromUI){
   pump=1; musPump[mid]=Math.min(1,(musPump[mid]||0)+0.3); musFlash[mid]=1; sfx('rep',mid); haptic(6);
   if(p>(state.bestRep||0)) state.bestRep=p; if(weak) state.weakReps=(state.weakReps||0)+1;
   const nowMs=performance.now(); repTimes.push(nowMs); while(repTimes.length&&nowMs-repTimes[0]>2000) repTimes.shift(); if(repTimes.length>=20) state.flags.turbo=true;
-  startMuscleEx(mid, 1.6);
+  startMuscleEx(mid, 1.2);
   spawnFloat('+'+fmt(p)+(weak?' 🎯×'+weakMult():'')+(em>1?' 🔥×'+em:''), clientX, clientY);
   noteLevels(before, clientX===undefined?null:clientX, clientY);
   spawnParticles();
   if(p>1e6 || frenzy>0 || beastT>0) shakeStage();
-  if(coachStep===0){ advanceCoach(1); const st=document.querySelector('.tab[data-tab=shop]'); if(st) st.click(); } // onboarding: rep done → point to shop
+  if(coachStep===0) advanceCoach(1);                                                   // onboarding: first rep → explain sets
+  else if(coachStep===1 && state.clicks>=8){ advanceCoach(2); const st=document.querySelector('.tab[data-tab=shop]'); if(st) st.click(); } // → point to shop
   afterChange(false);
 }
 // canvas taps only train the muscle actually under the finger; a miss just shows a hint
 let missHintAt=0;
-function repAtCanvas(x,y){ if(stageOn||arenaOn) return; const q=canvasPt(x,y), id=regionAt(q.x,q.y);
+function repAtCanvas(x,y){ if(stageOn||arenaOn) return;
+  // mid-set the lifter is moving (bench press, pull-ups…), so ANY tap on the stage keeps repping the same muscle;
+  // the set ends ~1.2s after the last tap and he stands back up, then taps pick a muscle again (chips switch instantly)
+  if(curMus && curEx!=='idle' && exEnergy>0){ doRep(x,y,curMus); return; }
+  const q=canvasPt(x,y), id=regionAt(q.x,q.y);
   if(id){ doRep(x,y,id); return; }
   if(regions[0]&&regions[0].id===null&&turnT<0&&hitCtx.isPointInPath(regions[0].p,q.x,q.y)){ state.headTaps=(state.headTaps||0)+1; spawnFloat('🧠 Brain gains?',x,y,'miss'); return; }
   if(Date.now()-missHintAt>1200){ missHintAt=Date.now(); spawnFloat(turnT>=0?'Turning…':'Tap a muscle!',x,y,'miss'); } }
@@ -979,7 +984,7 @@ function buy(item, want, ev){
     if(firstBuy){ if(item.mus.length){ startMuscleEx(item.mus[0],2.8); ensureView(item.mus[0]); } else { curMus=null; setExercise(item.part==='roids'?'flex':'chug',2.8); }
       toast(`🆕 New gear: <b>${item.name}</b>!`); }
     if(milestonesHit(item)>msBefore){ toast(`🏅 <b>${item.name}</b> milestone: ${state.owned[item.id]} owned — output ×${MS_MULT}!`); sfx('milestone'); }
-    if(firstEver){ const r=$('stage').getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2); if(coachStep===1) advanceCoach(2); } // celebrate first-ever purchase
+    if(firstEver){ const r=$('stage').getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2); if(coachStep>=1) advanceCoach(3); } // celebrate first-ever purchase
     afterChange(true);
   }
 }
@@ -1711,7 +1716,8 @@ let coachStep=-1;
 function startCoach(){ if(state.seenIntro || state.clicks>0 || totalOwned()>0){ state.seenIntro=true; return; } coachStep=0; showCoach(); }
 function showCoach(){ const c=$('coach');
   if(coachStep===0) positionCoach(c,$('repbtn'),'👆 Tap <b>any muscle</b> on the lifter (or DO A REP) to train it!');
-  else if(coachStep===1) positionCoach(c,$('panel-shop'),'🛒 Now buy your <b>first item</b> in the Shop to grow!');
+  else if(coachStep===1) positionCoach(c,$('stage'),'💪 Keep tapping <b>anywhere</b> on the lifter to finish the set. Pause a second (or tap a muscle chip) to switch muscles.');
+  else if(coachStep===2) positionCoach(c,$('panel-shop'),'🛒 Now buy your <b>first item</b> in the Shop to grow!');
   else { endCoach(); return; }
   c.style.display='block';
 }
@@ -3037,7 +3043,7 @@ function drawDude(dt){
   const opts={view,torso:'taper',shorts:true,active};
   const o={opts,back:null,front:null,air:0};
   let label='';
-  if(active){ ex.pose(J,m,ph,o,rep); label=ex.name.toUpperCase()+(curMus?' · '+MUS[curMus].name:''); }
+  if(active){ ex.pose(J,m,ph,o,rep); label=ex.name.toUpperCase()+(curMus?' · '+MUS[curMus].name+' · keep tapping':''); }
   else { idleClock+=dt; if(idleClock>4.5){ idleClock=0; idleIdx=(idleIdx+1)%IDLE_ORDER.length; }
     const ip=IDLE_POSES[IDLE_ORDER[idleIdx]]; ip.pose(J,m); label=ip[view]; }
   if(!J.eL||!J.hL) armsDown(J);
@@ -3145,8 +3151,19 @@ function offlineProgress(){
 // browser's synthetic click from firing a second rep.
 let touchedAt=0;
 function bindTap(el, handler){
+  el.dataset.fasttap='1';
   el.addEventListener('touchstart', e=>{ e.preventDefault(); touchedAt=Date.now(); const tt=e.changedTouches&&e.changedTouches[0]; handler(tt?tt.clientX:undefined, tt?tt.clientY:undefined); }, {passive:false});
   el.addEventListener('click', e=>{ if(Date.now()-touchedAt<700) return; handler(e.clientX,e.clientY); });
+}
+// Fast taps: WebKit (iOS) can delay the click after a tap by ~450ms or drop it entirely, which made every
+// button feel laggy. On touch screens a clean tap (no drag, <0.6s) fires the click right away instead.
+if('ontouchstart' in window){
+  let t0=null;
+  document.addEventListener('touchstart',e=>{ const t=e.changedTouches[0]; t0={x:t.clientX,y:t.clientY,at:Date.now(),el:e.target}; },{capture:true,passive:true});
+  document.addEventListener('touchend',e=>{ const s=t0; t0=null; if(!s||e.touches.length) return; const t=e.changedTouches[0], el=e.target;
+    if(el!==s.el || Math.hypot(t.clientX-s.x,t.clientY-s.y)>10 || Date.now()-s.at>600) return;
+    if(!el.closest || el.closest('[data-fasttap],input,textarea,select,canvas')) return;   // bindTap elements handle themselves
+    e.preventDefault(); el.click(); },{capture:true,passive:false});
 }
 bindTap(cv,(x,y)=>repAtCanvas(x,y));
 bindTap($('repbtn'),()=>doRep(undefined,undefined,state.selMuscle,true));
@@ -3224,7 +3241,7 @@ else boot();
 </script>
 <template id="privacytpl">
   <h1>Privacy Policy — Swole Clicker</h1>
-  <p class="muted">Last updated: October 5, 2026.</p>
+  <p class="muted">Last updated: October 6, 2026.</p>
 
   <p>This Privacy Policy explains how <strong>Swole Clicker</strong> (the "Game"), operated by
   <strong>Dumped</strong> ("we", "us"), handles information when you play the Game.
@@ -3238,6 +3255,9 @@ else boot();
   <p><strong>Portal profile.</strong> When you play on CrazyGames while logged in, the Game shows your CrazyGames username
   and profile picture in the corner of the screen. This is read from the CrazyGames SDK at runtime only; we do not store it.</p>
   <p><strong>We do not collect personal information</strong> (no accounts, names or emails) ourselves.</p>
+
+  <p><strong>iOS app.</strong> The Swole Clicker app for iPhone shows no ads, has no accounts or analytics, and collects
+  no data. Your save is stored only on your device and is removed if you delete the app.</p>
 
   <h2>2. Advertising</h2>
   <p>When played on a game portal, the Game may display ads (including rewarded video and interstitial ads) served by
