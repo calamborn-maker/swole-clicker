@@ -4,22 +4,24 @@
 </head><body>
 <!-- Renders marketing images from the live game drawing. Serve the repo root over http and open
      tools/preview.html (or run tools/render-previews.sh, which uses headless Chrome). -->
-<iframe id="g" src="../index.html"></iframe>
+<iframe id="g"></iframe>
+<script>document.getElementById('g').src='../index.html?nocache='+Date.now();</script>
 <div id="out"></div>
 <script>
 const FONT='"Trebuchet MS",Verdana,sans-serif';
 function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
 async function main(){
-  const f=document.getElementById('g'); await new Promise(r=>f.complete||f.contentDocument&&f.contentDocument.readyState==='complete'?r():f.addEventListener('load',r)); await wait(1500);
+  const f=document.getElementById('g'); await new Promise(r=>f.addEventListener('load',r)); await wait(1500);
   const W=f.contentWindow;
   W.eval(`while(document.getElementById('modalwrap').style.display==='flex') closeModal(); endCoach(); stopLoop(); save=()=>{}; cleanRender=true;`);
   // pose the lifter and grab a copy of the game canvas
-  const snap=(cfg)=>W.eval(`(()=>{ const c=${JSON.stringify(cfg)};
+  const snap=(cfg)=>W.eval(`(()=>{ const c=${JSON.stringify(cfg)}; const S=c.S||DPR;
+    cv.width=CW*S; cv.height=CH*S; ctx.setTransform(S,0,0,S,0,0); gymCv.width=CW*S; gymCv.height=CH*S; gctx.setTransform(S,0,0,S,0,0);
     state=defaultState(); MUSCLES.forEach(mu=>state.muscles[mu.id]=c.pts); Object.assign(state.owned,c.owned||{}); state.total=c.total||0; state.trophies=c.trophies||0;
     state.view=c.view||'front'; Object.assign(state.cos,c.cos||{}); state.cos.eq=c.eq||{}; (c.rivals||[]).forEach(r=>state.rivals[r]={beat:true,wins:1});
     musDirty=true; gymKey=''; curEx=c.ex||'idle'; exEnergy=c.ex?5:0; exClock=c.ex?Math.PI*(c.ph||1)/EX[c.ex].sp:0; idleIdx=c.idle||0; idleClock=0;
     poseFrom=null; blendT=1; poseKey=(c.ex?c.ex:'idle'+idleIdx)+state.view; turnT=-1; hoverMus=null; for(const k in musFlash) musFlash[k]=0;
-    stageOn=!!c.stage; drawDude(0); stageOn=false; const o=document.createElement('canvas'); o.width=cv.width; o.height=cv.height; o.getContext('2d').drawImage(cv,0,0); return o; })()`);
+    stageOn=!!c.stage; drawDude(0); stageOn=false; const bgc=document.createElement('canvas'); bgc.width=gymCv.width; bgc.height=gymCv.height; bgc.getContext('2d').drawImage(gymCv,0,0); const o=document.createElement('canvas'); o.bg=bgc; o.width=cv.width; o.height=cv.height; o.getContext('2d').drawImage(cv,0,0); return o; })()`);
   const noodle=snap({pts:0, total:0, idle:0});
   const mid=snap({pts:250, total:2e7, owned:{dumbbell:6,bench:4,shake:3}, idle:1});
   const beast=snap({pts:1600, total:2e13, owned:{gainer:12,dumbbell:9,squatrack:3}, idle:2, stage:true});
@@ -64,8 +66,30 @@ async function main(){
   g.save(); g.textAlign='center'; g.font=`bold 74px ${FONT}`; g.lineWidth=10; g.strokeStyle='#1a1206'; g.lineJoin='round'; g.strokeText('SWOLE',256,470);
   const gr3=g.createLinearGradient(0,410,0,470); gr3.addColorStop(0,'#fff6d6'); gr3.addColorStop(1,'#ffcc33'); g.fillStyle=gr3; g.fillText('SWOLE',256,470); g.restore();
 
+  // 4) CrazyGames covers — title text only, no borders/labels (docs.crazygames.com/requirements/game-covers)
+  const bigBeast=snap({S:5, pts:1600, total:2e13, owned:{gainer:12,dumbbell:9,squatrack:3}, idle:2, stage:true});
+  const bigNoodle=snap({S:5, pts:0, total:0, idle:0});
+  const bigDungeon=snap({S:5, pts:1200, total:6e9, owned:{gainer:10,dumbbell:9,squatrack:3,shake:2}, idle:0, eq:{champbelt:true}, rivals:['ollie']});
+  const coverOf=(w,h,draw)=>{ const c=document.createElement('canvas'); c.width=w; c.height=h; draw(c.getContext('2d'),w,h); return c; };
+  // scale a snap to cover an area (crop the overflow), anchored at (ax,ay) in 0..1
+  const coverDraw=(g,src,x,y,w,h,ax,ay)=>{ const k=Math.max(w/480,h/520), dw=480*k, dh=520*k; g.save(); g.beginPath(); g.rect(x,y,w,h); g.clip();
+    put(g,src,x+(w-dw)*(ax==null?.5:ax),y+(h-dh)*(ay==null?.5:ay),dw,dh); g.restore(); };
+  const cgL=coverOf(1920,1080,(g,w,h)=>{
+    g.save(); g.filter='blur(10px) brightness(.5)'; coverDraw(g,bigBeast.bg,-40,-40,w+80,h+80,.5,.4); g.restore();     // the empty stage, softened
+    put(g,bigBeast,w-1000,0,1000,1083);                                                                                // full-height lifter on the stage
+    const sh=g.createLinearGradient(w-1000,0,w-860,0); sh.addColorStop(0,'rgba(0,0,0,.35)'); sh.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=sh; g.fillRect(w-1000,0,140,h);
+    g.save(); g.beginPath(); g.roundRect(150,360,320,560,26); g.clip(); coverDraw(g,bigNoodle,150,360,320,560,.5,.62); g.restore();
+    g.fillStyle='#ffcc33'; g.font=`bold 150px ${FONT}`; g.fillText('›',560,700);
+    title(g,110,240,128); });
+  const cgP=coverOf(800,1200,(g,w,h)=>{ coverDraw(g,bigBeast,0,0,w,h,.5,.5);
+    const sh=g.createLinearGradient(0,0,0,330); sh.addColorStop(0,'rgba(10,13,20,.88)'); sh.addColorStop(1,'rgba(10,13,20,0)'); g.fillStyle=sh; g.fillRect(0,0,w,330);
+    title(g,400,170,92,'center'); });
+  const cgS=coverOf(800,800,(g,w,h)=>{ coverDraw(g,bigDungeon,0,0,w,h,.5,.35);
+    const sh=g.createLinearGradient(0,h-250,0,h); sh.addColorStop(0,'rgba(10,13,20,0)'); sh.addColorStop(1,'rgba(10,13,20,.95)'); g.fillStyle=sh; g.fillRect(0,h-250,w,250);
+    title(g,400,h-60,90,'center'); });
+
   const out=document.getElementById('out');
-  [['preview',og],['cover-1280x720',cover],['icon-512',icon]].forEach(([n,c])=>{ const im=document.createElement('img'); im.id=n; im.alt=n; im.src=c.toDataURL('image/png'); out.appendChild(im); });
+  [['preview',og],['cover-1280x720',cover],['icon-512',icon],['cg-landscape-1920x1080',cgL],['cg-portrait-800x1200',cgP],['cg-square-800x800',cgS]].forEach(([n,c])=>{ const im=document.createElement('img'); im.id=n; im.alt=n; im.src=c.toDataURL('image/png'); out.appendChild(im); });
   document.title='READY';
 }
 main();
