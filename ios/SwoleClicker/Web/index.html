@@ -253,6 +253,13 @@
   @keyframes evtpop{from{transform:scale(0)} to{transform:scale(1)}}
   @keyframes evtbob{0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)}}
   #ptitle{font-size:12px; color:var(--gold); font-style:italic}
+  .tmrw{margin-top:12px; padding:8px 10px; border-radius:8px; background:rgba(255,204,51,.1); border:1px dashed rgba(255,204,51,.45); font-size:13px; color:#ffe6a0}
+  #nextgoal{display:none; margin-top:8px; padding:6px 9px; border-radius:8px; background:#0c0f16; border:1px solid var(--line); font-size:12px; line-height:1.35; cursor:pointer; position:relative; overflow:hidden}
+  #nextgoal:hover{border-color:var(--accent)}
+  #nextgoal .ngbar{position:absolute; left:0; bottom:0; height:2px; background:var(--accent); transition:width .4s}
+  #nextgoal .ngt{color:#cfd6e4} #nextgoal .ngt b{color:#fff}
+  @media (orientation:landscape) and (max-height:500px){ #nextgoal{font-size:11px; padding:4px 7px; margin-top:5px} #nextgoal .ngd{display:none} }
+  #questreset{font-size:12px; margin:-4px 0 10px; color:#9aa5b8}
   /* rivals arena */
   .item.rival .mini.on{white-space:nowrap}
   #arena{position:fixed; inset:0; z-index:115; background:rgba(5,7,12,.92); display:flex; align-items:center; justify-content:center; padding:14px}
@@ -390,6 +397,7 @@
         <span id="rank">Noodle Arms</span> <span id="ptitle"></span>
         <div id="rankbar"><div id="rankfill"></div></div>
       </div>
+      <div id="nextgoal"></div>
     </div>
 
     <div id="stage" class="card" style="padding:0">
@@ -463,6 +471,7 @@
 
     <div class="panel" id="panel-quests">
       <div class="sub" style="margin-bottom:10px">🎯 Daily Quests — refresh every day. Tap Claim when done, or watch an ad to double it.</div>
+      <div id="questreset"></div>
       <div id="quests"></div>
     </div>
 
@@ -851,13 +860,25 @@ function onCgReady(cb){ if(PLATFORM!=='crazygames'||cgReadyFired) cb(); else cgR
 const storage={
   cg(){ return PLATFORM==='crazygames' && cgDataReady && window.CrazyGames && window.CrazyGames.SDK && window.CrazyGames.SDK.data; },
   get(k){ try{ if(this.cg()) return window.CrazyGames.SDK.data.getItem(k); }catch(e){} try{ return localStorage.getItem(k); }catch(e){ return null; } },
-  set(k,v){ try{ if(this.cg()){ window.CrazyGames.SDK.data.setItem(k,v); return; } }catch(e){} try{ localStorage.setItem(k,v); }catch(e){} },
+  set(k,v){ try{ if(this.cg()) window.CrazyGames.SDK.data.setItem(k,v); }catch(e){} try{ localStorage.setItem(k,v); }catch(e){} }, // localStorage mirror = backup copy
   remove(k){ try{ if(this.cg()){ window.CrazyGames.SDK.data.removeItem(k); return; } }catch(e){} try{ localStorage.removeItem(k); }catch(e){} },
 };
 function load(){
   try{ const r=JSON.parse(storage.get(SAVE_KEY)); const m=migrate(r); if(m) state=m; }catch(e){}
 }
-function save(){ state.lastSeen=Date.now(); storage.set(SAVE_KEY, JSON.stringify(state)); }
+function save(){ if(!saveReady) return; state.lastSeen=Date.now(); storage.set(SAVE_KEY, JSON.stringify(state)); }
+// If the CrazyGames SDK answers after the boot fallback timer, the game started without the cloud save.
+// Saving is held until we've compared the two, and whichever run has more lifetime gains wins — so a
+// slow connection can never overwrite a real save with a blank one.
+let saveReady=true;
+function adoptLateCloudSave(){
+  let cloud=null; try{ cloud=migrate(JSON.parse(window.CrazyGames.SDK.data.getItem(SAVE_KEY))); }catch(e){}
+  if(cloud && (cloud.lifetime||0)>(state.lifetime||0)){
+    state=cloud; closeAllModals(); endCoach(); musDirty=true; lastGymTier=-1; gymKey=''; hudKey='';
+    renderAll(); offlineProgress(); checkDaily(); toast('☁️ Cloud save loaded');
+  }
+  saveReady=true; save();
+}
 
 //////////////////// ECONOMY ////////////////////
 const catMap={}; ITEMS.forEach(i=>{ (catMap[i.part]=catMap[i.part]||[]).push(i); });
@@ -1235,6 +1256,30 @@ function renderStats(){
 
 function renderAll(){ musDirty=true; updateTurnBtn(); renderShop(); renderUpgrades(); renderStage(); updateUpBadge(); renderRivals(); updateRivalBadge(); renderAch(); renderQuests(); renderLocker(); renderStats(); updateUI(); updateQuestBadge(); updateMusChips(); }
 
+// "Next goal" line under the rank bar: there's always one concrete thing to aim for, and tapping it
+// jumps to the right tab. Priority: claimable quest → waiting rival → affordable upgrade → nearest award.
+let ngAch=null, ngKey='';
+function nextGoal(){
+  if(state.quests && state.quests.list.some(q=>!q.claimed&&questDone(q))) return {k:'q', tab:'quests', html:'🎁 <b>A daily quest is done</b> — tap to claim your reward'};
+  const r=RIVALS.find(r=>rivalUnlocked(r)&&!(state.rivals[r.id]&&state.rivals[r.id].beat));
+  if(r) return {k:'r'+r.id, tab:'rivals', html:`${r.emoji} <b>${r.name}</b> wants to challenge you <span class="ngd">— tap to fight</span>`};
+  if(UPGRADES.some(u=>!state.upgrades[u.id]&&u.req(state)&&state.gains>=u.cost)) return {k:'u', tab:'upgrades', html:'⭐ <b>You can afford an upgrade</b> — tap to see it'};
+  let a=ngAch&&!state.achievements[ngAch.id]?ngAch:null;
+  if(!a){ let bf=-1; ACHS.forEach(x=>{ if(x.secret||!x.prog||state.achievements[x.id]) return; const [c,t]=x.prog(state), f=c/t; if(f<1&&f>bf){ bf=f; a=x; } }); ngAch=a; }
+  if(!a) return null;
+  const [c,t]=a.prog(state);
+  return {k:'a'+a.id+Math.floor(c/t*100), tab:'ach', pct:c/t, html:`${a.emoji} Next award: <b>${a.name}</b><span class="ngd"> · ${a.desc}</span> <span style="color:#9aa5b8">(${fmt(Math.floor(c))} / ${fmt(t)})</span>`};
+}
+function updateNextGoal(){
+  const el=$('nextgoal'); if(!el) return;
+  const g=(coachStep>=0||!state.seenIntro)?null:nextGoal();
+  if(!g){ if(ngKey){ el.style.display='none'; ngKey=''; } return; }
+  if(g.k===ngKey) return; ngKey=g.k;
+  el.innerHTML=`<span class="ngt">${g.html}</span>`+(g.pct!=null?`<i class="ngbar" style="width:${(g.pct*100).toFixed(1)}%"></i>`:'');
+  el.style.display='block';
+  el.onclick=()=>{ const t=document.querySelector(`.tab[data-tab=${g.tab}]`); if(t){ t.click(); t.scrollIntoView({block:'nearest',behavior:'smooth'}); } };
+}
+setInterval(()=>{ if(!document.hidden) updateNextGoal(); }, 1000);
 function updateUI(){
   $('gains').textContent=fmt(state.gains);
   $('rate').textContent='+'+fmt(perSec())+'/sec';
@@ -1286,6 +1331,7 @@ function modal(title, bodyHtml, buttons){
     el.onclick=()=>{ closeModal(); b.fn&&b.fn(); }; row.appendChild(el); });
   $('modalwrap').style.display='flex';
 }
+function closeAllModals(){ modalQ=[]; if(modalOpen) closeModal(); if(arenaOn) closeArena(); }
 function closeModal(){
   $('modalwrap').style.display='none'; modalOpen=false;
   if(modalQ.length){ const m=modalQ.shift(); modal(m[0],m[1],m[2]); }
@@ -1653,19 +1699,23 @@ function updateAdButtons(){ const a=ads.available(); setAdBtn($('adfrenzy'),a,st
 //////////////////// DAILY LOGIN REWARD ////////////////////
 function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
 function dayDiff(a,b){ const pa=a.split('-').map(Number),pb=b.split('-').map(Number); return Math.round((new Date(pb[0],pb[1]-1,pb[2])-new Date(pa[0],pa[1]-1,pa[2]))/86400000); }
+function freshPlayer(){ return !state.seenIntro && state.clicks===0 && totalOwned()===0; }
+function dailyMinutes(k){ return k>=7 ? 300 : [0,30,45,60,90,120,150][Math.min(k,6)]; }  // escalating, day-7 milestone
 function checkDaily(){
+  if(freshPlayer()) return;   // brand-new players go straight to the lifter; Day 1 is paid when the tutorial ends
   const today=todayStr();
   if(state.daily.last===today) return;                                   // already claimed today
   if(state.daily.last && dayDiff(state.daily.last,today)===1) state.daily.streak++; else state.daily.streak=1; // missing a day resets
   state.daily.last=today; save();
   const k=state.daily.streak;
-  const minutes = k>=7 ? 300 : [0,30,45,60,90,120,150][Math.min(k,6)];    // escalating, day-7 milestone
+  const minutes = dailyMinutes(k);
   const earned=Math.max(perSecRaw()*minutes*60, 25*minutes);             // idle-income value, floored for new players
   state.gains+=earned; state.total+=earned; state.lifetime+=earned;
   modal('🎁 Daily Bonus — Day '+k+(k>=7?' 🔥':''),
-    `<div class="sub">${k>1?'Login streak: <b style="color:#fff">'+k+' days</b> — keep it going!':'Welcome! Come back daily for bigger rewards.'}</div>
+    `<div class="sub">${k>1?'Login streak: <b style="color:#fff">'+k+' days</b> — keep it going!':'Nice first workout! Here\'s your first daily bonus.'}</div>
      <div style="font-size:26px;margin-top:10px;color:var(--accent)">+${fmt(earned)} gains</div>
-     <div class="sub" style="margin-top:6px">≈ ${minutes} min of idle income${k>=7?' · Day-7 mega bonus!':''}.</div>`,
+     <div class="sub" style="margin-top:6px">≈ ${minutes} min of idle income${k>=7?' · Day-7 mega bonus!':''}.</div>
+     <div class="tmrw">📅 Come back tomorrow: <b>Day ${k+1}</b> pays ≈ ${dailyMinutes(k+1)} min of income${k+1===7?' — the Day-7 mega bonus!':''}</div>`,
     [{label:'Claim 💪', cls:'btnyes'}]);
 }
 
@@ -1711,8 +1761,12 @@ function updateQuestBadge(){ const tab=document.querySelector('.tab[data-tab=que
   const n=state.quests? state.quests.list.filter(q=>!q.claimed&&questDone(q)).length:0;
   tab.innerHTML='🎯 Quests'+(n?' <span class="qcount">'+n+'</span>':'');
 }
+function msToMidnight(){ const n=new Date(), m=new Date(n); m.setHours(24,0,0,0); return m-n; }
+function updateQuestReset(){ const el=$('questreset'); if(!el||!state.quests) return;
+  const all=state.quests.list.every(q=>q.claimed), mins=Math.ceil(msToMidnight()/60000), t=(mins>=60?Math.floor(mins/60)+'h ':'')+(mins%60)+'m';
+  el.innerHTML=all?`✅ All done for today — <b style="color:#fff">3 new quests in ${t}</b>. Come back tomorrow!`:`🔄 New quests in ${t}`; }
 function renderQuests(){
-  const el=$('quests'); if(!el) return; ensureQuests(); el.innerHTML='';
+  const el=$('quests'); if(!el) return; ensureQuests(); el.innerHTML=''; updateQuestReset();
   state.quests.list.forEach((q,i)=>{
     const cur=questCurrent(q), done=cur>=q.target, pct=Math.min(100,cur/q.target*100);
     const row=document.createElement('div'); row.className='qrow';
@@ -1749,7 +1803,8 @@ function positionCoach(c,target,html){ const r=target.getBoundingClientRect();
   $('coachx').onclick=endCoach;
 }
 function advanceCoach(to){ if(coachStep<0) return; coachStep=to; showCoach(); }
-function endCoach(){ coachStep=-1; const c=$('coach'); if(c) c.style.display='none'; state.seenIntro=true; save(); }
+function endCoach(){ const wasOn=coachStep>=0; coachStep=-1; const c=$('coach'); if(c) c.style.display='none'; state.seenIntro=true; save();
+  if(wasOn) setTimeout(checkDaily, 900); }   // first-ever session: the Day-1 bonus lands as the tutorial's reward
 function confettiBurst(x,y){ if(reduceMotion()) return; const em=['🎉','💪','⭐','🔥','🥤']; for(let i=0;i<16;i++){ const d=document.createElement('div'); d.className='confetti'; d.textContent=em[i%em.length]; d.style.left=(x+(Math.random()*120-60))+'px'; d.style.top=(y+(Math.random()*40-20))+'px'; document.body.appendChild(d); setTimeout(()=>d.remove(),1150); } }
 
 //////////////////// TIPS: one-time hints as each feature becomes relevant ////////////////////
@@ -1776,6 +1831,8 @@ const TIPS=[
    html:'⚔️ A <b>rival</b> wants to challenge you! Beat them in the Rivals tab for a title, a cosmetic and +5% gains.'},
   {id:'quests', when:()=>state.playtime>=150, el:()=>document.querySelector('.tab[data-tab=quests]'), done:()=>(state.questsDone||0)>0,
    html:'🎯 <b>Daily quests</b> refresh every day and pay out bonus gains.'},
+  {id:'idle', when:()=>state.playtime>=200&&perSecRaw()>0, el:()=>$('rate'), done:()=>false,
+   html:()=>`💤 Your gear keeps training while you're away — come back later to collect up to <b>${offlineCapH()}h of gains</b>. Daily bonuses grow every day in a row, too.`},
   {id:'locker', when:()=>state.playtime>=240, el:()=>document.querySelector('.tab[data-tab=locker]'), done:()=>false,
    html:'🪞 Make the lifter yours in the <b>Locker</b> — body type, skin, hair and silly accessories.'},
   {id:'music', when:()=>state.playtime>=330&&!state.settings.music, el:()=>$('setbtn'), done:()=>state.settings.music,
@@ -1810,7 +1867,7 @@ function tickTips(){
   const t=TIPS.find(t=>!state.tips[t.id] && (t.pri||gap>20000) && t.when() && !t.done() && t.el());
   if(!t) return;
   tipNow=t; tipShownAt=performance.now();
-  const c=$('coach'); c.innerHTML=`<span class="cx" id="coachx">✕</span>${t.html}<div><button class="tipok" id="tipok">Got it</button></div>`;
+  const c=$('coach'); c.innerHTML=`<span class="cx" id="coachx">✕</span>${typeof t.html==='function'?t.html():t.html}<div><button class="tipok" id="tipok">Got it</button></div>`;
   c.style.display='block'; $('coachx').onclick=endTip; $('tipok').onclick=endTip; placeTip();
 }
 
@@ -3268,7 +3325,10 @@ function boot(){
 }
 // On CrazyGames, wait for SDK.init() (it preloads the cloud save) before reading the save.
 // Hard fallback timer guarantees the game always starts even if the SDK never loads.
-if(PLATFORM==='crazygames'){ let booted=false; const go=()=>{ if(booted) return; booted=true; boot(); }; onCgReady(go); setTimeout(go,4000); }
+if(PLATFORM==='crazygames'){ let booted=false;
+  const go=()=>{ if(booted) return; booted=true; boot(); };
+  onCgReady(()=>{ if(!booted) go(); else if(cgDataReady) adoptLateCloudSave(); else { saveReady=true; save(); } });
+  setTimeout(()=>{ if(!booted){ saveReady=false; go(); } },4000); }
 else boot();
 </script>
 <template id="privacytpl">

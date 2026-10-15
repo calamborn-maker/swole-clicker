@@ -89,6 +89,28 @@ async function main(){
     const sh=g.createLinearGradient(0,h-250,0,h); sh.addColorStop(0,'rgba(10,13,20,0)'); sh.addColorStop(1,'rgba(10,13,20,.95)'); g.fillStyle=sh; g.fillRect(0,h-250,w,250);
     title(g,400,h-60,90,'center'); });
 
+  // CrazyGames covers v2 — big before/after split so the transformation reads at thumbnail size
+  const split=(g,w,h,poly,draw)=>{ g.save(); g.beginPath(); poly.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y)); g.closePath(); g.clip(); draw(); g.restore(); };
+  const divider=(g,x1,y1,x2,y2,lw)=>{ g.save(); g.shadowColor='#ffcc33'; g.shadowBlur=lw*3; g.strokeStyle='#ffcc33'; g.lineWidth=lw; g.beginPath(); g.moveTo(x1,y1); g.lineTo(x2,y2); g.stroke(); g.restore(); };
+  const arrow=(g,x,y,r,rot)=>{ g.save(); g.translate(x,y); g.rotate(rot||0); g.translate(-x,-y); g.shadowColor='rgba(0,0,0,.5)'; g.shadowBlur=r*.4; g.fillStyle='#ffcc33'; g.beginPath(); g.arc(x,y,r,0,7); g.fill(); g.shadowBlur=0;
+    g.strokeStyle='#1a1206'; g.lineWidth=r*.12; g.stroke(); g.fillStyle='#1a1206'; g.beginPath(); g.moveTo(x-r*.42,y-r*.2); g.lineTo(x+r*.05,y-r*.2); g.lineTo(x+r*.05,y-r*.45);
+    g.lineTo(x+r*.52,y); g.lineTo(x+r*.05,y+r*.45); g.lineTo(x+r*.05,y+r*.2); g.lineTo(x-r*.42,y+r*.2); g.closePath(); g.fill(); g.restore(); };
+  const bottomFade=(g,w,h,fh,a)=>{ const bl=g.createLinearGradient(0,h-fh,0,h); bl.addColorStop(0,'rgba(10,13,20,0)'); bl.addColorStop(1,`rgba(10,13,20,${a})`); g.fillStyle=bl; g.fillRect(0,h-fh,w,fh); };
+  // draw a snap scaled by height, with its centre at cx (crop sides as needed)
+  const byH=(g,src,cx,y,h,c)=>{ c=c||[0,0,480,520]; const k=h/c[3], w=c[2]*k; put(g,src,cx-w/2,y,w,h,c); };
+  const cg2L=coverOf(1920,1080,(g,w,h)=>{
+    split(g,w,h,[[0,0],[820,0],[700,h],[0,h]],()=>byH(g,bigNoodle,380,-20,1180,[60,0,360,520]));
+    split(g,w,h,[[820,0],[w,0],[w,h],[700,h]],()=>byH(g,bigBeast,1330,-70,1300,[0,0,480,520]));
+    divider(g,820,0,700,h,10); bottomFade(g,w,h,330,.9); arrow(g,768,430,92); title(g,w/2,h-90,150,'center'); });
+  const cg2P=coverOf(800,1200,(g,w,h)=>{
+    split(g,w,h,[[0,0],[w,0],[w,500],[0,580]],()=>coverDraw(g,bigNoodle,0,0,w,600,.5,.5));
+    split(g,w,h,[[0,580],[w,500],[w,h],[0,h]],()=>coverDraw(g,bigBeast,-40,470,w+80,730,.5,.3));
+    divider(g,0,580,w,500,8); bottomFade(g,w,h,260,.92); arrow(g,400,540,66,Math.PI/2); title(g,400,h-58,88,'center'); });
+  const cg2S=coverOf(800,800,(g,w,h)=>{
+    split(g,w,h,[[0,0],[330,0],[290,h],[0,h]],()=>byH(g,bigNoodle,160,-10,800,[100,0,280,520]));
+    split(g,w,h,[[330,0],[w,0],[w,h],[290,h]],()=>byH(g,bigBeast,550,-30,860,[40,0,400,520]));
+    divider(g,330,0,290,h,7); bottomFade(g,w,h,230,.92); arrow(g,312,330,56); title(g,400,h-56,86,'center'); });
+
   // App Store Creative Assets (title text only, no alpha): product page header 21:9 and search result 3:2
   const asHeader=coverOf(3840,1646,(g,w,h)=>{
     g.save(); g.filter='blur(16px) brightness(.5)'; coverDraw(g,bigBeast.bg,-60,-60,w+120,h+120,.5,.4); g.restore();
@@ -110,7 +132,7 @@ async function main(){
     const v=g.createRadialGradient(w/2,h*0.45,w*0.3,w/2,h/2,w*0.75); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.35)'); g.fillStyle=v; g.fillRect(0,0,w,h); });
 
   const out=document.getElementById('out');
-  [['preview',og],['cover-1280x720',cover],['icon-512',icon],['cg-landscape-1920x1080',cgL],['cg-portrait-800x1200',cgP],['cg-square-800x800',cgS],['app-icon-1024',appIcon],['as-header-3840x1646',asHeader],['as-search-3840x2560',asSearch]].forEach(([n,c])=>{ const im=document.createElement('img'); im.id=n; im.alt=n; im.src=c.toDataURL('image/png'); out.appendChild(im); });
+  [['preview',og],['cover-1280x720',cover],['icon-512',icon],['cg-landscape-1920x1080',cgL],['cg-portrait-800x1200',cgP],['cg-square-800x800',cgS],['app-icon-1024',appIcon],['as-header-3840x1646',asHeader],['as-search-3840x2560',asSearch],['cg2-landscape-1920x1080',cg2L],['cg2-portrait-800x1200',cg2P],['cg2-square-800x800',cg2S]].forEach(([n,c])=>{ const im=document.createElement('img'); im.id=n; im.alt=n; im.src=c.toDataURL('image/png'); out.appendChild(im); });
   document.title='READY';
 }
 main();

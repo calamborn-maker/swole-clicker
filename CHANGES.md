@@ -28,3 +28,16 @@ See `PUBLISHING.md`.
 - Publish-readiness: rewarded ads, daily login streak, Locker (body type, skin, hair, accessories), first-60s
   onboarding, pause-when-hidden, share card.
 - Daily quests and portal adapters (CrazyGames + GameDistribution).
+
+## Launch-results update (October 15, 2026)
+Based on the CrazyGames Basic Launch stats (mobile gameplay conversion 41%, D1 retention ~4.8%, playtime 7–9 min).
+- **First visit:** brand-new players skip the daily-bonus popup and go straight to the tap-a-muscle tutorial; the
+  Day-1 bonus is paid as the tutorial's reward (first purchase). Gameplay starts immediately for CrazyGames.
+- **Save safety:** if the CrazyGames SDK answers after the 4 s boot fallback, saving is held until the cloud save is
+  checked; the run with more lifetime gains wins (fixes a blank run overwriting a real save on slow connections).
+  Saves are also mirrored to localStorage as a backup.
+- **Come-back hooks:** daily bonus shows tomorrow's reward; Quests show a reset countdown and "3 new quests tomorrow"
+  when all are claimed; a one-time tip explains idle earnings while away.
+- **Next goal:** a line under the rank bar always shows one thing to aim for (claimable quest → waiting rival →
+  affordable upgrade → nearest award with progress); tapping it opens that tab.
+- **Covers v2:** big before/after split covers in `assets/crazygames/v2/`.
