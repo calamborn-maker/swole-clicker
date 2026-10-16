@@ -79,3 +79,7 @@ CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too
 - **Performance (Chromebook 4 GB requirement):** the shop is only rebuilt when something it shows changes, rep-driven
   panel refreshes are batched (≤ ~7/s), muscle chips only touch changed text. Heavy tapping with a 4× CPU slowdown:
   16 → 59 fps; 6× slowdown: 5 → 41 fps; DOM churn ~38K → ~7K nodes. JS heap ~4 MB.
+- **Accounts on shared devices:** on CrazyGames the browser's backup copy is never loaded before the SDK answers
+  (it may belong to another player); the account's Data-module save is adopted when the SDK is ready. The browser
+  copy is only used if the SDK is blocked/unavailable. Verified: logged-in load + avatar/name, slow SDK on a shared
+  device, new account on a shared device, SDK blocked, guest logging in mid-game (reload → account save).

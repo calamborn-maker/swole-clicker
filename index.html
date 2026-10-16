@@ -995,6 +995,10 @@ const storage={
   remove(k){ try{ if(this.cg()){ window.CrazyGames.SDK.data.removeItem(k); return; } }catch(e){} try{ localStorage.removeItem(k); }catch(e){} },
 };
 function load(){
+  // On CrazyGames the save belongs to the CrazyGames account (Data module). If the SDK isn't ready yet (boot
+  // fallback), start blank instead of reading the browser's copy — on a shared device that copy may be another
+  // player's. The account's save is adopted as soon as the SDK answers (adoptLateCloudSave).
+  if(PLATFORM==='crazygames' && !cgReadyFired) return;
   try{ const r=JSON.parse(storage.get(SAVE_KEY)); const m=migrate(r); if(m) state=m; }catch(e){}
 }
 function save(){ if(!saveReady) return; state.lastSeen=Date.now(); storage.set(SAVE_KEY, JSON.stringify(state)); }
@@ -1002,11 +1006,11 @@ function save(){ if(!saveReady) return; state.lastSeen=Date.now(); storage.set(S
 // Saving is held until we've compared the two, and whichever run has more lifetime gains wins — so a
 // slow connection can never overwrite a real save with a blank one.
 let saveReady=true;
-function adoptLateCloudSave(){
-  let cloud=null; try{ cloud=migrate(JSON.parse(window.CrazyGames.SDK.data.getItem(SAVE_KEY))); }catch(e){}
+function adoptLateCloudSave(fromLocal){
+  let cloud=null; try{ cloud=migrate(JSON.parse(fromLocal? localStorage.getItem(SAVE_KEY) : window.CrazyGames.SDK.data.getItem(SAVE_KEY))); }catch(e){}
   if(cloud && (cloud.lifetime||0)>(state.lifetime||0)){
     state=cloud; closeAllModals(); endCoach(); musDirty=true; shownRank=-1; lastGymTier=-1; gymKey=''; hudKey='';
-    renderAll(); offlineProgress(); checkDaily(); toast('☁️ Cloud save loaded');
+    renderAll(); offlineProgress(); checkDaily(); toast(fromLocal?'💾 Save loaded':'☁️ Cloud save loaded');
   }
   saveReady=true; save();
 }
@@ -3541,8 +3545,10 @@ function boot(){
 // Hard fallback timer guarantees the game always starts even if the SDK never loads.
 if(PLATFORM==='crazygames'){ let booted=false;
   const go=()=>{ if(booted) return; booted=true; boot(); };
-  onCgReady(()=>{ if(!booted) go(); else if(cgDataReady) adoptLateCloudSave(); else { saveReady=true; save(); } });
-  setTimeout(()=>{ if(!booted){ saveReady=false; go(); } },4000); }
+  // SDK late: adopt the account's save. SDK unavailable (blocked/failed): fall back to this browser's copy.
+  onCgReady(()=>{ if(!booted) go(); else if(!saveReady) adoptLateCloudSave(!cgDataReady); });
+  setTimeout(()=>{ if(!booted){ saveReady=false; go(); } },4000);
+  setTimeout(()=>{ if(!saveReady && !cgReadyFired) adoptLateCloudSave(true); },20000); }   // SDK never answered
 else boot();
 </script>
 </body>
