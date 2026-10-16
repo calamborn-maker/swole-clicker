@@ -41,3 +41,16 @@ Based on the CrazyGames Basic Launch stats (mobile gameplay conversion 41%, D1 r
 - **Next goal:** a line under the rank bar always shows one thing to aim for (claimable quest → waiting rival →
   affordable upgrade → nearest award with progress); tapping it opens that tab.
 - **Covers v2:** big before/after split covers in `assets/crazygames/v2/`.
+
+## Full Launch compliance — part A (October 16, 2026)
+CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too small, too many Data-module writes.
+- **Fixed 16:9 layout on CrazyGames (landscape):** designed at 960×540; `html` font-size = 16px × scale and the whole
+  stylesheet is in rem, so the layout is identical at every iframe size (text ≥ 12px at 821×462, scales up in
+  fullscreen). The canvas backing resolution follows its on-screen size. Muscles: a 2-column list with all 15 rows
+  visible. Title hidden (CrazyGames shows it under the iframe). `?fixed` previews it locally. Website/iOS unchanged.
+- **Saves:** cloud (Data module) writes at most every 5 s, flushed on tab hide/close; localStorage keeps every save.
+- **Ads:** UI blocked from request until finish/error; audio mutes only once the ad starts; no ad after the
+  welcome-back popup; a midgame break after a finished rival match; ad blocker → boosts disabled with an inline note.
+  Rewarded boosts moved from under DO A REP to a "Free boosts" card at the top of the Shop.
+- **Account:** a guest who logs in mid-game is saved and the page reloads to load the account's progress.
+- **Space:** holding it no longer auto-repeats reps.
