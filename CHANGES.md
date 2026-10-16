@@ -54,3 +54,11 @@ CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too
   Rewarded boosts moved from under DO A REP to a "Free boosts" card at the top of the Shop.
 - **Account:** a guest who logs in mid-game is saved and the page reloads to load the account's progress.
 - **Space:** holding it no longer auto-repeats reps.
+
+## Visual polish — part B (October 16, 2026)
+- **Icon set:** 54 hand-drawn SVG icons (`tools/icons.py` → inline sprite in index.html; `ic('id')` in JS) replace the
+  emojis for all 37 shop items, the 8 tabs, prices (gains), trophy badge, settings, turn, ad boosts, mystery items.
+  Same art on every OS (emojis looked different/cheap on Windows).
+- **Font:** Lilita One (SIL OFL, 10.7 KB woff2, embedded) for numbers, headings, buttons, tabs and item names.
+- **Feel:** hover/press states on rows, tabs and buttons; panel fade-in on tab switch; purchase pop on the bought row;
+  a "RANK UP!" banner with confetti on the stage when the run's rank climbs.
