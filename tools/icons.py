@@ -204,6 +204,10 @@ I['video'] = (sh('rect', '#3a3f4c', x=4, y=10, width=40, height=28, rx=4) + sh('
               + sh('path', RED, d='M20 18l10 6-10 6z') + ln('M18 42h12', O, 3))
 I['bolt'] = sh('path', GOLD, d='M27 3L9 27h12l-4 18 22-26H27z')
 I['muscle'] = I['gains']
+I['bag'] = (ln('M15 18c0-9 18-9 18 0', O, 6.4) + ln('M15 18c0-9 18-9 18 0', IRON, 3)
+            + sh('path', RED, d='M5 22c0-3 2-5 5-5h28c3 0 5 2 5 5v14c0 4-3 7-7 7H12c-4 0-7-3-7-7z')
+            + sh('rect', WHITE, x=5, y=27, width=38, height=5) + ln('M10 22h28', O, 1.8) + sh('circle', GOLD, cx=24, cy=22, r=2.4)
+            + plate(3.5, 31, 2.2, 6, '#c8323f') + plate(44.5, 31, 2.2, 6, '#c8323f') + shine('M9 36v-3'))
 I['lock'] = (sh('rect', GOLD, x=10, y=21, width=28, height=22, rx=3) + ln('M16 21v-6a8 8 0 0 1 16 0v6', O, 3.4)
              + sh('circle', IRON, cx=24, cy=31, r=3) + ln('M24 33v4', O, 2.6))
 I['question'] = sh('circle', '#3a4150', cx=24, cy=24, r=18) + ln('M18 18a6 6 0 1 1 8 6c-2 1-2 3-2 5', '#cfd6e4', 3.6) + sh('circle', '#cfd6e4', cx=24, cy=36, r=2)

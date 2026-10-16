@@ -62,3 +62,9 @@ CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too
 - **Font:** Lilita One (SIL OFL, 10.7 KB woff2, embedded) for numbers, headings, buttons, tabs and item names.
 - **Feel:** hover/press states on rows, tabs and buttons; panel fade-in on tab switch; purchase pop on the bought row;
   a "RANK UP!" banner with confetti on the stage when the run's rank climbs.
+
+## Retention — part C (October 16, 2026)
+- **Offline cap 3 h → 8 h** base (Deep Sleep perk tiers 8/12/18/24 h), so next-day returns collect a full night.
+- **Gym Bag:** a 🎒 badge in the header counts down; every 4 hours (first one ~8 min into the first session) it
+  pulses "Open!" and pays ≈ 20 min of idle income; an optional rewarded ad doubles it. The next-goal line points to it.
+- CrazyGames layout: username badge shows the avatar only (name in tooltip); muscle rows drop the "Lv" prefix.
