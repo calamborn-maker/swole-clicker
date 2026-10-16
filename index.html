@@ -1486,8 +1486,11 @@ function audio(){
   }catch(e){ actx=null; } }
   return actx;
 }
-function applyVolumes(){ if(!actx) return; const S=state.settings; sfxBus.gain.value=S.sfx?S.sfxVol:0; musBus.gain.value=S.music?S.musicVol*0.55:0; }
-function sfxOn(){ return state.settings.sfx && !muted; }
+// platformMuted = the portal's mute (CrazyGames SDK settings.muteAudio). It always wins over the in-game toggles.
+let platformMuted=/[?&]muteAudio=true\b/.test(location.search);   // ?muteAudio=true tests it locally
+function setPlatformMute(on){ platformMuted=!!on; applyVolumes(); }
+function applyVolumes(){ if(!actx) return; const S=state.settings; master.gain.value=platformMuted?0:1; sfxBus.gain.value=S.sfx?S.sfxVol:0; musBus.gain.value=S.music?S.musicVol*0.55:0; }
+function sfxOn(){ return state.settings.sfx && !muted && !platformMuted; }
 // one enveloped oscillator note
 function tone(freq,dur,type,vol,when,slide,bus){
   const a=audio(); if(!a) return; const t0=a.currentTime+(when||0);
@@ -1804,6 +1807,9 @@ const ads=(()=>{
         cgOK=true; cgReady=true; cgDataReady=!!SDK.data;
         cgGame('loadingStart');
         cgUserInit();
+        // portal mute button (Full Launch requirement): apply now and whenever it changes
+        try{ const G=SDK.game; if(G){ setPlatformMute(G.settings&&G.settings.muteAudio);
+          if(G.addSettingsChangeListener) G.addSettingsChangeListener(st=>setPlatformMute(st&&st.muteAudio)); } }catch(e){}
         // ad blocker → boosts are switched off with a note (never a popup, never a dead button)
         try{ const hb=SDK.ad.hasAdblock(); Promise.resolve(hb).then(b=>{ adBlocked=!!b; updateAdButtons(); }).catch(()=>{}); }catch(e){}
         fireCgReady(); },

@@ -69,3 +69,6 @@ CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too
   pulses "Open!" and pays ≈ 20 min of idle income; an optional rewarded ad doubles it. The next-goal line points to it.
 - CrazyGames layout: username badge shows the avatar only (name in tooltip); muscle rows drop the "Lv" prefix.
 - Returning to the tab after ≥ 1 min away now shows "💤 You earned +X gains while you were away" (was credited silently).
+- **Mute audio (Full Launch requirement):** respects CrazyGames `SDK.game.settings.muteAudio` at start and via
+  `addSettingsChangeListener`; the portal mute zeroes the master volume and overrides the in-game sound toggles.
+  `?muteAudio=true` tests it locally.
