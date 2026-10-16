@@ -68,3 +68,4 @@ CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too
 - **Gym Bag:** a 🎒 badge in the header counts down; every 4 hours (first one ~8 min into the first session) it
   pulses "Open!" and pays ≈ 20 min of idle income; an optional rewarded ad doubles it. The next-goal line points to it.
 - CrazyGames layout: username badge shows the avatar only (name in tooltip); muscle rows drop the "Lv" prefix.
+- Returning to the tab after ≥ 1 min away now shows "💤 You earned +X gains while you were away" (was credited silently).

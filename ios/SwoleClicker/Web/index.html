@@ -3470,7 +3470,11 @@ $('sharebtn').onclick=openShare;
 let hiddenAt=0;
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){ hiddenAt=Date.now(); stopLoop(); save(); storage.flush(); }
-  else { if(hiddenAt){ const away=(Date.now()-hiddenAt)/1000; const g=perSec()*Math.min(away,offlineCapH()*3600); if(g>0){ state.gains+=g; state.total+=g; state.lifetime+=g; } hiddenAt=0; } startLoop(); }
+  else { if(hiddenAt){ const away=(Date.now()-hiddenAt)/1000; const g=perSec()*Math.min(away,offlineCapH()*3600);
+      if(g>0){ state.gains+=g; state.total+=g; state.lifetime+=g;
+        // came back from another tab: say what the gym earned (no popup — the full offline screen is for reopening the game)
+        if(away>=60){ afterChange(false); toast(`💤 You earned <b>+${fmt(g)} gains</b> while you were away (${fmtTime(away)})`); spawnFloat('+'+fmt(g)); } }
+      hiddenAt=0; } startLoop(); }
 });
 [['buy1',1],['buy10',10],['buy100',100],['buymax','max']].forEach(([id,v])=>$(id).addEventListener('click',()=>{ buyAmt=v;
   ['buy1','buy10','buy100','buymax'].forEach(b=>$(b).classList.toggle('on',b===id)); renderShop(); }));
