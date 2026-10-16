@@ -72,3 +72,7 @@ CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too
 - **Mute audio (Full Launch requirement):** respects CrazyGames `SDK.game.settings.muteAudio` at start and via
   `addSettingsChangeListener`; the portal mute zeroes the master volume and overrides the in-game sound toggles.
   `?muteAudio=true` tests it locally.
+- **No popups on load (Full Launch "land directly in gameplay"):** the daily bonus and welcome-back earnings are paid
+  automatically and announced with messages that bursts of other messages can't push out; the optional
+  "📺 double your offline earnings" offer sits on the next-goal line for 3 minutes. No RANK UP banner for a rank the
+  player already had; at most 4 messages on screen.

@@ -467,7 +467,7 @@
   .item.pop .emoji .ic{animation:icpop .45s cubic-bezier(.3,1.8,.5,1)}
   @keyframes icpop{0%{transform:scale(1)} 40%{transform:scale(1.35) rotate(-8deg)} 100%{transform:scale(1)}}
   @keyframes rowflash{0%{box-shadow:0 0 0 0 rgba(255,204,51,.7)} 100%{box-shadow:0 0 0 0.625rem rgba(255,204,51,0)}}
-  .rankup{position:absolute; left:50%; top:38%; transform:translate(-50%,-50%); z-index:6; pointer-events:none; text-align:center;
+  .rankup{position:absolute; left:50%; top:62%; transform:translate(-50%,-50%); z-index:6; pointer-events:none; text-align:center;
     padding:0.75rem 1.75rem 0.875rem; border-radius:1rem; background:linear-gradient(180deg,rgba(40,30,8,.92),rgba(20,15,5,.92));
     border:2px solid var(--gold); box-shadow:0 0 2rem rgba(255,204,51,.45); animation:rankup 2.4s ease-out forwards; white-space:nowrap}
   .rankup small{display:block; font-family:var(--display); font-size:0.9375rem; letter-spacing:0.2em; color:#ffe6a0}
@@ -1376,6 +1376,7 @@ function renderAll(){ musDirty=true; updateTurnBtn(); renderShop(); renderUpgrad
 // jumps to the right tab. Priority: claimable quest → waiting rival → affordable upgrade → nearest award.
 let ngAch=null, ngKey='';
 function nextGoal(){
+  if(offlineOffer && Date.now()<offlineOffer.until && ads.available()) return {k:'off', fn:doubleOffline, html:`💤 +${fmt(offlineOffer.g)} while you were away — ${ic('video')} <b>tap to double it</b>`};
   if(bagReady()) return {k:'bag', fn:openBag, html:ic('bag')+' <b>Your Gym Bag is ready</b> — tap to open it'};
   if(state.quests && state.quests.list.some(q=>!q.claimed&&questDone(q))) return {k:'q', tab:'quests', html:'🎁 <b>A daily quest is done</b> — tap to claim your reward'};
   const r=RIVALS.find(r=>rivalUnlocked(r)&&!(state.rivals[r.id]&&state.rivals[r.id].beat));
@@ -1401,7 +1402,7 @@ setInterval(()=>{ if(!document.hidden){ updateNextGoal(); updateBag(); } }, 1000
 let shownRank=-1;
 function rankBanner(name){ const st=$('stage'); if(!st) return; const old=st.querySelector('.rankup'); if(old) old.remove();
   const d=document.createElement('div'); d.className='rankup'; d.innerHTML='<small>RANK UP!</small><b></b>'; d.querySelector('b').textContent=name;
-  st.appendChild(d); setTimeout(()=>d.remove(), 2500); sfx('milestone'); if(!reduceMotion()){ const r=st.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height*0.38); } }
+  st.appendChild(d); setTimeout(()=>d.remove(), 2500); sfx('milestone'); if(!reduceMotion()){ const r=st.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height*0.62); } }
 function updateUI(){
   const ri=rankIndex(); if(shownRank>=0 && ri>shownRank && !stageOn && coachStep<0) rankBanner(RANKS[ri]); shownRank=ri;
   $('gains').textContent=fmt(state.gains);
@@ -1437,12 +1438,12 @@ function spawnParticles(){ if(reduceMotion()) return;
 }
 
 //////////////////// TOAST + MODAL ////////////////////
-function toast(html){
+function toast(html, ms, keep){   // keep: an important message (daily bonus, welcome back) that bursts of others can't push out
   const box=$('toasts');
-  const t=document.createElement('div'); t.className='toast'; t.innerHTML=html;
-  box.appendChild(t);
-  while(box.children.length>6) box.removeChild(box.firstChild);
-  setTimeout(()=>{ t.style.transition='opacity .4s'; t.style.opacity='0'; setTimeout(()=>t.remove(),400); }, 3600);
+  const t=document.createElement('div'); t.className='toast'+(keep?' keep':''); t.innerHTML=html;
+  if(keep) box.prepend(t); else box.appendChild(t);
+  while(box.children.length>4){ const old=[...box.children].find(c=>!c.classList.contains('keep'))||box.firstChild; old.remove(); }
+  setTimeout(()=>{ t.style.transition='opacity .4s'; t.style.opacity='0'; setTimeout(()=>t.remove(),400); }, ms||3600);
 }
 let modalOpen=false, modalQ=[];
 function modal(title, bodyHtml, buttons){
@@ -1888,12 +1889,10 @@ function checkDaily(){
   const minutes = dailyMinutes(k);
   const earned=Math.max(perSecRaw()*minutes*60, 25*minutes);             // idle-income value, floored for new players
   state.gains+=earned; state.total+=earned; state.lifetime+=earned;
-  modal('🎁 Daily Bonus — Day '+k+(k>=7?' 🔥':''),
-    `<div class="sub">${k>1?'Login streak: <b style="color:#fff">'+k+' days</b> — keep it going!':'Nice first workout! Here\'s your first daily bonus.'}</div>
-     <div style="font-size:1.625rem;margin-top:10px;color:var(--accent)">+${fmt(earned)} gains</div>
-     <div class="sub" style="margin-top:6px">≈ ${minutes} min of idle income${k>=7?' · Day-7 mega bonus!':''}.</div>
-     <div class="tmrw">📅 Come back tomorrow: <b>Day ${k+1}</b> pays ≈ ${dailyMinutes(k+1)} min of income${k+1===7?' — the Day-7 mega bonus!':''}</div>`,
-    [{label:'Claim 💪', cls:'btnyes'}]);
+  // no popup: paid automatically and announced (CrazyGames: players must land directly in gameplay)
+  toast(`🎁 <b>Daily bonus — Day ${k}${k>=7?' 🔥':''}:</b> +${fmt(earned)} gains${k>1?` · ${k}-day streak!`:''}<br>`+
+    `<span style="opacity:.85">📅 Come back tomorrow: Day ${k+1} pays ≈ ${dailyMinutes(k+1)} min of income${k+1===7?' (mega bonus!)':''}</span>`, 7000, true);
+  sfx('milestone'); spawnFloat('+'+fmt(earned)); afterChange(false);
 }
 
 //////////////////// DAILY QUESTS ////////////////////
@@ -3406,19 +3405,16 @@ function offlineProgress(){
   const earned=perSecRaw()*capped*eff;
   if(earned<=0) return;
   state.gains+=earned; state.total+=earned; state.lifetime+=earned;
-  // (placement a) rewarded ad to double offline earnings — only offered if ads are available.
-  // (no interstitial here: CrazyGames wants ads only after the player has actually played)
-  const btns=[{label:'Get swole 💪', cls:'btnyes'}];   // no ad here — the player hasn't played yet
-  if(ads.available()) btns.unshift({label:ic('video')+' Watch: 2× it', cls:'btnno', fn:()=>{
-    ads.showRewarded('offline2x',
-      ()=>{ state.gains+=earned; state.total+=earned; state.lifetime+=earned; toast('📺 Offline earnings doubled! +'+fmt(earned)); afterChange(true); },
-      ()=>toast('📺 Ad unavailable — try later')); }});
-  modal('💤 While you were gone…',
-    `<div class="sub">You were away for <b style="color:#fff">${fmtTime(away)}</b>${away>capH*3600?' (capped at '+capH+'h)':''}.</div>
-     <div style="font-size:1.625rem;margin-top:10px;color:var(--accent)">+${fmt(earned)} gains</div>
-     <div class="sub" style="margin-top:6px">Idle earnings run at ${Math.round(eff*100)}% rate while the tab is closed.</div>`,
-    btns);
+  // no popup: paid automatically and announced; the optional rewarded 2× (placement a) waits on the next-goal line
+  toast(`💤 <b>Welcome back!</b> You earned <b>+${fmt(earned)} gains</b> while you were away (${fmtTime(away)}${away>capH*3600?', capped at '+capH+'h':''})`, 6000, true);
+  spawnFloat('+'+fmt(earned));
+  offlineOffer={g:earned, until:Date.now()+3*60e3};
 }
+let offlineOffer=null;   // {g, until} — "double your offline earnings" offer, shown on the next-goal line
+function doubleOffline(){ const o=offlineOffer; if(!o) return;
+  ads.showRewarded('offline2x',
+    ()=>{ offlineOffer=null; state.gains+=o.g; state.total+=o.g; state.lifetime+=o.g; toast('📺 Offline earnings doubled! <b>+'+fmt(o.g)+'</b>'); spawnFloat('+'+fmt(o.g)); afterChange(true); updateNextGoal(); },
+    ()=>toast('📺 Ad unavailable — try later')); }
 
 //////////////////// EVENTS ////////////////////
 // touchstart makes reps feel instant on phones; the 700ms guard stops the
@@ -3479,7 +3475,7 @@ document.addEventListener('visibilitychange',()=>{
   else { if(hiddenAt){ const away=(Date.now()-hiddenAt)/1000; const g=perSec()*Math.min(away,offlineCapH()*3600);
       if(g>0){ state.gains+=g; state.total+=g; state.lifetime+=g;
         // came back from another tab: say what the gym earned (no popup — the full offline screen is for reopening the game)
-        if(away>=60){ afterChange(false); toast(`💤 You earned <b>+${fmt(g)} gains</b> while you were away (${fmtTime(away)})`); spawnFloat('+'+fmt(g)); } }
+        if(away>=60){ afterChange(false); toast(`💤 You earned <b>+${fmt(g)} gains</b> while you were away (${fmtTime(away)})`, 5000, true); spawnFloat('+'+fmt(g)); } }
       hiddenAt=0; } startLoop(); }
 });
 [['buy1',1],['buy10',10],['buy100',100],['buymax','max']].forEach(([id,v])=>$(id).addEventListener('click',()=>{ buyAmt=v;
@@ -3499,7 +3495,7 @@ window.addEventListener('pagehide', ()=>{ save(); storage.flush(); });
 //////////////////// START ////////////////////
 function boot(){
   fitUI();
-  load();              // reads CrazyGames cloud save on the portal, else localStorage
+  load(); shownRank=rankIndex();   // no RANK UP banner for a rank the player already had              // reads CrazyGames cloud save on the portal, else localStorage
   if(PLATFORM==='selfhost'||PLATFORM==='app'){ const ar=document.getElementById('adrow'); if(ar) ar.style.display='none'; } // no ads on the website or iOS builds
   if(PLATFORM==='app') document.body.classList.add('app');
   recomputeAchBonus();
