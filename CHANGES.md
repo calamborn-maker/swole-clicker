@@ -76,3 +76,6 @@ CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too
   automatically and announced with messages that bursts of other messages can't push out; the optional
   "📺 double your offline earnings" offer sits on the next-goal line for 3 minutes. No RANK UP banner for a rank the
   player already had; at most 4 messages on screen.
+- **Performance (Chromebook 4 GB requirement):** the shop is only rebuilt when something it shows changes, rep-driven
+  panel refreshes are batched (≤ ~7/s), muscle chips only touch changed text. Heavy tapping with a 4× CPU slowdown:
+  16 → 59 fps; 6× slowdown: 5 → 41 fps; DOM churn ~38K → ~7K nodes. JS heap ~4 MB.
