@@ -979,7 +979,7 @@ function migrate(raw){
 // portal we save via the CrazyGames Data Module (cloud save). Everywhere else we use
 // localStorage. cgDataReady flips true once SDK.init() resolves (see the ads cg adapter).
 let cgDataReady=false, cgReadyFired=false, cgReadyCbs=[];
-const CG_SAVE_GAP=5000; let cgPending=null, cgTimer=0, cgLastWrite=0;
+const CG_SAVE_GAP=60000; let cgPending=null, cgTimer=0, cgLastWrite=0;   // CrazyGames review (twice): call data.setItem rarely — ≤ 1/min, plus a flush when the tab is hidden/closed
 function fireCgReady(){ cgReadyFired=true; const cbs=cgReadyCbs; cgReadyCbs=[]; cbs.forEach(cb=>{ try{cb();}catch(e){} }); }
 function onCgReady(cb){ if(PLATFORM!=='crazygames'||cgReadyFired) cb(); else cgReadyCbs.push(cb); }
 const storage={
@@ -1622,7 +1622,9 @@ function musicTick(){ if(!actx||!state.settings.music||muted||document.hidden) r
 }
 function setMusic(on){ state.settings.music=on; applyVolumes(); if(on){ audio(); if(actx&&actx.state==='suspended'&&!muted) actx.resume(); if(!musTimer) musTimer=setInterval(musicTick,40); } else if(musTimer){ clearInterval(musTimer); musTimer=null; } }
 // browsers only allow audio after a user gesture — start music on the first tap if it's enabled
-document.addEventListener('pointerdown',()=>{ if(state.settings&&state.settings.music&&!musTimer) setMusic(true); else if(actx&&actx.state==='suspended'&&!muted) actx.resume(); },{once:false,passive:true});
+// background music starts on the first user gesture (browser autoplay rules; iOS needs resume() inside the gesture)
+const gestureAudio=()=>{ if(state.settings&&state.settings.music&&!musTimer) setMusic(true); else if(actx&&actx.state==='suspended'&&!muted) actx.resume(); };
+['pointerdown','touchend','keydown'].forEach(ev=>document.addEventListener(ev,gestureAudio,{passive:true}));
 
 //////////////////// GOLDEN SHAKE ////////////////////
 let goldTimer=45, goldEl=$('golden'), goldActive=false, goldAnim=null;
@@ -2354,7 +2356,7 @@ function endGame(won){
 }
 
 //////////////////// SETTINGS ////////////////////
-function defaultSettings(){ return {sfx:true, sfxVol:0.6, music:false, musicVol:0.5, musicStyle:'auto', numfmt:'short', reduceMotion:false, floats:true, haptics:true, confirmPrestige:true}; }
+function defaultSettings(){ return {sfx:true, sfxVol:0.6, music:true, musicVol:0.5, musicStyle:'auto', numfmt:'short', reduceMotion:false, floats:true, haptics:true, confirmPrestige:true}; }
 function reduceMotion(){ return state.settings&&state.settings.reduceMotion; }
 function openSettings(){
   const S=state.settings;
@@ -2501,7 +2503,8 @@ cv.width=CW*DPR; cv.height=CH*DPR; ctx.scale(DPR,DPR);
 const hitCtx=(()=>{ const c=document.createElement('canvas'); c.width=CW; c.height=CH; return c.getContext('2d'); })();
 let pump=0, t=0;
 const musPump={}, musFlash={};   // per-muscle temporary swell + highlight flash (0..1)
-let hoverMus=null, regions=[];   // regions: [{id, p:Path2D}] built from the last drawn pose, in hit-priority order
+let hoverMus=null, regions=[];
+const inSet=()=>!!(curMus && curEx!=='idle' && exEnergy>0);   // mid-set: every tap continues this muscle, so don't highlight others   // regions: [{id, p:Path2D}] built from the last drawn pose, in hit-priority order
 let turnT=-1, cleanRender=false;                    // -1 idle, else 0..1 progress of the turn-around spin
 const UA=56, FA=48;              // upper-arm / forearm length used by the IK helper
 const SY=196;                    // standing shoulder height
@@ -3372,7 +3375,7 @@ function drawDude(dt){
     if(!r.id) return;
     const f=musFlash[r.id]||0;
     if(f>0.02){ ctx.fillStyle='rgba(255,110,90,'+(f*0.32).toFixed(3)+')'; ctx.fill(r.p); }
-    if(r.id===hoverMus){ ctx.fillStyle='rgba(255,204,51,.14)'; ctx.fill(r.p); ctx.strokeStyle='rgba(255,204,51,.75)'; ctx.lineWidth=1.5; ctx.stroke(r.p); }
+    if(r.id===hoverMus && !inSet()){ ctx.fillStyle='rgba(255,204,51,.14)'; ctx.fill(r.p); ctx.strokeStyle='rgba(255,204,51,.75)'; ctx.lineWidth=1.5; ctx.stroke(r.p); }
     else if(!active && weakIds.length<=3 && weakIds.indexOf(r.id)>=0){ ctx.save(); ctx.setLineDash([5,4]); ctx.strokeStyle='rgba(94,224,122,'+(0.35+0.3*Math.sin(t*4)).toFixed(3)+')'; ctx.lineWidth=1.6; ctx.stroke(r.p); ctx.restore(); }
   });
   ctx.restore();
@@ -3384,7 +3387,7 @@ function drawDude(dt){
   // labels (cleanRender: marketing renders from tools/preview.html skip all overlays)
   if(cleanRender) return;
   if(label) drawPill(label,cx,CH-28,'center',active?Math.min(1,0.4+exEnergy):0.55,active?'#ffcc33':'#c9d1e4');
-  if(hoverMus){ const L=S.lvl[hoverMus]; drawPill(MUS[hoverMus].name+' · Lv '+L+(isWeak(hoverMus)?'  🎯 ×'+weakMult():''),CW/2,CH-60,'center',1,'#ffcc33'); }
+  if(hoverMus && !inSet()){ const L=S.lvl[hoverMus]; drawPill(MUS[hoverMus].name+' · Lv '+L+(isWeak(hoverMus)?'  🎯 ×'+weakMult():''),CW/2,CH-60,'center',1,'#ffcc33'); }
   updateHud(view);
 }
 
@@ -3525,7 +3528,8 @@ window.addEventListener('pagehide', ()=>{ save(); storage.flush(); });
 //////////////////// START ////////////////////
 function boot(){
   fitUI();
-  load(); shownRank=rankIndex();   // no RANK UP banner for a rank the player already had              // reads CrazyGames cloud save on the portal, else localStorage
+  load(); shownRank=rankIndex();
+  if(!state.settings.musicOn2){ state.settings.musicOn2=true; state.settings.music=true; }   // music became default-on (Oct 2026 review); applied once to older saves   // no RANK UP banner for a rank the player already had              // reads CrazyGames cloud save on the portal, else localStorage
   if(PLATFORM==='selfhost'||PLATFORM==='app'){ const ar=document.getElementById('adrow'); if(ar) ar.style.display='none'; } // no ads on the website or iOS builds
   if(PLATFORM==='app') document.body.classList.add('app');
   recomputeAchBonus();
@@ -3541,6 +3545,27 @@ function boot(){
   startLoop();
   cgGame('loadingStop'); if(!modalOpen) gameplay(true);
 }
+// Preview-video hooks (crazygames-game-builder's scripts/video.js): a mid-game showcase state, then ~18 s of play
+// that shows the core loop and the hook — different muscles → different exercises, Beast Mode, back day, gear, an event.
+window.__videoSetup=()=>{
+  state.daily.last=todayStr(); while(modalOpen) closeModal(); endCoach(); TIPS.forEach(t=>state.tips[t.id]=true); save=()=>{};
+  MUSCLES.forEach(mu=>state.muscles[mu.id]=380); Object.assign(state.owned,{pushup:30,curls:26,bands:30,dumbbell:27,bench:25,shake:12,latpull:12,legpress:8});
+  state.total=state.lifetime=2.5e7; state.gains=6e5; state.bestRank=rankIndex(); state.view='front'; state.selMuscle='biceps';
+  ACHS.forEach(a=>state.achievements[a.id]=true); recomputeAchBonus();     // no award-toast pile-up from the jump to mid-game
+  shownRank=rankIndex(); goldTimer=1e9; evtTimer=1e9; musDirty=true; lastGymTier=-1; gymKey=''; renderAll(); const ad=$('adrow'); if(ad) ad.style.display='none';
+  if(innerHeight>innerWidth) $('stage').scrollIntoView({block:'start'});   // phone video: the lifter, not the header
+  $('toasts').innerHTML='';
+};
+window.__demo=async ms=>{
+  const end=Date.now()+ms, wait=t=>new Promise(r=>setTimeout(r,t)), reps=async(mid,n,gap)=>{ for(let i=0;i<n&&Date.now()<end;i++){ doRep(undefined,undefined,mid,true); await wait(gap); } };
+  await reps('biceps',22,105);                                   // curls
+  await reps('chest',18,105);                                    // bench press
+  pumpMeter=Math.max(pumpMeter,0.82); await reps('quads',24,85);  // fast reps → BEAST MODE (squats)
+  startTurn(); await wait(900); await reps('lats',18,105);       // back day: pull-ups
+  for(const id of ['curls','bench','dumbbell']){ const it=ITEMS.find(i=>i.id===id); if(it&&state.gains>=costOf(it)){ buy(it,1); await wait(350); } }
+  spawnEvent(); await wait(700); if(evtEl) evtEl.click();
+  while(Date.now()<end) await reps('lats',4,110);
+};
 // On CrazyGames, wait for SDK.init() (it preloads the cloud save) before reading the save.
 // Hard fallback timer guarantees the game always starts even if the SDK never loads.
 if(PLATFORM==='crazygames'){ let booted=false;

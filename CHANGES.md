@@ -83,3 +83,12 @@ CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too
   (it may belong to another player); the account's Data-module save is adopted when the SDK is ready. The browser
   copy is only used if the SDK is blocked/unavailable. Verified: logged-in load + avatar/name, slow SDK on a shared
   device, new account on a shared device, SDK blocked, guest logging in mid-game (reload → account save).
+
+## CrazyGames deeper-review fixes (October 19, 2026)
+- **Saves:** Data-module writes capped at one per minute (was 5 s), plus a flush when the tab is hidden/closed —
+  2 calls in 2 minutes of heavy play (was ~24).
+- **Background music on by default** (per-gym styles already existed but defaulted off); starts on the first
+  tap/key (autoplay rules, iOS resume in-gesture); enabled once for older saves; the portal mute still wins.
+- **No hover highlight on other muscles mid-set** (every tap continues the current set, so highlights confused).
+- **Preview videos re-recorded** with the crazygames-game-builder recorder (`window.__videoSetup` / `__demo`):
+  `assets/crazygames/v2/video-landscape-1920x1080.mp4`, `video-portrait-1080x1620.mp4` — 18 s, silent, cover first.
