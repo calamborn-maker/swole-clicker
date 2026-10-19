@@ -351,6 +351,19 @@
   #nextgoal .ngbar{position:absolute; left:0; bottom:0; height:0.125rem; background:var(--accent); transition:width .4s}
   #nextgoal .ngt{color:#cfd6e4} #nextgoal .ngt b{color:#fff}
   @media (orientation:landscape) and (max-height:500px){ body:not(.fixed) #nextgoal{font-size:0.6875rem; padding:0.25rem 0.4375rem; margin-top:0.3125rem} body:not(.fixed) #nextgoal .ngd{display:none} }
+  .lgcard,.pgcard{background:#0c0f16; border:1px solid var(--line); border-radius:0.75rem; padding:0.625rem 0.75rem; margin-bottom:0.75rem}
+  .lghead,.pghead{display:flex; justify-content:space-between; align-items:baseline; gap:0.5rem; font-family:var(--display); font-size:1.0625rem; color:var(--accent)}
+  .lghead span,.pghead span{font-family:inherit; font-size:0.875rem; color:var(--muted)}
+  .lgrow{display:grid; grid-template-columns:1.75rem 1.5rem 1fr auto; gap:0.375rem; align-items:center; font-size:0.875rem; padding:0.1875rem 0.25rem; border-radius:0.375rem}
+  .lgrow.me{background:rgba(255,204,51,.14); color:#fff; font-weight:bold} .lgrow .rk{color:var(--muted); text-align:right} .lgrow .sc{color:var(--good)}
+  .lggap{text-align:center; color:var(--muted); font-size:0.875rem; line-height:0.75rem}
+  .lgfoot,.pgfoot{font-size:0.875rem; color:var(--muted); margin-top:0.375rem}
+  .pgdays{display:flex; gap:0.25rem; margin:0.375rem 0} .pgdays i{flex:1; height:0.5rem; border-radius:0.25rem; background:#232a3b} .pgdays i.on{background:var(--good)} .pgdays i.now{background:var(--accent)}
+  .pgbar{height:0.5rem; background:#232a3b; border-radius:0.25rem; overflow:hidden} .pgbar i{display:block; height:100%; background:linear-gradient(90deg,var(--accent2),var(--accent)); transition:width .3s}
+  .pglist{display:grid; gap:0.375rem; margin-top:0.25rem}
+  .pgitem{display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; background:#161b26; border:1px solid var(--line); border-radius:0.5rem; padding:0.375rem 0.5rem}
+  .pgitem b{font-family:var(--display); font-weight:normal; font-size:0.9375rem} .pgitem .grow{flex:1; min-width:0} .pgitem.locked{opacity:.55} .pgitem.done{border-color:var(--good)}
+  .pgitem .mini{flex:none}
   #questreset{font-size:0.75rem; margin:-4px 0 0.625rem; color:#9aa5b8}
   /* rivals arena */
   .item.rival .mini.on{white-space:nowrap}
@@ -581,6 +594,7 @@
 
     <div class="panel" id="panel-rivals">
       <div class="sub" style="margin-bottom:8px">⚔️ Gym rivals show up as your rank climbs. Beat each one in a minigame for gains, a title, a cosmetic and +5% all gains forever.</div>
+      <div id="league"></div>
       <div id="rivals"></div>
     </div>
 
@@ -590,6 +604,7 @@
     </div>
 
     <div class="panel" id="panel-quests">
+      <div id="programs"></div>
       <div class="sub" style="margin-bottom:10px">🎯 Daily Quests — refresh every day. Tap Claim when done, or watch an ad to double it.</div>
       <div id="questreset"></div>
       <div id="quests"></div>
@@ -886,6 +901,9 @@ const ACHS = [
   achT('Routine','q10','🎯','Quest Grinder','Claim 10 daily quests',.02,s=>s.questsDone||0,10),
   achT('Routine','q50','🗺️','Quest Legend','Claim 50 daily quests',.03,s=>s.questsDone||0,50),
   achT('Routine','play10','🕙','No Days Off','Play for 10 hours',.03,s=>s.playtime/3600,10),
+  achF('Routine','league1','🏆','League Champion','Finish a week #1 in the Weekly League',.05,flag('leagueWin')),
+  achT('Routine','prog1','📋','Program Graduate','Finish a Training Program',.03,s=>Object.keys(s.programsDone||{}).length,1),
+  achT('Routine','prog6','🎓','Fully Programmed','Finish all 6 Training Programs',.08,s=>Object.keys(s.programsDone||{}).length,6),
   achF('Routine','fashion','👗','Fashion Week','Wear 5 accessories at once',.01,s=>Object.keys(s.cos.eq||{}).filter(k=>s.cos.eq[k]&&cosUnlocked(ACC_BY_ID[k])).length>=5),
   achT('Secret','brain','🧠','Brain Gains','Tap the lifter on the head 10 times',.01,s=>s.headTaps||0,10,true),
   achF('Secret','couch','🛋️','Couch Potato','Earn for 10 minutes without a single rep',.01,flag('couch'),true),
@@ -932,6 +950,11 @@ function defaultState(){
     rivals:{},              // {rivalId:{beat, wins, next(ms timestamp of next allowed try)}}
     bestRank:0,             // best rank index ever reached (unlocks rivals; survives prestige)
     title:'',               // displayed title earned from a rival
+    // --- Oct 2026 additions (CrazyGames review: more reasons to keep playing / come back) ---
+    league:null,            // weekly AI league {week, start, joinP, foes:[{n,e,t,k}], settled, last:{rank,week}}
+    program:null,           // active training program {id, day, progress, lastDone}
+    programsDone:{},        // {programId:true} — each gives its muscles a permanent ×1.25 rep bonus
+    titlesEarned:[],        // extra titles (league, programs) shown in the Locker
     beastCount:0, eventsClicked:0,
     // --- v8 additions ---
     settings:defaultSettings(),
@@ -1043,7 +1066,7 @@ function isWeak(id){ const S=musStats(); return S.weakOn && S.lvl[id]===S.min; }
 function itemMusMult(i){ const S=musStats(); if(i.mus.length){ let a=0; i.mus.forEach(id=>a+=S.lvl[id]); return 1+0.01*a/i.mus.length; } return 1+0.005*S.avg; }
 function symMult(){ return 1+musStats().symBonus; }
 function weakMult(){ return state.upgrades.weak1?3:2; }
-function repGain(id){ return perClick()*(1+0.03*musStats().lvl[id])*musUpMult(id)*(isWeak(id)?weakMult():1); }
+function repGain(id){ return perClick()*(1+0.03*musStats().lvl[id])*musUpMult(id)*progMult(id)*(isWeak(id)?weakMult():1); }
 function roidMult(){ return (state.upgrades.roids?3:1)*(state.upgrades.roids2?3:1); }
 function eliteMult(){ const u=state.upgrades; return (u.global?1.5:1)*(u.global2?2:1)*(u.global3?2:1); }
 function clickMult(){ return (state.upgrades.clickPower?2:1)*(state.upgrades.clickPower2?2:1)*(1+0.1*perk('clicker'))*eliteMult(); }
@@ -1126,7 +1149,7 @@ function doRep(clientX, clientY, mid, fromUI){
   state.selMuscle=mid; state.muscles[mid]=(state.muscles[mid]||0)+(1+perk('learner'))*(beastT>0?2:1); musDirty=true;
   lastRepAt=performance.now(); if(beastT<=0){ pumpMeter=Math.min(1,pumpMeter+pumpFill()); if(pumpMeter>=1) startBeast(); }
   noteRepForEvents();
-  questProgress('reps',1);
+  questProgress('reps',1); programRep(mid);
   pump=1; musPump[mid]=Math.min(1,(musPump[mid]||0)+0.3); musFlash[mid]=1; sfx('rep',mid); haptic(6);
   if(p>(state.bestRep||0)) state.bestRep=p; if(weak) state.weakReps=(state.weakReps||0)+1;
   const nowMs=performance.now(); repTimes.push(nowMs); while(repTimes.length&&nowMs-repTimes[0]>2000) repTimes.shift(); if(repTimes.length>=20) state.flags.turbo=true;
@@ -1411,6 +1434,9 @@ function nextGoal(){
   if(state.quests && state.quests.list.some(q=>!q.claimed&&questDone(q))) return {k:'q', tab:'quests', html:'🎁 <b>A daily quest is done</b> — tap to claim your reward'};
   const r=RIVALS.find(r=>rivalUnlocked(r)&&!(state.rivals[r.id]&&state.rivals[r.id].beat));
   if(r) return {k:'r'+r.id, tab:'rivals', html:`${r.emoji} <b>${r.name}</b> wants to challenge you <span class="ngd">— tap to fight</span>`};
+  if(state.program && !progToday()){ const P=state.program, p=PROG[P.id], need=p.per[P.day]; return {k:'pg'+P.day+'-'+Math.floor(P.progress/need*20), tab:'quests', pct:P.progress/need, html:`${p.icon} <b>${p.name}</b> · today ${P.progress}/${need} reps <span class="ngd">on ${p.muscles.length>6?'any muscle':p.muscles.map(id=>MUS[id].short||MUS[id].name).join(', ')}</span>`}; }
+  if(!state.program && state.playtime>600 && !Object.keys(state.programsDone||{}).length) return {k:'pgnew', tab:'quests', html:'📋 <b>Start a Training Program</b> <span class="ngd">— a short workout every day for a permanent bonus</span>'};
+  if(state.league && state.playtime>300){ const T=leagueTable(), me=T.findIndex(r=>r.me); if(me>0 && T[me-1].s-T[me].s < Math.max(perSecRaw()*1800, 1)) return {k:'lg'+me, tab:'rivals', html:`🏆 League #${me+1}: pass <b>${esc(T[me-1].n)}</b> <span class="ngd">— ${fmt(T[me-1].s-T[me].s+1)} to go · ends in ${leagueLeft()}</span>`}; }
   if(UPGRADES.some(u=>!state.upgrades[u.id]&&u.req(state)&&state.gains>=u.cost)) return {k:'u', tab:'upgrades', html:'⭐ <b>You can afford an upgrade</b> — tap to see it'};
   let a=ngAch&&!state.achievements[ngAch.id]?ngAch:null;
   if(!a){ let bf=-1; ACHS.forEach(x=>{ if(x.secret||!x.prog||state.achievements[x.id]) return; const [c,t]=x.prog(state), f=c/t; if(f<1&&f>bf){ bf=f; a=x; } }); ngAch=a; }
@@ -1430,8 +1456,8 @@ function updateNextGoal(){
 setInterval(()=>{ if(!document.hidden){ updateNextGoal(); updateBag(); } }, 1000);
 // big "RANK UP" banner on the stage when this run's rank climbs (not on load, not during the posing show)
 let shownRank=-1;
-function rankBanner(name){ const st=$('stage'); if(!st) return; const old=st.querySelector('.rankup'); if(old) old.remove();
-  const d=document.createElement('div'); d.className='rankup'; d.innerHTML='<small>RANK UP!</small><b></b>'; d.querySelector('b').textContent=name;
+function rankBanner(name, label){ const st=$('stage'); if(!st) return; const old=st.querySelector('.rankup'); if(old) old.remove();
+  const d=document.createElement('div'); d.className='rankup'; d.innerHTML='<small></small><b></b>'; d.querySelector('small').textContent=label||'RANK UP!'; d.querySelector('b').textContent=name;
   st.appendChild(d); setTimeout(()=>d.remove(), 2500); sfx('milestone'); if(!reduceMotion()){ const r=st.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height*0.62); } }
 function updateUI(){
   const ri=rankIndex(); if(shownRank>=0 && ri>shownRank && !stageOn && coachStep<0) rankBanner(RANKS[ri]); shownRank=ri;
@@ -1973,8 +1999,94 @@ function msToMidnight(){ const n=new Date(), m=new Date(n); m.setHours(24,0,0,0)
 function updateQuestReset(){ const el=$('questreset'); if(!el||!state.quests) return;
   const all=state.quests.list.every(q=>q.claimed), mins=Math.ceil(msToMidnight()/60000), t=(mins>=60?Math.floor(mins/60)+'h ':'')+(mins%60)+'m';
   el.innerHTML=all?`✅ All done for today — <b style="color:#fff">3 new quests in ${t}</b>. Come back tomorrow!`:`🔄 New quests in ${t}`; }
+//////////////////// WEEKLY LEAGUE: 20 AI lifters, scored by gains earned this week; prizes paid when the week ends ////////////////////
+const LEAGUE_FOES=[['Iron Mike','🏋️'],['Big Tina','💪'],['Protein Pete','🥤'],['Squat Queen','👑'],['Chad Thunder','⚡'],['Lil Dumbbell','🔩'],['Gary Gainz','📈'],
+  ['Mama Muscle','🧁'],['The Hulkling','🟢'],['Swole Sam','🦍'],['Cardio Kevin','🏃'],['Bench Betty','🛋️'],['Deadlift Dan','⛓️'],['Flexing Felix','🤳'],
+  ['Granny Grip','👵'],['Macro Mo','🥩'],['Tiny Tim Tank','🐜'],['Yoked Yuki','🌸'],['Bulky Bob','🐻'],['Shredded Sue','🔪']];
+const LEAGUE_PRIZES=[{upTo:1,tro:10,title:'League Champion'},{upTo:3,tro:6,title:'Podium Pro'},{upTo:10,tro:3},{upTo:99,tro:1}];
+function weekStart(d){ d=d||new Date(); const day=(d.getDay()+6)%7; return new Date(d.getFullYear(),d.getMonth(),d.getDate()-day); }
+function weekId(){ const m=weekStart(); return m.getFullYear()+'-'+(m.getMonth()+1)+'-'+m.getDate(); }
+function weekP(){ return Math.min(1,(Date.now()-weekStart())/(7*864e5)); }
+function leagueLeft(){ const ms=weekStart().getTime()+7*864e5-Date.now(), h=Math.floor(ms/36e5); return h>=24? Math.floor(h/24)+'d '+(h%24)+'h' : h+'h '+Math.floor(ms%36e5/6e4)+'m'; }
+function leagueScore(){ return Math.max(0,state.lifetime-(state.league?state.league.start:state.lifetime)); }
+function foeScore(f){ const L=state.league, q=Math.max(0,(weekP()-L.joinP)/Math.max(0.02,1-L.joinP)); return f.t*Math.pow(q,f.k); }
+function leagueTable(){ const L=state.league; if(!L) return []; return L.foes.map(f=>({n:f.n,e:f.e,s:foeScore(f)})).concat([{n:'You',e:'😤',s:leagueScore(),me:true}]).sort((a,b)=>b.s-a.s); }
+function leagueRank(){ return leagueTable().findIndex(r=>r.me)+1; }
+function seeded(seed){ let x=0; for(const c of seed) x=(x*31+c.charCodeAt(0))>>>0; return ()=>((x=(x*1664525+1013904223)>>>0)/4294967296); }
+function ensureLeague(){
+  const w=weekId(), L=state.league; if(L && L.week===w) return;
+  if(L && L.week && !L.settled){   // a week ended since we last played: pay the prize (announced with a toast, never a popup)
+    const rank=leagueRank(), pz=LEAGUE_PRIZES.find(p=>rank<=p.upTo);
+    state.trophies+=pz.tro; if(pz.title && state.titlesEarned.indexOf(pz.title)<0) state.titlesEarned.push(pz.title);
+    if(rank===1) state.flags.leagueWin=true;
+    L.settled=true; state.leagueLast={rank, week:L.week};
+    setTimeout(()=>{ toast(`🏆 <b>League week over — you placed #${rank}!</b> +${pz.tro} trophies${pz.title?' · title “'+pz.title+'”':''}<br><span style="opacity:.85">A new league week has started.</span>`, 8000, true); if(rank<=3) rankBanner('#'+rank+' in the league','WEEKLY LEAGUE'); }, 1600);
+  }
+  // rivals' pace is set from YOUR earning power at join time, so the race stays close for new and veteran players
+  const base=Math.max(perSecRaw()*3600*6, perClick()*25000, 5e4), rnd=seeded(w+'|'+Math.round(Math.log10(base)));
+  const foes=LEAGUE_FOES.map(([n,e],i)=>({ n, e, t: base*Math.pow(10, -0.9+1.55*(i/(LEAGUE_FOES.length-1)))*(0.85+rnd()*0.3), k: 0.75+rnd()*0.5 }));
+  state.league={ week:w, start:state.lifetime, joinP:weekP(), foes, settled:false };
+}
+function renderLeague(){
+  const el=$('league'); if(!el) return; ensureLeague();
+  const T=leagueTable(), me=T.findIndex(r=>r.me), show=new Set([0,1,2,me-1,me,me+1].filter(i=>i>=0&&i<T.length));
+  let rows='', prev=-1; [...show].sort((a,b)=>a-b).forEach(i=>{ if(prev>=0&&i>prev+1) rows+='<div class="lggap">⋯</div>'; prev=i; const r=T[i];
+    rows+=`<div class="lgrow${r.me?' me':''}"><span class="rk">#${i+1}</span><span>${r.e}</span><span>${esc(r.n)}</span><span class="sc">${fmt(r.s)}</span></div>`; });
+  const pz=LEAGUE_PRIZES.find(p=>me+1<=p.upTo), above=me>0?T[me-1]:null;
+  el.innerHTML=`<div class="lgcard"><div class="lghead">🏆 Weekly League <span>ends in ${leagueLeft()}</span></div>${rows}
+    <div class="lgfoot">${above?`Pass <b style="color:#fff">${esc(above.n)}</b>: ${fmt(above.s-T[me].s+1)} to go · `:'You\'re on top! · '}Prize now: <b style="color:#fff">+${pz.tro} 🏆</b>${pz.title?' + title “'+pz.title+'”':''} · score = gains earned this week</div></div>`;
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+//////////////////// TRAINING PROGRAMS: multi-day plans; one day per calendar day; finishing = permanent ×1.25 reps for those muscles ////////////////////
+const PROGRAMS=[
+  {id:'arms', name:'Arm Day Week',       icon:'💪', rank:0, muscles:['biceps','triceps','forearms'],                   per:[60,90,120,150],       tro:2, title:'Gun Show'},
+  {id:'core', name:'Core of Steel',      icon:'🧱', rank:1, muscles:['abs','obliques','lowerback'],                    per:[70,100,140],          tro:2, title:'Iron Core'},
+  {id:'legs', name:'Leg Day Redemption', icon:'🦵', rank:2, muscles:['quads','hamstrings','calves','glutes'],          per:[80,110,140,170,200],  tro:3, title:'Never Skips Leg Day'},
+  {id:'push', name:'Push Power',         icon:'🛡️', rank:3, muscles:['chest','delts','triceps'],                     per:[90,130,170,210],      tro:3, title:'Pushover? Never'},
+  {id:'back', name:'Back Attack',        icon:'🦍', rank:4, muscles:['lats','upperback','traps','lowerback'],          per:[100,140,180,220],     tro:3, title:'Wingspan'},
+  {id:'full', name:'Full Body Blitz',    icon:'⚡', rank:6, muscles:MUSCLES.map(m=>m.id),                               per:[150,200,250,300,350], tro:5, title:'Complete Athlete'}
+];
+const PROG={}; PROGRAMS.forEach(p=>PROG[p.id]=p);
+function progMult(mid){ let m=1; PROGRAMS.forEach(p=>{ if(state.programsDone&&state.programsDone[p.id]&&p.muscles.indexOf(mid)>=0) m*=1.25; }); return m; }
+function progToday(){ const P=state.program; return !!(P && P.lastDone===todayStr()); }
+function programRep(mid){
+  const P=state.program, p=P&&PROG[P.id]; if(!p || p.muscles.indexOf(mid)<0 || progToday()) return;
+  P.progress++; const need=p.per[P.day];
+  if(P.progress>=need){
+    P.day++; P.progress=0; P.lastDone=todayStr(); sfx('upgrade');
+    if(P.day>=p.per.length){   // program complete
+      state.programsDone[p.id]=true; state.program=null; state.trophies+=p.tro; if(state.titlesEarned.indexOf(p.title)<0) state.titlesEarned.push(p.title);
+      musDirty=true; rankBanner(p.name,'PROGRAM COMPLETE'); toast(`${p.icon} <b>${p.name} complete!</b> ${p.muscles.length>6?'All muscles':p.muscles.map(id=>MUS[id].short||MUS[id].name).join(', ')} reps ×1.25 forever · +${p.tro} 🏆 · title “${p.title}”`, 7000, true);
+    } else toast(`${p.icon} <b>Day ${P.day}/${p.per.length} done!</b> Come back tomorrow for day ${P.day+1} (${p.per[P.day]} reps).`, 5000, true);
+    afterChange(true);
+  }
+  if(activeTab==='quests') renderPrograms();
+}
+function startProgram(id){ const p=PROG[id]; if(!p||state.program||state.programsDone[id]||rankBest(state)<p.rank) return; state.program={id, day:0, progress:0, lastDone:''}; sfx('upgrade'); toast(`${p.icon} <b>${p.name}</b> started — today: ${p.per[0]} reps on ${p.muscles.length>6?'any muscle':p.muscles.map(id=>MUS[id].short||MUS[id].name).join(', ')}`); renderPrograms(); save(); }
+function quitProgram(){ if(!state.program) return; state.program=null; renderPrograms(); save(); }
+function renderPrograms(){
+  const el=$('programs'); if(!el) return; const P=state.program, p=P&&PROG[P.id];
+  let html='<div class="pgcard">';
+  if(p){
+    const need=p.per[P.day], done=progToday(), names=p.muscles.length>6?'any muscle':p.muscles.map(id=>MUS[id].short||MUS[id].name).join(', ');
+    html+=`<div class="pghead">${p.icon} ${p.name} <span>day ${Math.min(P.day+1,p.per.length)} of ${p.per.length}</span></div>
+      <div class="pgdays">${p.per.map((_,i)=>`<i class="${i<P.day?'on':i===P.day&&!done?'now':''}"></i>`).join('')}</div>
+      ${done?`<div class="pgfoot">✅ Today's workout is done — come back tomorrow for day ${P.day+1} (${need} reps).</div>`
+            :`<div class="pgfoot">Today: <b style="color:#fff">${P.progress} / ${need}</b> reps on ${names}</div><div class="pgbar" style="margin-top:0.25rem"><i style="width:${(P.progress/need*100).toFixed(1)}%"></i></div>`}
+      <div class="pgfoot">Finish: ${p.muscles.length>6?'all muscles':names} reps ×1.25 forever · +${p.tro} 🏆 · title “${p.title}” · <a href="#" id="pgquit" style="color:var(--muted)">quit</a></div>`;
+  } else {
+    html+=`<div class="pghead">📋 Training Programs <span>one workout a day</span></div><div class="pglist">`+PROGRAMS.map(q=>{
+      const done=state.programsDone[q.id], locked=rankBest(state)<q.rank;
+      return `<div class="pgitem ${done?'done':locked?'locked':''}"><span>${q.icon}</span><span class="grow"><b>${q.name}</b><br>${q.per.length} days · ${q.muscles.length>6?'all muscles':q.muscles.map(id=>MUS[id].short||MUS[id].name).join(', ')}</span>${done?'<span>✅</span>':locked?`<span>🔒 ${RANKS[q.rank]}</span>`:`<button class="mini" data-pg="${q.id}">Start</button>`}</div>`; }).join('')+'</div>';
+  }
+  el.innerHTML=html+'</div>';
+  el.querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>startProgram(b.dataset.pg));
+  const qb=$('pgquit'); if(qb) qb.onclick=e=>{ e.preventDefault(); quitProgram(); };
+}
+
 function renderQuests(){
-  const el=$('quests'); if(!el) return; ensureQuests(); el.innerHTML=''; updateQuestReset();
+  const el=$('quests'); if(!el) return; ensureQuests(); el.innerHTML=''; updateQuestReset(); renderPrograms();
   state.quests.list.forEach((q,i)=>{
     const cur=questCurrent(q), done=cur>=q.target, pct=Math.min(100,cur/q.target*100);
     const row=document.createElement('div'); row.className='qrow';
@@ -2243,6 +2355,7 @@ function checkRivalUnlocks(){
   updateRivalBadge();
 }
 function renderRivals(){
+  renderLeague();
   const el=$('rivals'); if(!el) return; el.innerHTML='';
   RIVALS.forEach(r=>{
     const st=state.rivals[r.id]||{}, un=rivalUnlocked(r), cd=rivalCooldown(r);
@@ -2490,7 +2603,7 @@ function renderLocker(){
     grid.appendChild(card);
   });
   el.appendChild(locSection('Accessories', grid));
-  const titles=RIVALS.filter(r=>state.rivals[r.id]&&state.rivals[r.id].beat).map(r=>({id:r.title,label:'“'+r.title+'”'}));
+  const titles=RIVALS.filter(r=>state.rivals[r.id]&&state.rivals[r.id].beat).map(r=>({id:r.title,label:'“'+r.title+'”'})).concat((state.titlesEarned||[]).map(t=>({id:t,label:'“'+t+'”'})));
   if(titles.length) el.appendChild(locSection('Title', btnRow([{id:'',label:'None'}].concat(titles), o=>state.title===o.id, o=>{ state.title=o.id; updateUI(); afterCos(); })));
 }
 
@@ -3415,7 +3528,7 @@ function loop(now){
   // golden
   goldTimer-=dt; if(goldTimer<=0 && !goldActive){ spawnGold(); scheduleGold(); }
   // periodic
-  saveAcc+=dt; if(saveAcc>2){ saveAcc=0; checkAchievements(); ensureQuests(); updateUI(); updateAdButtons(); updateQuestBadge(); updateUpBadge(); updateRivalBadge(); if(activeTab==='rivals') renderRivals();
+  saveAcc+=dt; if(saveAcc>2){ saveAcc=0; ensureLeague(); checkAchievements(); ensureQuests(); updateUI(); updateAdButtons(); updateQuestBadge(); updateUpBadge(); updateRivalBadge(); if(activeTab==='rivals') renderRivals();
     { const h=new Date().getHours(); if(h>=2&&h<5) state.flags.night=true; } if(perSecRaw()>0 && performance.now()-lastRepAt>600000) state.flags.couch=true;
     if(activeTab==='stats'){ drawHistory(); renderBreakdown(); } if(activeTab==='ach') renderAch();
     if(activeTab==='stats') renderStats(); if(activeTab==='stage') renderStage(); if(activeTab==='shop') renderShop(); if(activeTab==='quests') renderQuests(); updateMusChips(); }

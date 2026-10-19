@@ -92,3 +92,8 @@ CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too
 - **No hover highlight on other muscles mid-set** (every tap continues the current set, so highlights confused).
 - **Preview videos re-recorded** with the crazygames-game-builder recorder (`window.__videoSetup` / `__demo`):
   `assets/crazygames/v2/video-landscape-1920x1080.mp4`, `video-portrait-1080x1620.mp4` — 18 s, silent, cover first.
+- **Weekly League** (Rivals tab): 20 AI lifters paced from your earning power at join; score = gains this week;
+  prizes paid at the week rollover (1st 10 🏆 + "League Champion", top 3 6 🏆 + "Podium Pro", top 10 3 🏆, else 1).
+- **Training Programs** (Quests tab): 6 multi-day plans unlocked by rank; one workout per calendar day; finishing
+  gives those muscles ×1.25 reps forever + trophies + a title. Next-goal line points at today's workout / the league.
+- 3 new awards (League Champion, Program Graduate, Fully Programmed); earned titles selectable in the Locker.
