@@ -589,7 +589,7 @@
 
     <div class="panel" id="panel-quests">
       <div id="programs"></div>
-      <div class="sub" style="margin-bottom:10px">🎯 Daily Quests — refresh every day. Tap Claim when done, or watch an ad to double it.</div>
+      <div class="sub" style="margin-bottom:10px">🎯 Daily Quests — refresh every day. Tap Claim when done<span class="adonly">, or watch an ad to double it</span>.</div>
       <div id="questreset"></div>
       <div id="quests"></div>
     </div>
@@ -986,7 +986,7 @@ function migrate(raw){
 // portal we save via the CrazyGames Data Module (cloud save). Everywhere else we use
 // localStorage. cgDataReady flips true once SDK.init() resolves (see the ads cg adapter).
 let cgDataReady=false, cgReadyFired=false, cgReadyCbs=[];
-const CG_SAVE_GAP=60000; let cgPending=null, cgTimer=0, cgLastWrite=0;   // CrazyGames review (twice): call data.setItem rarely — ≤ 1/min, plus a flush when the tab is hidden/closed
+const CG_SAVE_GAP=30000; let cgPending=null, cgTimer=0, cgLastWrite=0;   // CrazyGames review: 5 s too often, 60 s too long — they asked for every 30 s, plus a flush when the tab is hidden/closed
 function fireCgReady(){ cgReadyFired=true; const cbs=cgReadyCbs; cgReadyCbs=[]; cbs.forEach(cb=>{ try{cb();}catch(e){} }); }
 function onCgReady(cb){ if(PLATFORM!=='crazygames'||cgReadyFired) cb(); else cgReadyCbs.push(cb); }
 const storage={
@@ -3627,7 +3627,7 @@ function boot(){
   fitUI();
   load(); shownRank=rankIndex();
   if(!state.settings.musicOn2){ state.settings.musicOn2=true; state.settings.music=true; }   // music became default-on (Oct 2026 review); applied once to older saves   // no RANK UP banner for a rank the player already had              // reads CrazyGames cloud save on the portal, else localStorage
-  if(PLATFORM==='selfhost'||PLATFORM==='app'){ const ar=document.getElementById('adrow'); if(ar) ar.style.display='none'; } // no ads on the website or iOS builds
+  if(PLATFORM==='selfhost'||PLATFORM==='app'){ const ar=document.getElementById('adrow'); if(ar) ar.style.display='none'; document.querySelectorAll('.adonly').forEach(e=>e.style.display='none'); } // no ads on the website or iOS builds
   if(PLATFORM==='app') document.body.classList.add('app');
   recomputeAchBonus();
   buildMusGrid();

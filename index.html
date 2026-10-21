@@ -605,7 +605,7 @@
 
     <div class="panel" id="panel-quests">
       <div id="programs"></div>
-      <div class="sub" style="margin-bottom:10px">🎯 Daily Quests — refresh every day. Tap Claim when done, or watch an ad to double it.</div>
+      <div class="sub" style="margin-bottom:10px">🎯 Daily Quests — refresh every day. Tap Claim when done<span class="adonly">, or watch an ad to double it</span>.</div>
       <div id="questreset"></div>
       <div id="quests"></div>
     </div>
@@ -3643,7 +3643,7 @@ function boot(){
   fitUI();
   load(); shownRank=rankIndex();
   if(!state.settings.musicOn2){ state.settings.musicOn2=true; state.settings.music=true; }   // music became default-on (Oct 2026 review); applied once to older saves   // no RANK UP banner for a rank the player already had              // reads CrazyGames cloud save on the portal, else localStorage
-  if(PLATFORM==='selfhost'||PLATFORM==='app'){ const ar=document.getElementById('adrow'); if(ar) ar.style.display='none'; } // no ads on the website or iOS builds
+  if(PLATFORM==='selfhost'||PLATFORM==='app'){ const ar=document.getElementById('adrow'); if(ar) ar.style.display='none'; document.querySelectorAll('.adonly').forEach(e=>e.style.display='none'); } // no ads on the website or iOS builds
   if(PLATFORM==='app') document.body.classList.add('app');
   recomputeAchBonus();
   buildMusGrid();
