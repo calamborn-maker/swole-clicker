@@ -1738,7 +1738,9 @@ const ACC_BY_ID={}; ACCESSORIES.forEach(a=>ACC_BY_ID[a.id]=a);
 function cosUnlocked(a){ if(!a) return false; if(a.free) return true; if(a.rival) return !!(state.rivals[a.rival]&&state.rivals[a.rival].beat); if(a.ach) return !!state.achievements[a.ach]; if(a.trophies) return state.trophies>=a.trophies; if(a.buy) return !!state.cosBought[a.id]; return true; }
 function cosLockText(a){ if(a.rival) return '🔒 Beat '+RIVAL_BY_ID[a.rival].name; if(a.ach){ const ac=ACHS.find(x=>x.id===a.ach); return '🔒 '+(ac?ac.name:a.ach); } if(a.trophies) return '🔒 '+a.trophies+' 🏆'; if(a.buy) return '💪 '+fmt(a.buy); return ''; }
 function drawHair(J,m){ const h=HAIR_BY_ID[(state.cos&&state.cos.hair)||'short']; if(!h||!h.draw) return; const c=HAIRCOL[(state.cos&&state.cos.hairColor)||0]||HAIRCOL[0]; ctx.save(); h.draw(J,m,c); ctx.restore(); }
-function drawAccessories(J,m,mode){ const eq=(state.cos&&state.cos.eq)||{}; ACCESSORIES.forEach(a=>{ if(eq[a.id]&&a.draw&&cosUnlocked(a)&&(mode!=='back'||a.back)){ ctx.save(); a.draw(J,m,mode); ctx.restore(); } }); }
+const HEAD_AX={backcap:1,mulletwig:1,partyhat:1,headphones:1,viking:1,crown:1,monocle:1,goldtooth:1};
+// only: true = head items only, false = everything but head items, undefined = all
+function drawAccessories(J,m,mode,only){ const eq=(state.cos&&state.cos.eq)||{}; ACCESSORIES.forEach(a=>{ if(only!==undefined && !!HEAD_AX[a.id]!==only) return; if(eq[a.id]&&a.draw&&cosUnlocked(a)&&(mode!=='back'||a.back)){ ctx.save(); a.draw(J,m,mode); ctx.restore(); } }); }
 
 //////////////////// ADS — platform-aware (CrazyGames / GameDistribution / dev) ////////////////////
 /*
@@ -2991,16 +2993,21 @@ function drawBody(J,m,opts){
   // arms, then delt caps over the top
   drawArm(J.sL,J.eL,J.hL,m,back); drawArm(J.sR,J.eR,J.hR,m,back);
   drawDelt(J.sL,m,back); drawDelt(J.sR,m,back);
-  // head
+  // head — in side views it turns with the neck (lying on a bench, sit-ups, push-ups…) instead of staying upright;
+  // opts.supine (on your back) turns the face to the ceiling, otherwise it faces away from the shoulders
+  let hdir=1;
+  if(side){ const nx=J.head.x-F.S.x, ny=J.head.y-F.S.y, a=Math.atan2(nx,-ny);
+    hdir=opts.supine? (Math.sin(a)>=0?-1:1) : (Math.sign(nx)||1);
+    ctx.save(); ctx.translate(J.head.x,J.head.y); ctx.rotate(a); ctx.translate(-J.head.x,-J.head.y); }
   skin(); ctx.beginPath(); ctx.arc(J.head.x,J.head.y,m.headR,0,7); ctx.fill(); ctx.stroke();
   if(back&&!side) drawHairBack(J,m); else drawHair(J,m);
   if(m.ri>=4){ ctx.fillStyle=m.ri>=9?'#ffd24a':'#d83a3a';
     ctx.fillRect(J.head.x-m.headR,J.head.y-m.headR*0.55,m.headR*2,7);
-    const bk=back&&!side, tx=bk?J.head.x:J.head.x+m.headR-2;
-    ctx.beginPath(); ctx.moveTo(tx,J.head.y-m.headR*0.4); ctx.lineTo(tx+(bk?5:12),J.head.y+(bk?13:-2)); ctx.lineTo(tx+(bk?-5:5),J.head.y+(bk?13:-m.headR*0.1)); ctx.closePath(); ctx.fill(); }
+    const bk=back&&!side, kd=side?-hdir:1, tx=bk?J.head.x:J.head.x+kd*(m.headR-2);   // side view: knot at the back of the head
+    ctx.beginPath(); ctx.moveTo(tx,J.head.y-m.headR*0.4); ctx.lineTo(tx+(bk?5:kd*12),J.head.y+(bk?13:-2)); ctx.lineTo(tx+(bk?-5:kd*5),J.head.y+(bk?13:-m.headR*0.1)); ctx.closePath(); ctx.fill(); }
   if(!back||side){
     ctx.fillStyle='#3a2a1c';
-    if(side){ const dir=Math.sign(J.head.x-F.S.x)||1;
+    if(side){ const dir=hdir;
       ctx.beginPath(); ctx.arc(J.head.x+dir*9,J.head.y-3,2.3,0,7); ctx.fill();
       ctx.strokeStyle='#3a2a1c'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(J.head.x+dir*8,J.head.y+8); ctx.lineTo(J.head.x+dir*15,J.head.y+7); ctx.stroke();
     } else {
@@ -3012,9 +3019,10 @@ function drawBody(J,m,opts){
         else { ctx.moveTo(J.head.x-5,J.head.y+8); ctx.lineTo(J.head.x+5,J.head.y+8); }
         ctx.stroke(); }
     }
-    if(opts.active||m.flex>0.1){ ctx.fillStyle='rgba(120,200,255,.9)'; ctx.beginPath(); ctx.arc(J.head.x+m.headR-2,J.head.y-6,2.5+m.flex*2,0,7); ctx.fill(); }
+    if(opts.active||m.flex>0.1){ ctx.fillStyle='rgba(120,200,255,.9)'; ctx.beginPath(); ctx.arc(J.head.x+(side?hdir:1)*(m.headR-2),J.head.y-6,2.5+m.flex*2,0,7); ctx.fill(); }
   }
-  drawAccessories(J,m,back||side?'back':'front');
+  if(side){ drawAccessories(J,m,'back',true); ctx.restore(); drawAccessories(J,m,'back',false); }
+  else drawAccessories(J,m,back?'back':'front');
   return F;
 }
 
@@ -3139,7 +3147,7 @@ const EX={
     [['L',-1],['R',1]].forEach(([s,d])=>{ const S=J['s'+s]; J['h'+s]={x:S.x+d*Math.sin(a)*100,y:S.y+Math.cos(a)*100}; J['e'+s]={x:S.x+d*Math.sin(a)*54,y:S.y+Math.cos(a)*54-6}; });
     o.front=()=>{ drawDumbbellV(J.hL.x,J.hL.y); drawDumbbellV(J.hR.x,J.hR.y); }; }},
   // chest
-  bench:{name:'Bench Press',sp:5.5,side:true,pose(J,m,ph,o){ const cx=CXC; o.opts.torso='capsule'; o.opts.capW=15+m.mz.chest*8+m.overall*4;
+  bench:{name:'Bench Press',sp:5.5,side:true,pose(J,m,ph,o){ const cx=CXC; o.opts.torso='capsule'; o.opts.supine=true; o.opts.capW=15+m.mz.chest*8+m.overall*4;
     const benchY=318, bodyY=benchY-12-o.opts.capW*0.6;
     J.hipL={x:cx-58,y:bodyY+2}; J.hipR={x:cx-58,y:bodyY+8};
     J.sL={x:cx+44,y:bodyY-2}; J.sR={x:cx+44,y:bodyY+6};
@@ -3187,7 +3195,7 @@ const EX={
     J.hL={x:cx-34,y:SY+24}; J.hR={x:cx+34,y:SY+24};
     o.front=()=>{ drawGripper(J.hL.x,J.hL.y,ph); drawGripper(J.hR.x,J.hR.y,1-ph); }; }},
   // abs
-  crunch:{name:'Sit-Ups',sp:5,side:true,pose(J,m,ph,o){ const cx=CXC, fl=GROUND-12; o.opts.torso='capsule'; o.opts.capW=16+m.mz.abs*6+m.overall*4;
+  crunch:{name:'Sit-Ups',sp:5,side:true,pose(J,m,ph,o){ const cx=CXC, fl=GROUND-12; o.opts.torso='capsule'; o.opts.supine=true; o.opts.capW=16+m.mz.abs*6+m.overall*4;
     J.hipL={x:cx-6,y:fl}; J.hipR={x:cx-6,y:fl-8};
     J.kL={x:cx+30,y:fl-40}; J.kR={x:cx+34,y:fl-44};
     J.fL={x:cx+58,y:fl}; J.fR={x:cx+62,y:fl};
@@ -3294,7 +3302,7 @@ const EX={
     J.kL={x:cx-92,y:fl-ph*12}; J.kR={x:cx-90,y:fl+3-ph*10};
     J.fL={x:cx-170,y:fl-4-ph*34}; J.fR={x:cx-166,y:fl-ph*30}; }},
   // glutes
-  hipthrust:{name:'Hip Thrusts',sp:4,side:true,pose(J,m,ph,o){ const cx=CXC; o.opts.torso='capsule'; o.opts.capW=14+m.mz.glutes*5+m.overall*4;
+  hipthrust:{name:'Hip Thrusts',sp:4,side:true,pose(J,m,ph,o){ const cx=CXC; o.opts.torso='capsule'; o.opts.supine=true; o.opts.capW=14+m.mz.glutes*5+m.overall*4;
     const sh={x:cx-100,y:358}, hip={x:cx-4,y:lerp(424,352,ph)};
     J.sL={x:sh.x,y:sh.y-3}; J.sR={x:sh.x,y:sh.y+3};
     J.head={x:sh.x-26,y:sh.y-14};
