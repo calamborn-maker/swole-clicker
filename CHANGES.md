@@ -97,3 +97,6 @@ CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too
 - **Training Programs** (Quests tab): 6 multi-day plans unlocked by rank; one workout per calendar day; finishing
   gives those muscles ×1.25 reps forever + trophies + a title. Next-goal line points at today's workout / the league.
 - 3 new awards (League Champion, Program Graduate, Fully Programmed); earned titles selectable in the Locker.
+
+## 2026-10-22 — head direction (CrazyGames feedback)
+- Side-view exercises now rotate the head with the neck. Lying on the back (bench press, sit-ups, hip thrusts) the face points up; push-ups/deadlifts look down-forward. Hair, headband knot and head cosmetics turn with it.
