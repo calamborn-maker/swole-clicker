@@ -100,3 +100,6 @@ CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too
 
 ## 2026-10-22 — head direction (CrazyGames feedback)
 - Side-view exercises now rotate the head with the neck. Lying on the back (bench press, sit-ups, hip thrusts) the face points up; push-ups/deadlifts look down-forward. Hair, headband knot and head cosmetics turn with it.
+
+## 2026-10-29 — prestige softlock on CrazyGames (player reports)
+- In the fixed 16:9 layout the "Hit the Stage" show stayed inside the stage's grid cell (the transformed #game turns position:fixed into a local box), so the judges and "Back to the gym" button were clipped off. The show never finished, the run never reset, and because the show stayed "on", rival challenges and muscle taps were ignored too. The show now covers the whole 16:9 frame; checked at 960×540 and 821×462.
