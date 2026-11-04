@@ -106,3 +106,7 @@ CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too
 
 ## 2026-11-04 — website copy refuses to run inside other sites' frames
 - clickergamesaz.io was framing calamborn-maker.github.io/swole-clicker and selling ads around it. The selfhost (github.io) build now shows a "Play on CrazyGames / open the official site" card instead of the game when framed by another domain. CrazyGames and iOS builds are unaffected (PLATFORM check).
+
+## 2026-11-04 — rewarded ads: shorter cooldowns + "boost ready" badge
+- Frenzy cooldown 5 → 4 min, Windfall 2 → 1.5 min (start to start; `FRENZY_CD` / `WINDFALL_CD`).
+- A pulsing gold 📺 badge on the Shop tab when a free boost is ready (after 2 min of play, not during the tutorial/show/minigames, not with adblock). Opening the Shop flashes the Free boosts card; the ad still only starts from the card's own button.

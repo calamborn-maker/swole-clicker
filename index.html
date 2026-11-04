@@ -484,6 +484,9 @@
     #repbtn{padding:1.125rem; font-size:1.375rem}
   }
   .bagbtn{cursor:pointer; color:var(--ink); white-space:nowrap; font-size:inherit; font-family:inherit}
+  .qcount.boostdot{background:var(--gold); color:#1b1408; animation:bagpulse 1.1s ease-in-out infinite} .qcount.boostdot .ic{width:0.75rem; height:0.75rem; vertical-align:-0.0625rem}
+  #adrow.flash{animation:adflash 1.2s ease-out 1}
+  @keyframes adflash{0%{box-shadow:0 0 0 0.25rem var(--gold)} 100%{box-shadow:0 0 0 0 rgba(255,204,51,0)}}
   .bagbtn.ready{border-color:var(--gold); color:var(--gold); animation:bagpulse 1.1s ease-in-out infinite}
   @keyframes bagpulse{0%,100%{transform:scale(1); box-shadow:0 0 0 0 rgba(255,204,51,.5)} 50%{transform:scale(1.06); box-shadow:0 0 0 0.375rem rgba(255,204,51,0)}}
   /* ---------- feel: press/hover states, panel transitions, purchase pop, rank-up banner ---------- */
@@ -936,8 +939,8 @@ function defaultState(){
     cos:defaultCos(),       // chosen body/skin/hair + equipped accessories
     cosBought:{},           // accessory ids bought with gains
     daily:{ last:'', streak:0 }, // daily-login: last claim calendar date + consecutive streak
-    adFrenzyAt:0,           // ms timestamp of last rewarded-frenzy (5-min cooldown)
-    adWindfallAt:0,         // ms timestamp of last rewarded-windfall (2-min cooldown)
+    adFrenzyAt:0,           // ms timestamp of last rewarded-frenzy (FRENZY_CD)
+    adWindfallAt:0,         // ms timestamp of last rewarded-windfall (WINDFALL_CD)
     bagAt:0,                // ms timestamp when the next Gym Bag is ready (0 = not scheduled yet)
     bagsOpened:0,
     seenIntro:false,        // first-60s onboarding shown
@@ -1904,6 +1907,7 @@ const ads=(()=>{
     }
   };
 })();
+const FRENZY_CD=240, WINDFALL_CD=90;   // rewarded cooldowns (s, start to start): CrazyGames wants rewarded "not offered too often"
 function setAdBtn(btn,avail,lastAt,cdSec,label){ if(!btn) return;
   if(!avail){ btn.disabled=true; btn.innerHTML=ic('video')+' Ads unavailable'; return; }
   const left=lastAt? Math.ceil((lastAt+cdSec*1000-Date.now())/1000):0;
@@ -1911,8 +1915,21 @@ function setAdBtn(btn,avail,lastAt,cdSec,label){ if(!btn) return;
 }
 function updateAdButtons(){ const a=ads.available();
   if(adBlocked){ ['adfrenzy','adwindfall'].forEach(id=>{ const b=$(id); if(b){ b.disabled=true; b.textContent='🚫 Ads blocked'; } }); }
-  else { setAdBtn($('adfrenzy'),a,state.adFrenzyAt,300,ic('video')+' 7× Frenzy (2 min)'); setAdBtn($('adwindfall'),a,state.adWindfallAt,120,ic('video')+' Protein Windfall'); }
+  else { setAdBtn($('adfrenzy'),a,state.adFrenzyAt,FRENZY_CD,ic('video')+' 7× Frenzy (2 min)'); setAdBtn($('adwindfall'),a,state.adWindfallAt,WINDFALL_CD,ic('video')+' Protein Windfall'); }
+  updateBoostChip();
   const n=$('adnote'); if(n){ n.textContent=adBlocked?'Your ad blocker is on, so free boosts are off. Everything else works normally.':''; n.style.display=adBlocked?'block':'none'; } }
+
+// Pulsing 📺 badge on the Shop tab: tells players on other tabs that a free boost is ready (a tab badge, so it never
+// changes the layout). Opening the Shop flashes the Free boosts card — the ad still starts only from that card's button.
+function boostReady(){ const now=Date.now(), fr=!state.adFrenzyAt||now>=state.adFrenzyAt+FRENZY_CD*1000, wf=!state.adWindfallAt||now>=state.adWindfallAt+WINDFALL_CD*1000;
+  return (fr && !(frenzy>0)) || wf; }
+let boostShown=false;
+function updateBoostChip(){ const tab=document.querySelector('.tab[data-tab=shop]'); if(!tab) return;
+  const on=ads.available() && !adBlocked && state.playtime>=120 && coachStep<0 && !stageOn && !arenaOn && activeTab!=='shop' && boostReady();
+  if(on===boostShown) return; boostShown=on;
+  tab.innerHTML=ic('tab-shop')+' Shop'+(on?' <span class="qcount boostdot" title="Free boost ready">'+ic('video')+'</span>':''); }
+function flashBoosts(){ const r=$('adrow'); if(!r) return; r.scrollIntoView({block:'nearest',behavior:'smooth'});
+  r.classList.remove('flash'); void r.offsetWidth; r.classList.add('flash'); }
 
 //////////////////// GYM BAG: a free reward every 4 hours (come-back hook; an optional ad doubles it) ////////////////////
 const BAG_EVERY=4*3600e3, BAG_FIRST=8*60e3;   // first bag ~8 min into the first session teaches the feature
@@ -3607,7 +3624,7 @@ document.addEventListener('keydown',e=>{ if(/INPUT|TEXTAREA/.test(document.activ
   else if(e.code==='KeyT'){ startTurn(); } });
 
 document.querySelectorAll('.tab').forEach(tb=>tb.addEventListener('click',()=>{
-  activeTab=tb.dataset.tab;
+  activeTab=tb.dataset.tab; try{ if(activeTab==='shop' && boostShown) setTimeout(flashBoosts,50); updateBoostChip(); }catch(e){}
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===tb));
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+activeTab));
   if(activeTab==='shop') renderShop(); if(activeTab==='upgrades') renderUpgrades();
