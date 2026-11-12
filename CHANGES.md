@@ -110,3 +110,6 @@ CrazyGames Full Launch notes: readability across screen sizes, Muscles panel too
 ## 2026-11-04 — rewarded ads: shorter cooldowns + "boost ready" badge
 - Frenzy cooldown 5 → 4 min, Windfall 2 → 1.5 min (start to start; `FRENZY_CD` / `WINDFALL_CD`).
 - A pulsing gold 📺 badge on the Shop tab when a free boost is ready (after 2 min of play, not during the tutorial/show/minigames, not with adblock). Opening the Shop flashes the Free boosts card; the ad still only starts from the card's own button.
+
+## 2026-11-12 — bench press animation
+- Full-length bench under hips, back and head (was only under the shoulders, so the hips floated and the head hung off). Feet planted. The bar lowers to the lower chest with vertical forearms and elbows dropping toward the floor, then presses to locked-out arms over the shoulders (was folding the elbows up toward the head).

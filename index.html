@@ -2781,13 +2781,13 @@ function drawShake(x,y){
   ctx.fillStyle='#b03a52'; ctx.fillRect(x-2,y-22,4,8);
   ctx.restore();
 }
-function drawBench(centerX,topY){
+function drawBench(x0,x1,topY){   // flat bench from x0 to x1 (pad + two legs)
   ctx.save();
   ctx.fillStyle='#414a5e'; ctx.strokeStyle='#2a3040'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.rect(centerX-82,topY,132,14); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.rect(x0,topY,x1-x0,14); ctx.fill(); ctx.stroke();
   ctx.fillStyle='#2a3040';
-  ctx.fillRect(centerX-74,topY+14,8,GROUND-topY-14);
-  ctx.fillRect(centerX+38,topY+14,8,GROUND-topY-14);
+  ctx.fillRect(x0+10,topY+14,8,GROUND-topY-14);
+  ctx.fillRect(x1-18,topY+14,8,GROUND-topY-14);
   ctx.restore();
 }
 function drawLowBench(x0,x1,topY){
@@ -3184,18 +3184,24 @@ const EX={
     [['L',-1],['R',1]].forEach(([s,d])=>{ const S=J['s'+s]; J['h'+s]={x:S.x+d*Math.sin(a)*100,y:S.y+Math.cos(a)*100}; J['e'+s]={x:S.x+d*Math.sin(a)*54,y:S.y+Math.cos(a)*54-6}; });
     o.front=()=>{ drawDumbbellV(J.hL.x,J.hL.y); drawDumbbellV(J.hR.x,J.hR.y); }; }},
   // chest
+  // lying flat on a full-length bench (hips to head), feet planted; bar lowers to the lower chest and presses to straight
+  // arms over the shoulders; elbows drop toward the floor at the bottom (not up toward the head)
   bench:{name:'Bench Press',sp:5.5,side:true,pose(J,m,ph,o){ const cx=CXC; o.opts.torso='capsule'; o.opts.supine=true; o.opts.capW=15+m.mz.chest*8+m.overall*4;
-    const benchY=318, bodyY=benchY-12-o.opts.capW*0.6;
-    J.hipL={x:cx-58,y:bodyY+2}; J.hipR={x:cx-58,y:bodyY+8};
-    J.sL={x:cx+44,y:bodyY-2}; J.sR={x:cx+44,y:bodyY+6};
-    J.head={x:cx+78,y:bodyY+2};
-    J.kL={x:cx-124,y:bodyY+14}; J.kR={x:cx-118,y:bodyY+20};
-    J.fL={x:cx-130,y:GROUND}; J.fR={x:cx-122,y:GROUND};
-    const barY=bodyY-(26+ph*58);
-    J.hL={x:cx+36,y:barY}; J.hR={x:cx+42,y:barY};
-    J.eL=ik(J.sL,J.hL,UA,FA,{x:1,y:0}); J.eR=ik(J.sR,J.hR,UA,FA,{x:1,y:0});
-    o.back=()=>{ drawBench(cx+22,benchY); ctx.save(); ctx.fillStyle='#414a5e'; ctx.fillRect(cx+20,benchY-150,7,150); ctx.fillRect(cx+20,benchY-150,26,6); ctx.restore(); };
-    o.front=()=>drawPlate(cx+39,barY,24); }},
+    const benchY=318, bodyY=benchY-4-o.opts.capW*0.55, S={x:cx+34,y:bodyY};
+    J.hipL={x:cx-62,y:bodyY-1}; J.hipR={x:cx-62,y:bodyY+4};
+    J.sL={x:S.x,y:bodyY-3}; J.sR={x:S.x,y:bodyY+3};
+    J.head={x:cx+34+m.headR+12,y:benchY-m.headR+1};
+    J.kL={x:cx-124,y:bodyY+18}; J.kR={x:cx-118,y:bodyY+22};
+    J.fL={x:cx-108,y:GROUND}; J.fR={x:cx-102,y:GROUND};
+    // bottom: bar on the lower chest ~38 px toward the hips, so the forearm stands vertical and the elbow hangs below;
+    // top: arms locked out straight over the shoulders (a slight J-curve between)
+    const top=S.y-(UA+FA)+8, e=Math.sin(ph*Math.PI/2);
+    const hx=lerp(S.x-38,S.x+2,e), hy=lerp(bodyY-o.opts.capW*0.55-2,top,ph);
+    J.hL={x:hx-3,y:hy}; J.hR={x:hx+3,y:hy};
+    J.eL=ik(J.sL,J.hL,UA,FA,{x:-0.25,y:1}); J.eR=ik(J.sR,J.hR,UA,FA,{x:-0.25,y:1});
+    o.back=()=>{ drawBench(cx-72,J.head.x+m.headR+8,benchY);
+      ctx.save(); ctx.fillStyle='#414a5e'; ctx.fillRect(S.x+22,benchY-150,7,150); ctx.fillRect(S.x+4,benchY-150,25,6); ctx.restore(); };   // rack upright + hook at the head end
+    o.front=()=>drawPlate(hx,hy-4,24); }},
   pushup:{name:'Push-Ups',sp:5,side:true,pose(J,m,ph,o){ const cx=CXC, fl=GROUND-4; o.opts.torso='capsule'; o.opts.capW=14+m.mz.chest*7+m.overall*4;
     const sh={x:cx+50,y:lerp(fl-94,fl-40,ph)}, ft={x:cx-168,y:fl-4};
     const dx=sh.x-ft.x, dy=sh.y-ft.y, dl=Math.hypot(dx,dy), ux=dx/dl, uy=dy/dl;
